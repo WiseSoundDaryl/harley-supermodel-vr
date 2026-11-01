@@ -13,6 +13,19 @@ The main game has been played through in development, including positive PSVR2 f
 
 The successful Rift S path differs from the earlier SteamVR-to-Oculus test in runtime route, ASW policy, driver and actual eye resolution. The improvement is not attributed to ASW alone. Quest headsets and other runtime routes remain unvalidated.
 
+## Separate menu candidate
+
+The new ride menu has **passed its CPU, preference-file and actual stereo-renderer checks; it is not wearer-tested or published as a player ZIP**. The successful main-game build remains separate. Its interface previews show the actual menu rasterizer; they are not headset recordings or frame-rate measurements.
+
+- **Ride controls:** resume, start, insert coin, recenter and confirmed exit; keyboard and supported VR-controller navigation.
+- **Comfort and camera:** vignette on/off and strength, rider height/pullback, virtual-screen width and desktop-only FOV. Headset lens FOV remains controlled by the OpenXR runtime.
+- **Display and audio:** 50/75/100% headset render-scale presets for the next launch; live master volume; music levels 0–8 for the next launch on the verified supported ROM revision.
+- **Physical steering:** travel adjustment for a single supported, already-mapped wheel/joystick axis. This does not change the VR thumbstick or establish G29, macOS or wheel force-feedback compatibility.
+- **Arcade cabinet:** access to the game's real Test/Service menu, including instructions for Coin Assignments #27 / Free Play. Existing cabinet settings are not silently overwritten and Free Play is not claimed as the default.
+- **Original presentation:** the three-rider closing image is decoded from the player's ROM at load time. The player package does not ship an extracted copy of that game asset.
+
+Menu preferences use a separate sidecar instead of rewriting the original Supermodel configuration. Settings that require a restart are labelled **Next launch**; camera offsets apply when resuming. See the [menu guide](MENU.md) for the complete controls and scope.
+
 ## Public release work
 
 | Item | Status |
@@ -22,10 +35,10 @@ The successful Rift S path differs from the earlier SteamVR-to-Oculus test in ru
 | PSVR2 development compatibility | Playtested through SteamVR with Sony's official PC adapter |
 | Rift S development compatibility | Playtested through direct Meta OpenXR; controls and impact/landing vibration confirmed |
 | Portable Meta and SteamVR launchers | In development; incomplete packages deliberately cannot launch |
-| In-game settings and arcade-service access | In development; not yet a published feature |
+| In-game settings and arcade-service access | Separate candidate passed offline checks; no headset playtest or public player package yet |
 | Complete modified source integrated into the public fork | Pending |
 | Clean build without retained development objects | Pending |
-| Required library notices and provenance audit | In progress |
+| Required library notices and provenance audit | Identified omissions restored, including nested dependencies; notice-integrity gate added. Final source/package review remains open. |
 | Player ZIP with clean defaults | Pending |
 | Fresh-folder checks and consolidated final headset playtest | Pending |
 | Tagged downloadable beta | Not published |

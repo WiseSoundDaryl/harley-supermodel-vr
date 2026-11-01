@@ -16,7 +16,9 @@ This checklist is intentionally open. A local staging folder is not a published 
 
 - [ ] Prepare the complete corresponding modified source, including required files that were previously untracked and optional code compiled into the selected executable.
 - [ ] Include the scripts and declared inputs needed to build and install it; resolve the retained-object/profile-guided-build dependency described in [BUILDING.md](BUILDING.md).
-- [ ] Preserve upstream licensing, copyright and credits; finish [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), including the missing full ImGui license text.
+- [x] Restore the exact ImGui MIT notice after matching all 15 vendored files to an upstream revision; include the original menu-font OFL notices.
+- [x] Stage the identified GLEW, MAME-derived code, JsonCpp, STB, embedded-font and glyph-data notices; add a failing-on-error notice-integrity gate.
+- [ ] Preserve upstream licensing, copyright and credits; finish the remaining [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) component and corresponding-source checks.
 - [ ] Record dependency versions, provenance and source availability; verify real loader/runtime DLL identities.
 - [ ] Audit both public files and Git history for ROMs, extracted game assets, game-bearing saves, personal paths/settings, credentials, logs and private captures. Do not upload the development workspace wholesale.
 

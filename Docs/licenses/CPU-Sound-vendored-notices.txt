@@ -1,0 +1,227 @@
+Supermodel/Src/CPU/PowerPC/ppc.cpp
+==================================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2003-2026 The Supermodel Team
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free 
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * ppc.cpp
+ *
+ * PowerPC emulator main module. Written by Ville Linde for the original
+ * Supermodel project.
+ */
+/* IBM/Motorola PowerPC 4xx/6xx Emulator */
+
+Supermodel/Src/CPU/PowerPC/PPCDisasm.cpp
+========================================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2003-2026 The Supermodel Team
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * PPCDisasm.cpp
+ *
+ * PowerPC 603e disassembler from the original Supermodel project.
+ * Copyright 2003 Bart Trzynadlowski, Ville Linde, and Stefano Teso.
+ *
+ * When possible, invalid forms of instructions are checked for. To the best
+ * of my knowledge, all appropriate load/store instructions are checked. I'm
+ * not sure whether any other kinds of instructions need checking.
+ */
+
+Supermodel/Src/CPU/Z80/Z80.cpp
+==============================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2003-2026 The Supermodel Team
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free 
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * Z80.cpp
+ *
+ * Z80 instruction set simulator.
+ * Copyright (C) 1995  Frank D. Cringle.
+ * Adapted for use in Supermodel by Bart Trzynadlowski (July 15, 2011).
+ *
+ * Please see Z80.h for a discussion of known inaccuracies.
+ */
+
+Supermodel/Src/CPU/Z80/Z80.h
+============================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2011 Bart Trzynadlowski, Nik Henson 
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free 
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * Z80.h
+ *
+ * Z80 emulator header file. Based on the Z80 instruction set simulator by
+ * Frank D. Cringle and taken from YAZE-AG by Andreas Gerlich.
+ *
+ * Known inaccuracies:
+ *
+ *  - Interrupts are accepted immediately after EI instruction. In reality,
+ *    interrupts become enabled after the instruction following EI. This
+ *    could be implemented with a state machine in Run() if needed.
+ *    This feature exists to prevent interrupts from occuring before a RETI
+ *    instruction executes in the interrupt handler. Interrupt callbacks
+ *    should take care to immediately clear the interrupt line, otherwise,
+ *    an improperly timed interrupt may occur right after an EI instruction
+ *    but before the service routine has a chance to return.
+ *  - HALT instruction is not implemented (it just exits).
+ *  - 16-bit words are read as two bytes but these reads may not occur in
+ *    the exact same order as the real device. Needs to be checked.
+ */
+
+Supermodel/Src/Sound/SCSP.cpp
+=============================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2003-2026 The Supermodel Team
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * SCSP.cpp
+ *
+ * WARNING: Here be dragons! Tread carefully. Enabling/disabling things may
+ * break save state support.
+ *
+ * SCSP (Sega Custom Sound Processor) emulation. This code was generously
+ * donated by ElSemi. Interfaces directly to the 68K processor through
+ * callbacks. Some minor interface changes were made (external global variables
+ * were removed).
+ *
+ * The MIDI input buffer has been increased from 8 (which I assume is the
+ * actual size) in order to accommodate Model 3's PowerPC/68K communication.
+ * There is probably tight synchronization between the CPUs, with PowerPC-side
+ * interrupts being generated to fill the MIDI buffer as the 68K pulls data
+ * out, or there may be a UART with a large FIFO buffer. This can be simulated
+ * by increasing the MIDI buffer (MIDI_STACK_SIZE).
+ *
+ * To-Do List
+ * ----------
+ * - Wrap up into an object. Remove any unused #ifdef pathways.
+ */
+/*
+	SEGA Custom Sound Processor (SCSP) Emulation
+	by ElSemi.
+	Driven by MC68000
+*/
+/* MAME SCSP conversion by Paul Prosser (aka Conversus W. Vans). Code by R.Belmont and ElSemi.
+Fixes made: buggy timing, better envelope processing, better FM support, a more reasonable DSP emulation and all kinds of improvements.
+But the new core isn't without its to-do list:
+- Fix low sound volume when changing music in Harley-Davidson & LA Riders (Maybe the MVOL code from MAME will fix this?)
+- Prevent music in Fighting Vipers 2 Bahn's stage from hanging with MAME's SCSP DSP core.
+- Figure out why Sega Rally 2 navigator voice can cut off sometimes (Legacy DSP)
+
+Since I (Paul) started this code overhaul in November 2019, I have also removed some obsolete features like the REVERB software effect.
+It doesn't sound good at all.
+
+Anyways credit to R. Belmont and ElSemi for the code, and for being awesome emulation Gods.
+*/
+
+Supermodel/Src/Sound/SCSPDSP.cpp
+================================
+/**
+ ** Supermodel
+ ** A Sega Model 3 Arcade Emulator.
+ ** Copyright 2003-2026 The Supermodel Team
+ **
+ ** This file is part of Supermodel.
+ **
+ ** Supermodel is free software: you can redistribute it and/or modify it under
+ ** the terms of the GNU General Public License as published by the Free 
+ ** Software Foundation, either version 3 of the License, or (at your option)
+ ** any later version.
+ **
+ ** Supermodel is distributed in the hope that it will be useful, but WITHOUT
+ ** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ ** FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ ** more details.
+ **
+ ** You should have received a copy of the GNU General Public License along
+ ** with Supermodel.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+/*
+ * SCSPDSP.cpp
+ * 
+ * SCSP DSP emulation.
+ */

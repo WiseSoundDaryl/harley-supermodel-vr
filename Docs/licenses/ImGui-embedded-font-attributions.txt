@@ -1,0 +1,18 @@
+Embedded font attribution comments from imgui_draw.cpp. These font terms supplement, not replace, Dear ImGui's code license.
+
+// [SECTION] Default font data (ProggyClean.ttf)
+//-----------------------------------------------------------------------------
+// ProggyClean.ttf
+// Copyright (c) 2004, 2005 Tristan Grimmer
+// MIT license (see License.txt in http://www.proggyfonts.net/index.php?menu=download)
+// Download and more information at http://www.proggyfonts.net or http://upperboundsinteractive.com/fonts.php
+// If you want a similar font which may be better scaled, consider using ProggyVector from the same author!
+
+// [SECTION] Default font data (ProggyVector-minimal.ttf)
+//-----------------------------------------------------------------------------
+// Based on ProggyVector.ttf, Copyright (c) 2019,2023 Tristan Grimmer / Copyright (c) 2018 Source Foundry Authors / Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved.
+// MIT license + public domain, see licenses at https://github.com/bluescan/proggyfonts/tree/master/ProggyVector
+//-----------------------------------------------------------------------------
+// See misc/fonts/ProggyVector-ExtractScript.txt for FontForge script to create this from ProggyVector.ttf
+
+Complete font notices: ProggyClean-MIT.txt and ProggyVector-LICENSE.txt.

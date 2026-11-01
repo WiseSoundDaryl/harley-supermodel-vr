@@ -1,0 +1,17 @@
+Component attribution lines retained verbatim. Full license: MAME-BSD-3-Clause.txt.
+
+Supermodel/Src/Model3/Crypto.cpp
+// license:BSD-3-Clause
+// copyright-holders:Andreas Naive, Olivier Galibert, David Haywood
+
+Supermodel/Src/Model3/Crypto.h
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
+
+https://raw.githubusercontent.com/mamedev/mame/master/src/devices/sound/scsp.cpp
+// license:BSD-3-Clause
+// copyright-holders:ElSemi, R. Belmont
+
+https://raw.githubusercontent.com/mamedev/mame/master/src/devices/sound/scspdsp.cpp
+// license:BSD-3-Clause
+// copyright-holders:ElSemi, R. Belmont

@@ -1,13 +1,56 @@
 {
-  "status": "Draft inventory, not complete redistribution review",
+  "status": "Identified notice omissions restored and integrity checked; corresponding source and final release review remain open",
   "files": [
     {
-      "file": "OpenXR-Apache-2.0.txt",
-      "sha256": "CFC7749B96F63BD31C3C42B5C471BF756814053E847C10F3EB003417BC523D30",
-      "bytes": 11358,
-      "provenance": "Installed dependency license: openxr-sdk/LICENSE",
-      "package": "mingw-w64-x86_64-openxr-sdk-1.1.62-1",
-      "verbatimCopyVerified": true
+      "file": "BarlowCondensed-OFL.txt",
+      "sha256": "186D750EB496A4C17A76385F82BE6AEA2AC1CF2DE074A811D63786CF374EA73F",
+      "bytes": 4377,
+      "provenance": "Exact Google Fonts 6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec ofl/barlowcondensed/OFL.txt"
+    },
+    {
+      "file": "CPU-Sound-vendored-notices.txt",
+      "bytes": 9032,
+      "sha256": "F7C582F4E1811858530FBCBED5EC8F9335FCC35DDA1A1A9127355C39F46E426D",
+      "sources": [
+        {
+          "path": "Supermodel/Src/CPU/PowerPC/ppc.cpp",
+          "sha256": "9752C5FC141E197A6D6228819749B5C59C85176D068941B296C2D5EFE3F0DBC2"
+        },
+        {
+          "path": "Supermodel/Src/CPU/PowerPC/PPCDisasm.cpp",
+          "sha256": "29F154D761AC9815D9B2C69429CE5ABF3A207F7FD4D021AB1CFB9D5ECD39EAC4"
+        },
+        {
+          "path": "Supermodel/Src/CPU/Z80/Z80.cpp",
+          "sha256": "A567409C47DAD5ACBF22B6B8F9B11F64EA1CD3D61E64CA94D517F73BD0FE0594"
+        },
+        {
+          "path": "Supermodel/Src/CPU/Z80/Z80.h",
+          "sha256": "46D94063C1113A7DD912B72FCFC18FC8AFD15FB2DE28B38EEE36F532D845D64C"
+        },
+        {
+          "path": "Supermodel/Src/Sound/SCSP.cpp",
+          "sha256": "9C45800B61053CC3C8D64C03CEB7433F9A2F58DF52F9B0D67412E709D1E83082"
+        },
+        {
+          "path": "Supermodel/Src/Sound/SCSPDSP.cpp",
+          "sha256": "D184C8CD283FFAB51922C38E19B2EBB371FD32D3F1C15DAFCADA1602D7CA27E5"
+        }
+      ],
+      "extraction": "Source labels followed by exact leading comment blocks; includes original PPC, YAZE-AG/Cringle and SCSP donor/conversion credits.",
+      "provenance": "Source labels followed by exact leading comment blocks; includes original PPC, YAZE-AG/Cringle and SCSP donor/conversion credits."
+    },
+    {
+      "file": "Dear-ImGui-LICENSE.txt",
+      "sha256": "C80C5789748D955C4A650562BAA0D750494E2C7128C2CA66AAEBE2E3C4E198BF",
+      "bytes": 1083,
+      "provenance": "Exact upstream05581da18321bee38f6d5915a1466665cdd66fc8 license; all15vendoredfiles match"
+    },
+    {
+      "file": "Dear-ImGui-SOURCE.json",
+      "sha256": "D8B773664EC92406FD68CE44B81334DCC129295D57206A9110C561EF5794DA6D",
+      "bytes": 4201,
+      "provenance": "Verified Git blob identity mapping; no game data"
     },
     {
       "file": "GCC-GPL-3.0.txt",
@@ -26,12 +69,138 @@
       "verbatimCopyVerified": true
     },
     {
-      "file": "winpthreads-COPYING.txt",
-      "sha256": "63263614CDD29F2F93CBA85E992F041B31F9FC7B4033692F31269489A8A1B177",
-      "bytes": 2883,
-      "provenance": "Installed dependency license: winpthreads/COPYING",
-      "package": "winpthreads",
-      "verbatimCopyVerified": true
+      "file": "GLEW-vendored-notices.txt",
+      "bytes": 4167,
+      "sha256": "2DB16FCDB76DB46BBDDFB246C0F159F8FD0B0CF8563BF08A467B3A9CB42A1882",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/GL/glew.h",
+          "sha256": "1A2D50DC00A69940838CB3B5413CF7A7AC3CEE8078672F27FFBFA2D3B88AD344"
+        }
+      ],
+      "extraction": "Exact first three comment blocks, including Nigel Stewart, Mesa/Brian Paul and Khronos; no edits to terms.",
+      "provenance": "Exact first three comment blocks, including Nigel Stewart, Mesa/Brian Paul and Khronos; no edits to terms."
+    },
+    {
+      "file": "ImGui-Japanese-glyph-list-attribution.txt",
+      "bytes": 1945,
+      "sha256": "28F0AF532617020D3366E8891C1D3D4CE970048BA3EB6CFB8007E32928C9D81D",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/imgui/imgui_draw.cpp",
+          "sha256": "20AED2A819FAFEBC91CE06823E2FC36CAFAD6D1E7995D154BED918F55B3BDAEB",
+          "imgui_upstream_commit": "05581da18321bee38f6d5915a1466665cdd66fc8"
+        }
+      ],
+      "extraction": "Exact source attribution comment including named government agencies, original links, CC-BY4.0 link and transformation description; clarifying scope/change statement appended.",
+      "provenance": "Exact source attribution comment including named government agencies, original links, CC-BY4.0 link and transformation description; clarifying scope/change statement appended."
+    },
+    {
+      "file": "ImGui-STB-dual-license.txt",
+      "bytes": 2714,
+      "sha256": "5D7A4F66811CEE049E724C6DE95AA5EBB6369781861005DF1FA5B4CD9FE8460C",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/imgui/imstb_rectpack.h",
+          "sha256": "BB53504995E983D54B1AE06EA727F0B39647E5E205B4BF7DA01343953974951C",
+          "imgui_upstream_commit": "05581da18321bee38f6d5915a1466665cdd66fc8"
+        },
+        {
+          "path": "Supermodel/Src/Pkgs/imgui/imstb_textedit.h",
+          "sha256": "24A8DB00354AF8F4057417841635A1B6DFD8986F1608336FE6F10D6FD9769AAA",
+          "imgui_upstream_commit": "05581da18321bee38f6d5915a1466665cdd66fc8"
+        },
+        {
+          "path": "Supermodel/Src/Pkgs/imgui/imstb_truetype.h",
+          "sha256": "37AA1D602706262BF94DA2F83EFAA8175EBC2202EDE13DA96B692FBCF8B4427B",
+          "imgui_upstream_commit": "05581da18321bee38f6d5915a1466665cdd66fc8"
+        }
+      ],
+      "extraction": "Exact identical final license block from all three compiled imstb headers; MIT alternative plus public-domain alternative retained together.",
+      "provenance": "Exact identical final license block from all three compiled imstb headers; MIT alternative plus public-domain alternative retained together."
+    },
+    {
+      "file": "ImGui-embedded-font-attributions.txt",
+      "bytes": 1324,
+      "sha256": "B79F7ECD6C12381D014FD747594337763C119164CA9C2EEC83505D29F8C32EDB",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/imgui/imgui_draw.cpp",
+          "sha256": "20AED2A819FAFEBC91CE06823E2FC36CAFAD6D1E7995D154BED918F55B3BDAEB",
+          "imgui_upstream_commit": "05581da18321bee38f6d5915a1466665cdd66fc8"
+        }
+      ],
+      "extraction": "Source labels plus exact vendored embedded-font attribution comments; no font data copied.",
+      "provenance": "Source labels plus exact vendored embedded-font attribution comments; no font data copied."
+    },
+    {
+      "file": "ImGui-gl3w-public-domain.txt",
+      "sha256": "8805B5ABF8F7A7407F2CC7392912C938439E0EE48BE6E9379919E43B36D0FC22",
+      "bytes": 1339,
+      "provenance": "Exact first license block from matched ImGui OpenGL loader header; source SHA256 22139678BDC08F8C9D1F2278FC1B915291E420D6B7A1E7816AC528E14C821809"
+    },
+    {
+      "file": "Info-ZIP-source-LICENSE.txt",
+      "bytes": 3382,
+      "sha256": "8EC27EFFF2EA2DA3F45B1D3551730D8C53FD36600957AC0A6644E1591DE3EF98",
+      "sources": [
+        {
+          "url": "https://infozip.sourceforge.net/license.html",
+          "sha256": "8D589E162BFE5A8F175E5442AF0175E0A9604C8E987E1ED1BEAEABE70A3763C1"
+        }
+      ],
+      "extraction": "Official license section only: HTML markup removed, entities decoded, whitespace normalized and ordered-list numbering retained; no license words changed. Complete webpage provenance hash retained. Source provenance, not compiled decryption claim.",
+      "provenance": "Official license section only: HTML markup removed, entities decoded, whitespace normalized and ordered-list numbering retained; no license words changed. Complete webpage provenance hash retained. Source provenance, not compiled decryption claim."
+    },
+    {
+      "file": "JsonCpp-1.9.6-LICENSE.txt",
+      "sha256": "CEC0DB5F6D7ED6B3A72647BD50AED02E13C3377FD44382B96DC2915534C042AD",
+      "bytes": 2714,
+      "provenance": "Exact https://github.com/open-source-parsers/jsoncpp/blob/1.9.6/LICENSE; static loader dependency verified in package recipe"
+    },
+    {
+      "file": "MAME-BSD-3-Clause.txt",
+      "bytes": 1481,
+      "sha256": "A27554938D3DD6569931E5E18B93214A57F47BC1BB8B75FC32FDD18ABE042A07",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/mamedev/mame/master/docs/legal/BSD-3-Clause",
+          "sha256": "A27554938D3DD6569931E5E18B93214A57F47BC1BB8B75FC32FDD18ABE042A07"
+        }
+      ],
+      "extraction": "Exact official MAME generic BSD-3-Clause text; copyright holders for these components are identified in companion MAME-component-attributions.txt.",
+      "provenance": "Exact official MAME generic BSD-3-Clause text; copyright holders for these components are identified in companion MAME-component-attributions.txt."
+    },
+    {
+      "file": "MAME-component-attributions.txt",
+      "bytes": 596,
+      "sha256": "7CC5A75F8B094E398C400E4B34E590C71EF9EC87D263DE703FDB381CDE46AFB3",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Model3/Crypto.cpp",
+          "sha256": "3E381C81B6B462E474D51E607CE135F66A69B33CC832852636EB210DA2C5F7BE"
+        },
+        {
+          "path": "Supermodel/Src/Model3/Crypto.h",
+          "sha256": "4E6E2A2554E21B40308F6C6AE1B9E236F61CEF4D53124CAA8DF13B374EE17CD0"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/mamedev/mame/master/src/devices/sound/scsp.cpp",
+          "header_sha256": "E30D09869FA0D9C00E4B21EAE1E2CA6D9A85985C8FF87B5DB969DAE379AF9AFF"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/mamedev/mame/master/src/devices/sound/scspdsp.cpp",
+          "header_sha256": "E30D09869FA0D9C00E4B21EAE1E2CA6D9A85985C8FF87B5DB969DAE379AF9AFF"
+        }
+      ],
+      "extraction": "Exact local Crypto SPDX/copyright-holder annotations and current official MAME SCSP/SCSPDSP annotations. Local SCSP source explicitly credits MAME conversion; this is attribution preservation, not a claim of byte-identical upstream revision.",
+      "provenance": "Exact local Crypto SPDX/copyright-holder annotations and current official MAME SCSP/SCSPDSP annotations. Local SCSP source explicitly credits MAME conversion; this is attribution preservation, not a claim of byte-identical upstream revision."
+    },
+    {
+      "file": "Menu-Fonts-SOURCE.json",
+      "sha256": "4EB9E76E62B4096048B444AD1F45EB9378F756D1E13CF013BB6DF21BC580F9B9",
+      "bytes": 1485,
+      "provenance": "Byte-exact font and license provenance; derivative glyph data remains OFL"
     },
     {
       "file": "MinGW-w64-runtime-notices.txt",
@@ -40,6 +209,61 @@
       "provenance": "Installed dependency license: crt/COPYING.MinGW-w64-runtime.txt",
       "package": "MinGW-w64 CRT",
       "verbatimCopyVerified": true
+    },
+    {
+      "file": "Musashi-vendored-notices.txt",
+      "bytes": 1599,
+      "sha256": "D75CBF6444824852267090951509AFAFF667F16CD20D1461DF8D629EEDA90415",
+      "sources": [
+        {
+          "path": "Supermodel/Src/CPU/68K/Musashi/m68k.h",
+          "sha256": "DA5F6C020688D09C7563A17F24A05A7B8C2FE300FDB8DB3BF0071B9E7A2CDE35"
+        }
+      ],
+      "extraction": "Exact GPL header, explicit Karl Stenerud GPL-permission note and historical retained Musashi copyright block; historical restriction is not substituted for the stated GPL grant.",
+      "provenance": "Exact GPL header, explicit Karl Stenerud GPL-permission note and historical retained Musashi copyright block; historical restriction is not substituted for the stated GPL grant."
+    },
+    {
+      "file": "OpenXR-Apache-2.0.txt",
+      "sha256": "CFC7749B96F63BD31C3C42B5C471BF756814053E847C10F3EB003417BC523D30",
+      "bytes": 11358,
+      "provenance": "Installed dependency license: openxr-sdk/LICENSE",
+      "package": "mingw-w64-x86_64-openxr-sdk-1.1.62-1",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "ProggyClean-MIT.txt",
+      "bytes": 1078,
+      "sha256": "FE61D069DF303C697E04200F5F8232C2CB09DD3572F4357B323469F7D592D142",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/bluescan/proggyfonts/139ec08a38096161291792313ef5803fc4f0e37b/LICENSE",
+          "sha256": "FE61D069DF303C697E04200F5F8232C2CB09DD3572F4357B323469F7D592D142",
+          "upstream_commit": "139ec08a38096161291792313ef5803fc4f0e37b"
+        }
+      ],
+      "extraction": "Exact author-repository license bytes; copyright holder matches the embedded ProggyClean notice in imgui_draw.cpp.",
+      "provenance": "Exact author-repository license bytes; copyright holder matches the embedded ProggyClean notice in imgui_draw.cpp."
+    },
+    {
+      "file": "ProggyVector-LICENSE.txt",
+      "bytes": 5148,
+      "sha256": "35ED135E9153C51065ADF4DE71655B4E9943B75FDCD98779066D83439B49DF93",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/bluescan/proggyfonts/139ec08a38096161291792313ef5803fc4f0e37b/ProggyVector/ProggyVector_Licence.txt",
+          "sha256": "35ED135E9153C51065ADF4DE71655B4E9943B75FDCD98779066D83439B49DF93",
+          "upstream_commit": "139ec08a38096161291792313ef5803fc4f0e37b"
+        }
+      ],
+      "extraction": "Exact author-repository license bytes. Copyright holders match embedded imgui_draw.cpp notices; ProggyVector includes MIT, DejaVu public-domain and Bitstream Vera terms.",
+      "provenance": "Exact author-repository license bytes. Copyright holders match embedded imgui_draw.cpp notices; ProggyVector includes MIT, DejaVu public-domain and Bitstream Vera terms."
+    },
+    {
+      "file": "RussoOne-OFL.txt",
+      "sha256": "3AC1301549523D9861FEDCA12871F24E575FBD26D520632FC00BA849B471D275",
+      "bytes": 4390,
+      "provenance": "Exact Google Fonts 6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec ofl/russoone/OFL.txt"
     },
     {
       "file": "SDL2-LICENSE.txt",
@@ -58,6 +282,66 @@
       "verbatimCopyVerified": true
     },
     {
+      "file": "minimp3-CC0-1.0.txt",
+      "bytes": 6556,
+      "sha256": "6A1EE543E5282CD9061881EDF462E6FDAB181F328DA71FC2C9A6950A80E94D01",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/lieff/minimp3/master/LICENSE",
+          "sha256": "6A1EE543E5282CD9061881EDF462E6FDAB181F328DA71FC2C9A6950A80E94D01"
+        }
+      ],
+      "extraction": "Exact official minimp3 CC0 license document; no edits.",
+      "provenance": "Exact official minimp3 CC0 license document; no edits."
+    },
+    {
+      "file": "minimp3-vendored-dedication.txt",
+      "bytes": 329,
+      "sha256": "EF7FAF16AB6D5585992549F189546CFAB0B700FAE862A30DBC1B05767101FE24",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/minimp3.h",
+          "sha256": "FFB28D8F4D860642592D4CE390A9B35ECD84A7FBB84C6616A36808EB86C0DB71"
+        }
+      ],
+      "extraction": "Exact source comment block.",
+      "provenance": "Exact source comment block."
+    },
+    {
+      "file": "minizip-vendored-notice.txt",
+      "bytes": 1737,
+      "sha256": "A6BE250E278C43152AF5706B0A88FEDD930D262CB8CA22395261B84488037AB2",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/unzip.h",
+          "sha256": "F82A04750CBBBBBF76543AF4C93606C19DCCEAB16E3C1D83F9FB2244B510D6EC"
+        }
+      ],
+      "extraction": "Exact source comment block.",
+      "provenance": "Exact source comment block."
+    },
+    {
+      "file": "tinyxml2-vendored-notice.txt",
+      "bytes": 891,
+      "sha256": "2829B757B674D521DC2D717A9A432E0A4128AD3448C652B6279D748880E30B3E",
+      "sources": [
+        {
+          "path": "Supermodel/Src/Pkgs/tinyxml2.h",
+          "sha256": "05EC876C3072867253D8841BD833917B21094844EBAF5C8070659EBF1D68452D"
+        }
+      ],
+      "extraction": "Exact source comment block.",
+      "provenance": "Exact source comment block."
+    },
+    {
+      "file": "winpthreads-COPYING.txt",
+      "sha256": "63263614CDD29F2F93CBA85E992F041B31F9FC7B4033692F31269489A8A1B177",
+      "bytes": 2883,
+      "provenance": "Installed dependency license: winpthreads/COPYING",
+      "package": "winpthreads",
+      "verbatimCopyVerified": true
+    },
+    {
       "file": "zlib-LICENSE.txt",
       "sha256": "E32FF4E00D9D94930537635291DA39E7E612703334BF6FDE8C7F1686FE8A45A2",
       "bytes": 1002,
@@ -72,5 +356,37 @@
   ],
   "missingFullTextReview": [
     "Dear ImGui vendored1.92.6 WIP LICENSE.txt absent; obtain correct-revision copyright/license text."
+  ],
+  "RequiredFiles": [
+    "BarlowCondensed-OFL.txt",
+    "CPU-Sound-vendored-notices.txt",
+    "Dear-ImGui-LICENSE.txt",
+    "Dear-ImGui-SOURCE.json",
+    "GCC-GPL-3.0.txt",
+    "GCC-Runtime-Library-Exception-3.1.txt",
+    "GLEW-vendored-notices.txt",
+    "ImGui-Japanese-glyph-list-attribution.txt",
+    "ImGui-STB-dual-license.txt",
+    "ImGui-embedded-font-attributions.txt",
+    "ImGui-gl3w-public-domain.txt",
+    "Info-ZIP-source-LICENSE.txt",
+    "JsonCpp-1.9.6-LICENSE.txt",
+    "MAME-BSD-3-Clause.txt",
+    "MAME-component-attributions.txt",
+    "Menu-Fonts-SOURCE.json",
+    "MinGW-w64-runtime-notices.txt",
+    "Musashi-vendored-notices.txt",
+    "OpenXR-Apache-2.0.txt",
+    "ProggyClean-MIT.txt",
+    "ProggyVector-LICENSE.txt",
+    "RussoOne-OFL.txt",
+    "SDL2-LICENSE.txt",
+    "SDL2_net-LICENSE.txt",
+    "minimp3-CC0-1.0.txt",
+    "minimp3-vendored-dedication.txt",
+    "minizip-vendored-notice.txt",
+    "tinyxml2-vendored-notice.txt",
+    "winpthreads-COPYING.txt",
+    "zlib-LICENSE.txt"
   ]
 }

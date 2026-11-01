@@ -1,0 +1,103 @@
+{
+  "component": "Dear ImGui",
+  "version": "1.92.6 WIP",
+  "verifiedUpstreamRevision": "05581da18321bee38f6d5915a1466665cdd66fc8",
+  "upstreamSource": "https://github.com/ocornut/imgui/tree/05581da18321bee38f6d5915a1466665cdd66fc8",
+  "licenseSource": "https://github.com/ocornut/imgui/blob/05581da18321bee38f6d5915a1466665cdd66fc8/LICENSE.txt",
+  "licenseGitBlobSHA": "00ae473abe62bf1c53b333613bd9e05aa72e2ca0",
+  "supermodelVendorCommit": "226d4488f85006e090062b645fb108f22bf1d711",
+  "matchingVendorFiles": [
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imconfig.h",
+      "upstreamPath": "imconfig.h",
+      "gitBlobSHA": "c6d9b8d5f8e2f027766a77540c9197686bac5774",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui.cpp",
+      "upstreamPath": "imgui.cpp",
+      "gitBlobSHA": "c87fa3eb5d191cd06086204bb9046069d1c821a3",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui.h",
+      "upstreamPath": "imgui.h",
+      "gitBlobSHA": "c69eb190553f30dfac321139c898a43400786177",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_draw.cpp",
+      "upstreamPath": "imgui_draw.cpp",
+      "gitBlobSHA": "494237d58e7506501fb137ede4622c1a33909bc5",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_impl_opengl3.cpp",
+      "upstreamPath": "backends/imgui_impl_opengl3.cpp",
+      "gitBlobSHA": "3ead5fec6b0f5c54c44eae5139516168b09d7d1d",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_impl_opengl3.h",
+      "upstreamPath": "backends/imgui_impl_opengl3.h",
+      "gitBlobSHA": "b72b5c887d636064f7d47b1062d6689aabc2b850",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_impl_opengl3_loader.h",
+      "upstreamPath": "backends/imgui_impl_opengl3_loader.h",
+      "gitBlobSHA": "2c485841a8c3ccd1b12076f6e031b0498b5b78ed",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_impl_sdl2.cpp",
+      "upstreamPath": "backends/imgui_impl_sdl2.cpp",
+      "gitBlobSHA": "c2dae40536b6f2aab47ec4f47c2214292274c8b9",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_impl_sdl2.h",
+      "upstreamPath": "backends/imgui_impl_sdl2.h",
+      "gitBlobSHA": "3c0a4a7e4e7d3e02f00ee1a4f35edcf288897549",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_internal.h",
+      "upstreamPath": "imgui_internal.h",
+      "gitBlobSHA": "0a37c16e247318ed416febb91b7278b1069aee39",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_tables.cpp",
+      "upstreamPath": "imgui_tables.cpp",
+      "gitBlobSHA": "af97b2e96135fe499edac02fd8907b5a34fe394a",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imgui_widgets.cpp",
+      "upstreamPath": "imgui_widgets.cpp",
+      "gitBlobSHA": "fac10d832abe7ea7b39268a2e85320a3b75577ca",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imstb_rectpack.h",
+      "upstreamPath": "imstb_rectpack.h",
+      "gitBlobSHA": "f6917e7a6e56a03dcee169bf4e08c32611b761c9",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imstb_textedit.h",
+      "upstreamPath": "imstb_textedit.h",
+      "gitBlobSHA": "583508f0b603d310eed047572df5dfac61351787",
+      "exactGitBlobMatch": true
+    },
+    {
+      "vendoredPath": "Src/Pkgs/imgui/imstb_truetype.h",
+      "upstreamPath": "imstb_truetype.h",
+      "gitBlobSHA": "cf33289f6184e2ce3c44b45ffa9e5d68e21c099a",
+      "exactGitBlobMatch": true
+    }
+  ],
+  "scope": "Restores the exact notice from a revision whose 15 vendored source/header files all match. This is not a complete release compliance certification.",
+  "sourceCheckoutNormalization": "For the 15 source/header files only, Windows CRLF pairs are converted to LF before comparison with Git blob identities. Other bytes and bare CR are unchanged; license and notice hashes always use exact raw bytes."
+}

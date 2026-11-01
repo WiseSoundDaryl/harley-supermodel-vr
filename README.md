@@ -2,7 +2,7 @@
 
 <p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 and Rift S playtested · Release in preparation" /></p>
 
-<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
+<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#the-ride-menu--in-development">Ride menu</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
 
 # HarleyVR
 
@@ -46,6 +46,24 @@ Recent work also includes improved vehicle-motion interpolation, selection/credi
 </table>
 
 <sub>Actual, unedited single-eye captures from the October 30 development build's desktop renderer tests. They illustrate the presentation; they are not headset recordings or evidence of headset frame rate. Game visuals belong to their respective owners.</sub>
+
+## The ride menu — in development
+
+**A separate menu candidate has passed its CPU, file-saving and stereo-renderer checks.** It has not had a headset playtest and does not replace the successful main build or constitute a published player download.
+
+<table>
+<tr>
+<td width="33%" align="center"><img src="Docs/Images/menu-main.png" width="280" alt="HarleyVR ride menu with the original three-rider closing artwork" /><br /><b>Everything starts here</b><br />Resume, start, insert a coin or recenter.</td>
+<td width="33%" align="center"><img src="Docs/Images/menu-comfort.png" width="280" alt="HarleyVR comfort page with vignette on/off and strength controls" /><br /><b>Make the ride yours</b><br />Comfort strength, camera position and display options.</td>
+<td width="33%" align="center"><img src="Docs/Images/menu-audio.png" width="280" alt="HarleyVR audio page titled Things that Go Vroom" /><br /><b>Things that Go Vroom...</b><br />Master sound and supported arcade music levels.</td>
+</tr>
+</table>
+
+<sub>CPU-rendered interface previews, not headset captures or performance evidence. The menu uses the game's original closing artwork, decoded locally from the player's ROM at load time; no extracted game-art file is included in the player package.</sub>
+
+The menu pauses the ride and presents a readable panel in front of you. It includes vignette on/off and strength, rider height and camera pullback, virtual-screen width, headset render-quality presets, audio, and access to the **original arcade test menu**. The artwork and the flyer-inspired lines “Feel the freedom only a Harley can give.” and “Things that Go Vroom...” keep the presentation rooted in the arcade game.
+
+For the candidate, **Tab, Pause or the controller's delivered Menu/Options button** opens the panel. Use the right stick up/down to navigate, left stick left/right to adjust, **A/Cross** to confirm and **B/Circle** to go back. Keyboard arrows, Enter and Backspace work too. Read the [menu guide](Docs/MENU.md) for settings, next-launch changes, physical wheel travel and Free Play setup. These menu controls are separate from the current main-build controls below.
 
 ## Getting started
 
@@ -106,7 +124,7 @@ Rider selection, main riding and the ending retain immersive 3D where supported.
 - **Menus and overlays.** Text depth has been improved in tested selection and credits scenes. This is not a universal fix for every possible clipping or polygon depth conflict.
 - **Performance varies.** Successful PSVR2 and Rift S development playtests are not a guarantee of identical results on other PCs. The final portable release still requires its own validation; locked 120 FPS is not promised.
 - **Wheel and platform support.** Logitech G29 steering-range adjustment and wheel force feedback have not been validated in HarleyVR. Controller vibration is a separate feature. No macOS VR build is being claimed.
-- **Settings interface.** Dedicated Meta/SteamVR launchers and an in-game settings menu are in development. Arcade service options will be documented separately from emulator controls; they are not advertised as available in a public package yet.
+- **Settings interface.** Dedicated Meta/SteamVR launchers and a separate [menu candidate](Docs/MENU.md) are in development. Offline checks and interface previews do not establish headset usability or public-package readiness. Free Play is an original arcade setting, not a silently applied default.
 
 See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 
@@ -115,6 +133,7 @@ See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 When a public build is available, useful reports include its version, headset, runtime, CPU/GPU, where the problem occurs and steps to reproduce it. A short clip can help distinguish uneven world animation from head-tracking trouble. Remove personal information before sharing logs; never attach ROMs or save states.
 
 - [Release status](Docs/RELEASE-STATUS.md)
+- [In-game menu candidate and arcade settings](Docs/MENU.md)
 - [Build preparation and dependencies](Docs/BUILDING.md)
 - [Release checklist](Docs/RELEASE-CHECKLIST.md)
 - [Report a bug](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml)
@@ -126,6 +145,6 @@ When a public build is available, useful reports include its version, headset, r
 - **OpenXR:** Khronos Group; see the [dependency notices](Docs/THIRD-PARTY-NOTICES.md).
 - **Community reference:** [headsplosion's Lost World PC VR project](https://github.com/headsplosion/lost-world-supermodel-pcvr) was reviewed for technical ideas and clear presentation. Its README text and artwork have not been copied into this page.
 
-Emulator modifications are distributed under **GPL-3.0-or-later**, retaining applicable upstream and third-party terms. See [LICENSE](LICENSE). The matching modified source and required notices must accompany the public binary release; those release checks are still in progress.
+Emulator modifications are distributed under **GPL-3.0-or-later**, retaining applicable upstream and third-party terms; menu font data retains its OFL terms. See [LICENSE](LICENSE). The missing ImGui notice and additional embedded-library/font notices have been restored from verified sources, with an automated notice-integrity check. The matching modified source and final package review remain required before a public binary release. See [dependency notices](Docs/THIRD-PARTY-NOTICES.md).
 
 Harley-Davidson, Harley-Davidson & L.A. Riders, SEGA and other names and marks belong to their respective owners. **This is an unofficial fan project, not affiliated with or endorsed by Harley-Davidson, SEGA or Sony.** The emulator's software license does not license the game, its ROMs or its artwork.

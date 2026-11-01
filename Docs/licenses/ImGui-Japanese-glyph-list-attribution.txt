@@ -1,0 +1,26 @@
+Attribution for the Japanese glyph-range data compiled in Dear ImGui, not a change to the license of the surrounding emulator code.
+
+    // 2999 ideograms code points for Japanese
+    // - 2136 Joyo (meaning "for regular use" or "for common use") Kanji code points
+    // - 863 Jinmeiyo (meaning "for personal name") Kanji code points
+    // - Sourced from official information provided by the government agencies of Japan:
+    //   - List of Joyo Kanji by the Agency for Cultural Affairs
+    //     - https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kijun/naikaku/kanji/
+    //   - List of Jinmeiyo Kanji by the Ministry of Justice
+    //     - http://www.moj.go.jp/MINJI/minji86.html
+    //   - Available under the terms of the Creative Commons Attribution 4.0 International (CC BY 4.0).
+    //     - https://creativecommons.org/licenses/by/4.0/legalcode
+    // - You can generate this code by the script at:
+    //   - https://github.com/vaiorabbit/everyday_use_kanji
+    // - References:
+    //   - List of Joyo Kanji
+    //     - (Wikipedia) https://en.wikipedia.org/wiki/List_of_j%C5%8Dy%C5%8D_kanji
+    //   - List of Jinmeiyo Kanji
+    //     - (Wikipedia) https://en.wikipedia.org/wiki/Jinmeiy%C5%8D_kanji
+    // - Missing 1 Joyo Kanji: U+20B9F (Kun'yomi: Shikaru, On'yomi: Shitsu,shichi), see https://github.com/ocornut/imgui/pull/3627 for details.
+    // You can use ImFontGlyphRangesBuilder to create your own ranges derived from this, by merging existing ranges or adding new characters.
+    // (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)
+
+The vendored code encodes the referenced lists as cumulative offsets. HarleyVR has not changed this list. No endorsement by the named agencies is implied.
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/legalcode

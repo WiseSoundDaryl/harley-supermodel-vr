@@ -39,6 +39,7 @@ The recorded development installation contains:
 | SDL2_net | 2.4.0-1 | Upstream networking support; linked statically |
 | zlib | 1.3.2-2 | ZIP/decompression support; linked statically |
 | OpenXR SDK | 1.1.62-1 | OpenXR headers and dynamically loaded runtime loader |
+| JsonCpp | 1.9.6-3 in the loader's recorded build inputs | Statically included in the OpenXR loader; its own notice is required |
 | GNU Make, Git, ZIP utilities | Pin during build preparation | Build and packaging tools |
 
 These are an inventory of the inspected installation, not a claim that an unpinned package update recreates it. Record compiler versions, dependency package hashes, all build options and the final source commit in the public release manifest. Use the [MSYS2 documentation](https://www.msys2.org/docs/) for the toolchain environment and the [OpenXR SDK](https://github.com/KhronosGroup/OpenXR-SDK) for loader/header provenance.
@@ -66,3 +67,11 @@ Windows 64-bit is the validated development platform. Upstream platform support 
 All automated emulator tests must use `-sound -dsb -sound-volume=0 -music-volume=0`, then verify both effective volumes are zero and sound/DSB emulation remains enabled. Muting test output must not remove audio emulation work. Normal user play can retain sound.
 
 See [the release checklist](RELEASE-CHECKLIST.md) and [the license inventory](THIRD-PARTY-NOTICES.md) for remaining gates.
+
+The read-only notice check runs with Windows PowerShell 5.1 or later:
+
+```powershell
+packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
+```
+
+Use the complete source checkout as `SourceRoot`, or omit that argument when checking a player package. The gate verifies recorded notice hashes and, with source supplied, the matched ImGui snapshot. It is intentionally separate from the clean-build, corresponding-source, dependency-provenance and final-release checks above.

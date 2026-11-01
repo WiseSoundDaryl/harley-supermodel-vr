@@ -1,0 +1,33 @@
+{
+  "verifiedUpstreamRevision": "6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec",
+  "originalDownloadRevisionRecorded": false,
+  "byteExactVerified": true,
+  "derivativeName": "Harley Menu Typography",
+  "derivativeDataLicense": "SIL Open Font License 1.1",
+  "files": [
+    {
+      "file": "BarlowCondensed-SemiBold.ttf",
+      "sha256": "7B619D14BC2327509A9EF32B0890F709626F7ECC9FF61191C2A4314C5499D2D9",
+      "bytes": 109428,
+      "verifiedSource": "https://github.com/google/fonts/blob/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/barlowcondensed/BarlowCondensed-SemiBold.ttf"
+    },
+    {
+      "file": "BarlowCondensed-OFL.txt",
+      "sha256": "186D750EB496A4C17A76385F82BE6AEA2AC1CF2DE074A811D63786CF374EA73F",
+      "bytes": 4377,
+      "verifiedSource": "https://github.com/google/fonts/blob/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/barlowcondensed/OFL.txt"
+    },
+    {
+      "file": "RussoOne-Regular.ttf",
+      "sha256": "BC0ABCC660BD8B7AD3000ECB2898A27C58A29A50F7EC81652FA12E75148D09DF",
+      "bytes": 39124,
+      "verifiedSource": "https://github.com/google/fonts/blob/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/russoone/RussoOne-Regular.ttf"
+    },
+    {
+      "file": "RussoOne-OFL.txt",
+      "sha256": "3AC1301549523D9861FEDCA12871F24E575FBD26D520632FC00BA849B471D275",
+      "bytes": 4390,
+      "verifiedSource": "https://github.com/google/fonts/blob/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/russoone/OFL.txt"
+    }
+  ]
+}
