@@ -6,7 +6,11 @@ ROM, player configuration, save state or NVRAM has been copied here.
 The intended public ZIP layout is:
 
   Play-HarleyVR.cmd
+  Play-HarleyVR-SteamVR.cmd
+  Play-HarleyVR-Meta.cmd
   Play-HarleyVR.ps1
+  HarleyVR-Runtime.ps1
+  HarleyVR-Meta-ASW.ps1
   supermodel.exe
   libopenxr_loader.dll
   libgcc_s_seh-1.dll
@@ -25,18 +29,35 @@ The intended public ZIP layout is:
   ROMs/                 no ROMs included; user adds harleyb.zip
   Saves/                initially empty; user's progress remains here
   NVRAM/                initially empty; game creates its own data
+  Diagnostics/          small Meta ASW recovery journal, created on user launch
 
 Only the regular main game is exposed. Hands/walking, alternate bike HUD and
 Dream Ride launchers are not part of this package. Main options are preserved
-exactly; the ROM path and writable working directory become package-relative.
+exactly except the tested route-specific eye scale (SteamVR 0.5, Meta 0.75);
+the ROM path and writable working directory become package-relative.
 
-Runtime requirements: Windows x64, Windows PowerShell5.1+, SteamVR selected as
-the installed active OpenXR runtime. The user starts SteamVR. The launcher reads
-its registered JSON/library paths instead of assuming a Steam installation path.
-It does not change the system runtime, start SteamVR, copy existing profiles or
-enable bulk captures. It uses normal sound only for a user-initiated launch.
+Runtime requirements: Windows x64 and built-in Windows PowerShell 5.1+.
+Play-HarleyVR-SteamVR.cmd requires SteamVR already open. Play-HarleyVR.cmd remains
+a SteamVR alias. Play-HarleyVR-Meta.cmd requires Meta Horizon Link already open
+and SteamVR closed; this route was tested with Rift S, not every Meta headset.
+Runtime discovery reads the registered runtime, installed Oculus/Steam locations,
+OpenVR runtime paths and applicable environment paths. It verifies the matching
+runtime manifest and x64 DLL, selecting it only in the child game's environment.
+No system-default runtime edits, VR software autostarts, profile copies or bulk
+captures occur. It uses normal sound only for a user-initiated launch.
 PreflightOnly is read-only and neither loads a runtime nor launches a game.
+It also never queries or changes real ASW, repairs journals or creates folders.
 Running runtime processes is not proof that the headset is tracked or ready.
+
+Meta ASW is temporarily disabled using the installed diagnostic CLI. The guard
+records the original auto/off value and exact service/launcher/game identities
+before changing it, then verifies off. Unknown modes fail closed. Normal exit
+restores auto only when this is still the same service and ASW remains off;
+an external change or restarted service is preserved. An interrupted launch
+leaves a recovery journal for the same launcher to retry after confirming its
+earlier launcher/game exited. Never delete that journal to bypass recovery.
+A per-user-session mutex prevents overlapping HarleyVR Meta guards. Game scene
+interpolation stays on independently of ASW. The guard does not modify drivers.
 
 The release-ready.json marker is intentionally NOT present. A future packager
 must create it only after the exact source commit, license/notice collection,
@@ -47,6 +68,8 @@ clean build, fresh-profile behavior and final user playtest are accepted:
   mode: regular
   sourceCommit: complete40characterGitcommit
   correspondingSource: HTTPS URL of the complete matching source
+  validatedRoutes: array containing only routes validated for this exact package,
+                   using the exact names Meta and/or SteamVR
   files: array of { path, sha256 } entries for all immutable files checked by
          Play-HarleyVR.ps1. Paths use Windows backslashes for nested entries.
 
@@ -58,3 +81,8 @@ Remaining work: complete and test the packager; supply redistributable sources,
 notices and generic configuration; confirm behavior from cold boot with empty
 NVRAM; check all riders/menus/credits and saves; validate actual packaged build
 performance. This scaffold does not claim to have performed those steps.
+
+Maintainer validation uses Test-LauncherDraft.ps1 and the bounded mock-only
+portable launcher checks. Those scripts and validation-result.json are source
+maintenance files, not required player files. Test fixtures never load a runtime
+or run a game/diagnostic CLI. The final ZIP must not include mock runtime files.

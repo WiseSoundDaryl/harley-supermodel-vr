@@ -1,0 +1,51 @@
+{
+  "Passed": true,
+  "Checks": 187,
+  "PowerShellVersion": "5.1.26100.9818",
+  "OptionsExactExceptMetaScale": true,
+  "SteamVRScale": 0.5,
+  "MetaScale": 0.75,
+  "GameLaunched": false,
+  "RuntimeLoaded": false,
+  "RealAswQueriedOrChanged": false,
+  "PreflightReadOnlyVerified": true,
+  "IncompletePackageBlocked": true,
+  "RuntimeSelectionChildOnly": true,
+  "MockedAswRecoveryPassed": true,
+  "LocalWearerBuildAliasesHashChecked": true,
+  "Scope": "PS5.1 parser, read-only source-draft preflight, mock runtime-file resolution, child environment and mocked ASW recovery policy only. No player package or headset validation.",
+  "Files": [
+    {
+      "Name": "Play-HarleyVR.cmd",
+      "SHA256": "DDFC22013E5F6032DA839F458EC861AAC00D2300B457B5D2E00CDC13A77DE099"
+    },
+    {
+      "Name": "Play-HarleyVR-Meta.cmd",
+      "SHA256": "73574FE42FD69C14B4B180211F19145276BC3849DAA924693A342A1C64E4A1EF"
+    },
+    {
+      "Name": "Play-HarleyVR-SteamVR.cmd",
+      "SHA256": "AE1D8003B86F07DABEA7E8F45CE4105ACCEF14BF664221A546727BC0D4FF608A"
+    },
+    {
+      "Name": "Play-HarleyVR.ps1",
+      "SHA256": "9AED526BD06F2C91009073FD428F05D83F91E116C3C1C0E5A306E53E6BF476E4"
+    },
+    {
+      "Name": "HarleyVR-Runtime.ps1",
+      "SHA256": "234A39B94A5AB1DCE575B0B5016A9CA85259696016487C71AD718528DAC864D3"
+    },
+    {
+      "Name": "HarleyVR-Meta-ASW.ps1",
+      "SHA256": "08F64AD3521781972460761605244278601D947D744E69563142163E6336B733"
+    },
+    {
+      "Name": "Test-LauncherDraft.ps1",
+      "SHA256": "F0AA439D32FFF2D0FD26F0E2BB2017E2634C3E1460729C38A6F4E8751E6AD4C4"
+    },
+    {
+      "Name": "PACKAGE-LAYOUT.txt",
+      "SHA256": "473883C0736F0F721423833542B9018676145AC5C45CA9ED18AF6721234BC09E"
+    }
+  ]
+}

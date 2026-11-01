@@ -7,7 +7,8 @@ if not exist "%vrPowerShell%" (
   pause
   exit /b 1
 )
-"%vrPowerShell%" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0Play-HarleyVR.ps1"
+rem Compatibility alias: the SteamVR route. Use Play-HarleyVR-Meta.cmd for Rift S.
+"%vrPowerShell%" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0Play-HarleyVR.ps1" -Runtime SteamVR %*
 set "vrResult=%ERRORLEVEL%"
 if not "%vrResult%"=="0" pause
 exit /b %vrResult%
