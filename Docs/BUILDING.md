@@ -1,12 +1,16 @@
 # Developer build status
 
-This is a local release-staging draft, not a verified standalone source release. The regular-game reference executable is identified by SHA-256:
+This is release-preparation documentation, not a verified standalone source release. The regular-game development references are identified by SHA-256:
 
 ```text
+PSVR2 main reference:
 7DDD463B30818ED3A21CE0E5BDDA966A99B8769E81586F873F4164B23D9712A7
+
+Rift S direct-Meta collision-feedback reference, wearer-tested November 1:
+5C10BA397D591A5ED1A1B4659833C8F05AE98A4009205F398C1B9D0A1E3F8680
 ```
 
-It passed the recorded offline rendering checks. A clean build from a fresh public checkout, and a headset playtest of the final packaged release, are still release gates. Do not treat the existence of a development executable as evidence that these gates have passed.
+The Rift S reference retains the main renderer and frame scheduling, passes completed collision-response metadata into controller feedback, and was reported smooth with working wall/car vibration. A clean build from a fresh public checkout, and validation of the final packaged release on each advertised headset/runtime route, are still release gates. These development references are not public player downloads.
 
 ## Source that must accompany the release
 
@@ -55,7 +59,9 @@ Bit-for-bit reproducibility has not been demonstrated. A documented successful c
 
 The current reference uses `supermodel.exe` plus `libopenxr_loader.dll`, `libgcc_s_seh-1.dll`, `libstdc++-6.dll` and `libwinpthread-1.dll`. Keep the verified real loader. Never package a synthetic test runtime. Include clean configuration, the required upstream assets, license texts, concise user instructions and checksums. Do not package compiler tools or development reports for players.
 
-The public launcher must locate its own files relative to the extracted folder, use the supported installed VR runtime without relying on a fixed Steam installation path, and create its own writable settings/save locations. It must not depend on old builds or personal game profiles.
+The public Meta and SteamVR launchers must locate their own files relative to the extracted folder, use the matching installed VR runtime without relying on fixed machine paths, and create their own writable settings/save locations. They must not depend on old builds or personal game profiles, or change the system's default OpenXR runtime. The direct Meta path must retain the verified temporary ASW-off and exact restoration behavior independently of HarleyVR's scene-interpolation setting.
+
+Windows 64-bit is the validated development platform. Upstream platform support does not establish that this VR integration builds or works on macOS or Linux. Logitech G29 driver support, steering range and wheel force feedback require their own platform-specific checks; successful OpenXR controller haptics do not validate wheel force feedback.
 
 All automated emulator tests must use `-sound -dsb -sound-volume=0 -music-volume=0`, then verify both effective volumes are zero and sound/DSB emulation remains enabled. Muting test output must not remove audio emulation work. Normal user play can retain sound.
 

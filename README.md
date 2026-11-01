@@ -1,6 +1,6 @@
 <p align="center"><img src="Docs/Images/banner.svg" width="100%" alt="HarleyVR — The arcade ride. A new perspective." /></p>
 
-<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 development tested · Release in preparation" /></p>
+<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 and Rift S playtested · Release in preparation" /></p>
 
 <p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
 
@@ -24,6 +24,14 @@ HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https
 
 The first release focuses on **regular arcade gameplay**. Experimental walking, free hands, Dream Ride and alternate bike-mounted instruments are outside this release's scope.
 
+### Latest playtest update — November 1
+
+**Rift S compatibility is now confirmed in Windows development playtests using direct Meta OpenXR.** The wearer reported smooth motion without the previous deformation or wobble, then confirmed that the follow-up crash-feedback build retained that smoothness and vibrated correctly on wall and car impacts. Strong hard-landing vibration was also confirmed.
+
+The direct Meta launcher temporarily disables Meta's Asynchronous Spacewarp (ASW) during play and restores its previous setting afterward. HarleyVR's own 3D scene interpolation stays enabled. Two successful sessions averaged about **80 application frame submissions per second** at the Rift S's 80 Hz target; this is measured application delivery plus wearer feedback, not a guarantee of every physical refresh or every PC.
+
+Recent work also includes improved vehicle-motion interpolation, selection/credits text depth, and preservation of the original arcade simulation speed. See [release status](Docs/RELEASE-STATUS.md) for the distinction between tested development builds and the forthcoming public package.
+
 ## Screenshots
 
 <table>
@@ -45,41 +53,42 @@ The first release focuses on **regular arcade gameplay**. Experimental walking, 
 
 1. Download the Windows player ZIP from [Releases](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) and extract it to a writable folder. The source-code ZIP is for developers, not a ready-to-play download.
 2. Put your own compatible **`harleyb.zip`** in the package's **`ROMs`** folder. Leave the ROM archive zipped.
-3. Install and configure your headset's official PC software. For the initial PSVR2 path, use Sony's PC adapter and the PlayStation VR2 App, and select **SteamVR as the active OpenXR runtime**.
-4. Open SteamVR, connect the headset and controllers, and wait until they are ready.
-5. Double-click **`Play-HarleyVR.cmd`**. Start seated, look straight ahead and recenter before riding.
+3. Install and configure your headset's official PC software. **PSVR2:** Sony's PC adapter, PlayStation VR2 App and SteamVR. **Rift S:** Meta Horizon Link and the direct Meta OpenXR route.
+4. Open the software for your headset and wait until the headset and controllers are ready. For **Rift S, keep Meta Horizon Link open and SteamVR closed**. For **PSVR2, open SteamVR**.
+5. Choose the package's matching **Meta** or **SteamVR** launcher. Start seated, look straight ahead and recenter before riding. The portable launcher names and final package steps will be confirmed with the release.
 
-The portable launcher is being prepared to use Windows' built-in PowerShell. Players will not need Codex, a compiler or this project's development folders. It will not start SteamVR or change your global runtime settings automatically.
+The portable launchers are being prepared to use Windows' built-in PowerShell. Players will not need Codex, a compiler or this project's development folders. Runtime selection will apply to the launched game without changing the system's default OpenXR runtime. The direct Meta path's temporary ASW setting is restored after normal exit.
 
 ### Compatibility
 
 | Setup | Status |
 | --- | --- |
 | Windows 64-bit + PSVR2 + official PC adapter + SteamVR | Used for development playtests. The final public package still needs its own validation. |
-| Quest 2 / Rift S / other PC VR headsets | Not validated for the first public release. OpenXR support alone is not a compatibility promise. |
+| Windows 64-bit + Rift S + Touch controllers + direct Meta OpenXR | **Compatibility confirmed in development playtests:** smooth riding, head tracking, controls, and crash/landing controller vibration. The final public package still needs its own validation. |
+| Quest 2 / other PC VR headsets | Not yet validated. Rift S results do not automatically validate other Meta headsets or runtime routes. |
 | Linux / macOS / standalone headset installation | Outside the first release's scope. |
 
 A development PC with an **NVIDIA RTX 3090** has been used for testing. This is a reference, **not a minimum specification**. Performance depends on CPU, GPU, render resolution and runtime settings. No universal or locked 120 FPS claim is made.
 
 ## Controls
 
-PSVR2 Sense mappings for the regular-game configuration:
+PSVR2 Sense and Rift S Touch mappings for the regular-game configuration:
 
-| Control | Action |
-| --- | --- |
-| **Left stick** | Steer / move through rider choices |
-| **R2** | Accelerate |
-| **L2** | Brake |
-| **Cross** | Start / confirm |
-| **Square** | Insert coin |
-| **Triangle** | Change view |
-| **Circle** | Game special / music selection |
-| **Right stick up / down** | Manual gear change |
-| **Right stick click** | Recenter |
-| **Options** | Pause, when the runtime delivers this button to the game |
-| **Both side grips, held for 2 seconds** | Exit |
-| **Keyboard Home / Escape** | Recenter / exit |
-| **Keyboard F5 / F7** | Save / load the selected emulator save slot |
+| PSVR2 Sense | Rift S Touch | Action |
+| --- | --- | --- |
+| **Left stick** | **Left stick** | Steer / move through rider choices |
+| **R2** | **Right trigger** | Accelerate |
+| **L2** | **Left trigger** | Brake |
+| **Cross** | **A** | Start / confirm |
+| **Square** | **X** | Insert coin |
+| **Triangle** | **Y** | Change view |
+| **Circle** | **B** | Game special / music selection |
+| **Right stick up / down** | **Right stick up / down** | Manual gear change |
+| **Right stick click** | **Right stick click** | Recenter |
+| **Options** | **Menu** | Pause, when the runtime delivers this button to the game |
+| **Both side grips, held for 2 seconds** | **Both side grips, held for 2 seconds** | Exit |
+| **Keyboard Home / Escape** | **Keyboard Home / Escape** | Recenter / exit |
+| **Keyboard F5 / F7** | **Keyboard F5 / F7** | Save / load the selected emulator save slot |
 
 The game does not provide a universal Back action. Circle is the game's music/special input; it is not advertised as a horn. Controller haptics cover detected impacts and hard landings; headset rumble is not implemented.
 
@@ -95,7 +104,9 @@ Rider selection, main riding and the ending retain immersive 3D where supported.
 - **Interpolation is selective.** Ambiguous, deformed or rapidly rotating objects may retain native animation steps. Some vehicle or helicopter components can still look less smooth than head movement.
 - **Comfort detection is imperfect.** Some hills can trigger the vignette; not every motion event is classified perfectly.
 - **Menus and overlays.** Text depth has been improved in tested selection and credits scenes. This is not a universal fix for every possible clipping or polygon depth conflict.
-- **Performance varies.** Good development playtests are not a guarantee of identical results on other PCs. The latest candidate has offline validation but no new final-package wearer test.
+- **Performance varies.** Successful PSVR2 and Rift S development playtests are not a guarantee of identical results on other PCs. The final portable release still requires its own validation; locked 120 FPS is not promised.
+- **Wheel and platform support.** Logitech G29 steering-range adjustment and wheel force feedback have not been validated in HarleyVR. Controller vibration is a separate feature. No macOS VR build is being claimed.
+- **Settings interface.** Dedicated Meta/SteamVR launchers and an in-game settings menu are in development. Arcade service options will be documented separately from emulator controls; they are not advertised as available in a public package yet.
 
 See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 
