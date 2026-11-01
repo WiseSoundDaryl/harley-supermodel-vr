@@ -1,50 +1,46 @@
 # Release status
 
-**First public release: in preparation. No player download is available yet.**
+**The first public Windows release is in preparation. There is no player download yet.**
 
-The main game has been played through in development, including positive PSVR2 feedback. **Rift S compatibility is also confirmed in Windows development playtests through direct Meta OpenXR**, with smooth motion, working controls, and physically confirmed crash/landing controller vibration. A development playtest does not replace validation of the final portable player package.
+HarleyVR's first release focuses on regular arcade gameplay. The game has been played through in development, and both PSVR2 and Rift S have been playtested on Windows.
 
-## November 1 development update
+## Tested headsets
 
-- **Rift S:** the direct Meta runtime path and temporary ASW-off setting produced smooth wearer-reported motion without the earlier deformation or wobble. HarleyVR's own 3D scene interpolation remains enabled.
-- **Crash feedback:** wall and car impacts now use existing completed game collision-response signals instead of relying only on sudden slowing. The wearer confirmed that these impacts vibrate correctly and smoothness remains intact. Hard-landing feedback stays strong; engine vibration remains off.
-- **Frame delivery:** the two successful Rift S sessions averaged 79.983 and 79.958 application frame submissions per second at an 80 Hz target. These are application measurements and positive wearer reports, not proof of a perfectly fresh physical frame at every refresh.
-- **Presentation:** current development work includes improved motion matching for eligible scene objects, selection/credits text-depth handling, a shared binocular comfort vignette and theater presentation for flat screens. Original game visibility limits and some hill-triggered vignette events remain.
+| Headset | Runtime | Status |
+| --- | --- | --- |
+| PSVR2 with Sony's official PC adapter | SteamVR / OpenXR | Playtested during development |
+| Rift S with Touch controllers | Direct Meta OpenXR | Playtested with smooth riding, head tracking, controls and crash/landing vibration |
+| Quest 2 and other PC VR headsets | — | Not yet tested |
 
-The successful Rift S path differs from the earlier SteamVR-to-Oculus test in runtime route, ASW policy, driver and actual eye resolution. The improvement is not attributed to ASW alone. Quest headsets and other runtime routes remain unvalidated.
+The Meta launcher temporarily disables Asynchronous Spacewarp during play and restores the previous setting on exit. HarleyVR's own scene interpolation remains active. Performance depends on the PC, runtime and rendering resolution.
 
-## Separate menu candidate
+## Latest improvements
 
-The new ride menu has **passed its CPU, preference-file and actual stereo-renderer checks; it is not wearer-tested or published as a player ZIP**. The successful main-game build remains separate. Its interface previews show the actual menu rasterizer; they are not headset recordings or frame-rate measurements.
+- Direct Meta support for Rift S, with separate Meta and SteamVR launchers.
+- Controller vibration for wall/car impacts and hard jump landings.
+- Improved motion for supported scene objects and text depth in rider selection and credits.
+- A shared comfort vignette and virtual-theater presentation for flat screens.
 
-- **Ride controls:** resume, start, insert coin, recenter and confirmed exit; keyboard and supported VR-controller navigation.
-- **Comfort and camera:** vignette on/off and strength, rider height/pullback, virtual-screen width and desktop-only FOV. Headset lens FOV remains controlled by the OpenXR runtime.
-- **Display and audio:** 50/75/100% headset render-scale presets for the next launch; live master volume; music levels 0–8 for the next launch on the verified supported ROM revision.
-- **Physical steering:** travel adjustment for a single supported, already-mapped wheel/joystick axis. This does not change the VR thumbstick or establish G29, macOS or wheel force-feedback compatibility.
-- **Arcade cabinet:** access to the game's real Test/Service menu, including instructions for Coin Assignments #27 / Free Play. Existing cabinet settings are not silently overwritten and Free Play is not claimed as the default.
-- **Original presentation:** the three-rider closing image is decoded from the player's ROM at load time. The player package does not ship an extracted copy of that game asset.
+## Coming next: the ride menu
 
-Menu preferences use a separate sidecar instead of rewriting the original Supermodel configuration. Settings that require a restart are labelled **Next launch**; camera offsets apply when resuming. See the [menu guide](MENU.md) for the complete controls and scope.
+The new [ride menu](MENU.md) is ready for headset testing. It brings together ride controls, comfort settings, camera position, rendering quality, sound and access to the original arcade settings.
 
-## Public release work
+The menu uses the game's original closing artwork from the player's ROM and saves preferences separately from existing Supermodel settings. Changes that need a restart are labelled **Next launch**. Original cabinet settings, including Free Play, remain under the player's control.
 
-| Item | Status |
+The [menu screenshots](../README.md#the-ride-menu--in-development) show interface previews. The menu has not yet been playtested in a headset.
+
+## Road to release
+
+| Work | Status |
 | --- | --- |
-| Repository identity and presentation | Published at WiseSoundDaryl/harley-supermodel-vr |
-| Real screenshots, controls and player documentation | Prepared |
-| PSVR2 development compatibility | Playtested through SteamVR with Sony's official PC adapter |
-| Rift S development compatibility | Playtested through direct Meta OpenXR; controls and impact/landing vibration confirmed |
-| Portable Meta and SteamVR launchers | In development; incomplete packages deliberately cannot launch |
-| In-game settings and arcade-service access | Separate candidate passed offline checks; no headset playtest or public player package yet |
-| Complete modified source integrated into the public fork | Pending |
-| Clean build without retained development objects | Pending |
-| Required library notices and provenance audit | Identified omissions restored, including nested dependencies; notice-integrity gate added. Final source/package review remains open. |
-| Player ZIP with clean defaults | Pending |
-| Fresh-folder checks and consolidated final headset playtest | Pending |
-| Tagged downloadable beta | Not published |
+| Regular arcade gameplay on PSVR2 and Rift S | Playtested in development |
+| Ride menu | Headset testing next |
+| Portable Meta and SteamVR launchers | Final package testing pending |
+| Complete VR source and standalone build instructions | Integration in progress |
+| Windows player ZIP | Packaging in progress |
+| Final installation and headset checks | Pending |
+| Public beta download | Not yet available |
 
-Only regular arcade play is targeted. Dream Ride, hands/walking and alternate HUD previews are excluded from the player-facing release.
+Dream Ride, hands/walking and alternate bike-mounted instruments remain separate experiments. macOS, Linux and standalone headset builds are outside the first release's scope. Steering-wheel force feedback is not implemented for Harley; VR controller vibration is a separate feature.
 
-Windows 64-bit remains the target. No macOS VR build, Logitech G29 wheel-range control or wheel force-feedback compatibility is claimed by these headset tests. Controller vibration and steering-wheel force feedback are separate systems.
-
-Existing upstream code or automated artifacts in the fork must not be mistaken for a validated HarleyVR release. Release publication remains disabled while the [release checklist](RELEASE-CHECKLIST.md) is open.
+Follow the [project page](../README.md) for screenshots and controls, or see the [release checklist](RELEASE-CHECKLIST.md) and [build documentation](BUILDING.md) for contributor details.

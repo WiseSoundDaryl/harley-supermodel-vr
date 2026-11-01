@@ -8,29 +8,22 @@
 
 **Experience Harley-Davidson & L.A. Riders from the rider's seat in PC VR.**
 
-HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with OpenXR stereo rendering, independent head tracking and VR controller input. Look into a corner, glance at the city and ride the original arcade game from a new perspective.
+Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
-> **Release in preparation.** The first public Windows package is being prepared. VR source integration, portable packaging and final release validation are still in progress; this repository is not yet a downloadable, verified HarleyVR release. Follow [release status](Docs/RELEASE-STATUS.md) for what is ready and what remains.
+> **First Windows release in development.** There is no public player download yet. Follow [release status](Docs/RELEASE-STATUS.md) for availability and upcoming work.
 >
-> **Bring your own game.** No ROMs, extracted game models, textures or music are distributed. The planned first release targets the **Revision B** ROM set, `harleyb.zip`, which you must obtain lawfully yourself. Please do not request or upload ROMs here.
+> **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 
 ## The ride
 
-| In the world | On the bike | Built for the headset |
-| --- | --- | --- |
-| **Genuine stereo depth.** A separate view is rendered for each eye. | **First-person riding.** A raised rider viewpoint, visible bike and familiar arcade steering. | **Independent head tracking.** Look around while riding; turning the bike still carries your view with the road. |
-| **Immersive rider selection.** See the bikes and riders in the game's 3D space. | **VR controller support.** Steer, accelerate, brake, select a rider, insert a coin and change view. | **Comfort treatment.** Stabilization and event-based vignettes reduce some of the original camera's abrupt motion. |
-| **Theater presentation.** Intros and flat screens appear on a virtual screen in a dark space. | **Impact feedback.** Controller vibration for detected crashes and hard landings; no engine buzz. | **Smoother scene motion.** Additional headset presentations and conservative scene interpolation, while the arcade simulation keeps its native speed. |
+- **First-person riding:** a raised viewpoint, visible bike and familiar arcade steering.
+- **Genuine stereo depth:** separate views for each eye, with independent head tracking to look around as you ride.
+- **Immersive rider selection:** explore the bikes and riders in the game's 3D selection scene.
+- **Comfort options:** camera stabilization and vignettes for abrupt movement, with theater presentation for intros and flat screens.
+- **VR controller support:** steer, accelerate, brake, change view and feel feedback from crashes and hard landings.
+- **Smoother scene motion:** interpolation improves movement between game frames while preserving the original arcade simulation speed.
 
 The first release focuses on **regular arcade gameplay**. Experimental walking, free hands, Dream Ride and alternate bike-mounted instruments are outside this release's scope.
-
-### Latest playtest update — November 1
-
-**Rift S compatibility is now confirmed in Windows development playtests using direct Meta OpenXR.** The wearer reported smooth motion without the previous deformation or wobble, then confirmed that the follow-up crash-feedback build retained that smoothness and vibrated correctly on wall and car impacts. Strong hard-landing vibration was also confirmed.
-
-The direct Meta launcher temporarily disables Meta's Asynchronous Spacewarp (ASW) during play and restores its previous setting afterward. HarleyVR's own 3D scene interpolation stays enabled. Two successful sessions averaged about **80 application frame submissions per second** at the Rift S's 80 Hz target; this is measured application delivery plus wearer feedback, not a guarantee of every physical refresh or every PC.
-
-Recent work also includes improved vehicle-motion interpolation, selection/credits text depth, and preservation of the original arcade simulation speed. See [release status](Docs/RELEASE-STATUS.md) for the distinction between tested development builds and the forthcoming public package.
 
 ## Screenshots
 
@@ -45,11 +38,11 @@ Recent work also includes improved vehicle-motion interpolation, selection/credi
 </tr>
 </table>
 
-<sub>Actual, unedited single-eye captures from the October 30 development build's desktop renderer tests. They illustrate the presentation; they are not headset recordings or evidence of headset frame rate. Game visuals belong to their respective owners.</sub>
+<sub>Single-eye screenshots from the desktop VR renderer. Game visuals belong to their respective owners.</sub>
 
 ## The ride menu — in development
 
-**A separate menu candidate has passed its CPU, file-saving and stereo-renderer checks.** It has not had a headset playtest and does not replace the successful main build or constitute a published player download.
+**A new in-game menu is in development, with headset playtesting next.** Pause your ride to adjust comfort, camera position, display quality and audio, or open the original arcade settings.
 
 <table>
 <tr>
@@ -59,34 +52,32 @@ Recent work also includes improved vehicle-motion interpolation, selection/credi
 </tr>
 </table>
 
-<sub>CPU-rendered interface previews, not headset captures or performance evidence. The menu uses the game's original closing artwork, decoded locally from the player's ROM at load time; no extracted game-art file is included in the player package.</sub>
+<sub>Desktop interface previews. The design uses original game artwork and typography inspired by its arcade-era flyers.</sub>
 
-The menu pauses the ride and presents a readable panel in front of you. It includes vignette on/off and strength, rider height and camera pullback, virtual-screen width, headset render-quality presets, audio, and access to the **original arcade test menu**. The artwork and the flyer-inspired lines “Feel the freedom only a Harley can give.” and “Things that Go Vroom...” keep the presentation rooted in the arcade game.
+The menu includes a vignette toggle and strength control, rider height and camera pullback, virtual-screen size, render-quality presets and audio settings. It also provides access to the game's **Test/Service menu**, including Free Play and other cabinet options. Existing arcade settings are preserved until you change them.
 
-For the candidate, **Tab, Pause or the controller's delivered Menu/Options button** opens the panel. Use the right stick up/down to navigate, left stick left/right to adjust, **A/Cross** to confirm and **B/Circle** to go back. Keyboard arrows, Enter and Backspace work too. Read the [menu guide](Docs/MENU.md) for settings, next-launch changes, physical wheel travel and Free Play setup. These menu controls are separate from the current main-build controls below.
+Open the preview menu with **Tab**, **Alt+P**, or a supported controller's **Menu/Options** button. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
 
 ## Getting started
 
-**There is no public player ZIP yet.** These are the intended steps for the first release, after the package is published and validated:
+While the public package is being prepared:
 
-1. Download the Windows player ZIP from [Releases](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) and extract it to a writable folder. The source-code ZIP is for developers, not a ready-to-play download.
-2. Put your own compatible **`harleyb.zip`** in the package's **`ROMs`** folder. Leave the ROM archive zipped.
-3. Install and configure your headset's official PC software. **PSVR2:** Sony's PC adapter, PlayStation VR2 App and SteamVR. **Rift S:** Meta Horizon Link and the direct Meta OpenXR route.
-4. Open the software for your headset and wait until the headset and controllers are ready. For **Rift S, keep Meta Horizon Link open and SteamVR closed**. For **PSVR2, open SteamVR**.
-5. Choose the package's matching **Meta** or **SteamVR** launcher. Start seated, look straight ahead and recenter before riding. The portable launcher names and final package steps will be confirmed with the release.
+1. Set up your headset and controllers using their official PC software.
+2. For **Rift S**, open Meta Horizon Link and keep SteamVR closed. For **PSVR2**, open SteamVR.
+3. Keep your own compatible **`harleyb.zip`** archive ready. Leave it zipped.
 
-The portable launchers are being prepared to use Windows' built-in PowerShell. Players will not need Codex, a compiler or this project's development folders. Runtime selection will apply to the launched game without changing the system's default OpenXR runtime. The direct Meta path's temporary ASW setting is restored after normal exit.
+The release will include separate **Meta** and **SteamVR** launchers and installation instructions. The Meta launcher temporarily disables Asynchronous Spacewarp during play and restores the previous setting on exit. HarleyVR's own scene interpolation remains enabled.
 
 ### Compatibility
 
 | Setup | Status |
 | --- | --- |
-| Windows 64-bit + PSVR2 + official PC adapter + SteamVR | Used for development playtests. The final public package still needs its own validation. |
-| Windows 64-bit + Rift S + Touch controllers + direct Meta OpenXR | **Compatibility confirmed in development playtests:** smooth riding, head tracking, controls, and crash/landing controller vibration. The final public package still needs its own validation. |
-| Quest 2 / other PC VR headsets | Not yet validated. Rift S results do not automatically validate other Meta headsets or runtime routes. |
-| Linux / macOS / standalone headset installation | Outside the first release's scope. |
+| Windows 64-bit + PSVR2 + official PC adapter + SteamVR | Playtested |
+| Windows 64-bit + Rift S + Touch controllers + direct Meta OpenXR | Playtested, including crash and landing vibration |
+| Quest 2 / other PC VR headsets | Testing pending |
+| Linux / macOS / standalone headset installation | Not supported by the first release |
 
-A development PC with an **NVIDIA RTX 3090** has been used for testing. This is a reference, **not a minimum specification**. Performance depends on CPU, GPU, render resolution and runtime settings. No universal or locked 120 FPS claim is made.
+Hardware requirements are still being established. Performance depends on your PC, headset and render resolution.
 
 ## Controls
 
@@ -108,34 +99,29 @@ PSVR2 Sense and Rift S Touch mappings for the regular-game configuration:
 | **Keyboard Home / Escape** | **Keyboard Home / Escape** | Recenter / exit |
 | **Keyboard F5 / F7** | **Keyboard F5 / F7** | Save / load the selected emulator save slot |
 
-The game does not provide a universal Back action. Circle is the game's music/special input; it is not advertised as a horn. Controller haptics cover detected impacts and hard landings; headset rumble is not implemented.
+Circle/B controls the game's music/special input. The [menu preview](Docs/MENU.md) uses separate navigation bindings: Escape opens or backs out of that menu. Controller vibration covers crashes and hard landings; headset rumble is not implemented.
 
 ## Comfort and presentation
 
-The driving camera aims to soften the original arcade camera's bumps and impacts. A shared binocular vignette narrows peripheral vision during supported comfort events. Fast menu transitions receive their own treatment, while intros, AT/MT selection and other flat presentation screens use the virtual theater.
-
-Rider selection, main riding and the ending retain immersive 3D where supported. Looking away from a theater screen shows darkness. Camera stabilization does not make bike motion world-locked, and comfort settings cannot guarantee that everyone will tolerate the experience. Start with a short seated session and stop if it feels uncomfortable.
+The driving camera softens bumps and impacts, and a binocular vignette narrows peripheral vision during abrupt motion. Rider selection, riding and the ending remain immersive; intros, AT/MT selection and flat screens appear in a dark virtual theater. Start seated, recenter before riding and stop if you feel uncomfortable.
 
 ## Known limitations
 
-- **Original game visibility.** Pedestrians, traffic or scenery may disappear outside the original game's camera view. The renderer cannot draw geometry the game stops supplying.
-- **Interpolation is selective.** Ambiguous, deformed or rapidly rotating objects may retain native animation steps. Some vehicle or helicopter components can still look less smooth than head movement.
-- **Comfort detection is imperfect.** Some hills can trigger the vignette; not every motion event is classified perfectly.
-- **Menus and overlays.** Text depth has been improved in tested selection and credits scenes. This is not a universal fix for every possible clipping or polygon depth conflict.
-- **Performance varies.** Successful PSVR2 and Rift S development playtests are not a guarantee of identical results on other PCs. The final portable release still requires its own validation; locked 120 FPS is not promised.
-- **Wheel and platform support.** Logitech G29 steering-range adjustment and wheel force feedback have not been validated in HarleyVR. Controller vibration is a separate feature. No macOS VR build is being claimed.
-- **Settings interface.** Dedicated Meta/SteamVR launchers and a separate [menu candidate](Docs/MENU.md) are in development. Offline checks and interface previews do not establish headset usability or public-package readiness. Free Play is an original arcade setting, not a silently applied default.
+- **Original visibility limits:** traffic, pedestrians or scenery can disappear when the game stops drawing them outside its original camera view.
+- **Object animation:** some vehicle and helicopter components still move at the original game's animation rate.
+- **Vignette detection:** hills can occasionally trigger the comfort mask.
+- **Text and overlays:** selection and credits depth have been improved; occasional clipping may remain elsewhere.
+- **Wheel feedback:** Harley-specific steering-wheel force feedback is not implemented. VR controller vibration is supported. Physical wheel setup, including the Logitech G29, needs further testing.
 
 See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 
 ## Feedback and development
 
-When a public build is available, useful reports include its version, headset, runtime, CPU/GPU, where the problem occurs and steps to reproduce it. A short clip can help distinguish uneven world animation from head-tracking trouble. Remove personal information before sharing logs; never attach ROMs or save states.
+For bug reports, include your build, headset, runtime, PC specifications and steps to reproduce the issue. Remove personal information from logs, and never attach ROMs or save states.
 
 - [Release status](Docs/RELEASE-STATUS.md)
-- [In-game menu candidate and arcade settings](Docs/MENU.md)
+- [Ride menu and arcade settings](Docs/MENU.md)
 - [Build preparation and dependencies](Docs/BUILDING.md)
-- [Release checklist](Docs/RELEASE-CHECKLIST.md)
 - [Report a bug](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml)
 
 ## Credits and license
@@ -143,8 +129,8 @@ When a public build is available, useful reports include its version, headset, r
 - **Supermodel:** [Bart Trzynadlowski and the Supermodel Team](https://github.com/trzy/Supermodel), whose emulator makes this work possible. The [original manual and acknowledgments](Docs/Supermodel-Manual.txt) are retained.
 - **HarleyVR:** project direction and playtesting by [WiseSoundDaryl](https://github.com/WiseSoundDaryl), with AI-assisted development.
 - **OpenXR:** Khronos Group; see the [dependency notices](Docs/THIRD-PARTY-NOTICES.md).
-- **Community reference:** [headsplosion's Lost World PC VR project](https://github.com/headsplosion/lost-world-supermodel-pcvr) was reviewed for technical ideas and clear presentation. Its README text and artwork have not been copied into this page.
+- **Community inspiration:** [headsplosion's Lost World PC VR project](https://github.com/headsplosion/lost-world-supermodel-pcvr).
 
-Emulator modifications are distributed under **GPL-3.0-or-later**, retaining applicable upstream and third-party terms; menu font data retains its OFL terms. See [LICENSE](LICENSE). The missing ImGui notice and additional embedded-library/font notices have been restored from verified sources, with an automated notice-integrity check. The matching modified source and final package review remain required before a public binary release. See [dependency notices](Docs/THIRD-PARTY-NOTICES.md).
+Emulator modifications are licensed under **GPL-3.0-or-later**. Third-party components and font data retain their respective licenses. See [LICENSE](LICENSE) and [third-party notices](Docs/THIRD-PARTY-NOTICES.md).
 
 Harley-Davidson, Harley-Davidson & L.A. Riders, SEGA and other names and marks belong to their respective owners. **This is an unofficial fan project, not affiliated with or endorsed by Harley-Davidson, SEGA or Sony.** The emulator's software license does not license the game, its ROMs or its artwork.

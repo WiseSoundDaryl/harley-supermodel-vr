@@ -1,10 +1,10 @@
 # Troubleshooting
 
-These notes describe the intended first Windows release. A public player ZIP has not been published yet.
+HarleyVR's first public Windows release is in preparation. These notes cover setup and common questions; check [release status](RELEASE-STATUS.md) for availability.
 
 ## The source download does not launch
 
-GitHub's source-code archive is not a player package. Wait for a named Windows player ZIP on the Releases page. The launcher scaffold deliberately rejects packages that have not passed release validation.
+GitHub's source-code archive is for developers. When the public release is available, download the **Windows player ZIP** from the [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases).
 
 ## Missing game
 
@@ -14,15 +14,15 @@ Place your own compatible Revision B archive at `ROMs/harleyb.zip` in the extrac
 
 **PSVR2:** confirm the headset works with Sony's official PC adapter, the PlayStation VR2 App and SteamVR. Open SteamVR before using the SteamVR launcher.
 
-**Rift S:** confirm the headset works in Meta Horizon Link first. Leave Meta Horizon Link open and SteamVR closed, then use the direct Meta launcher. The successful Rift S development path does not run through SteamVR.
+**Rift S:** confirm the headset works in Meta Horizon Link first. Leave Meta Horizon Link open and SteamVR closed, then use the **Meta** launcher.
 
-The portable launchers are being prepared to select the matching installed OpenXR runtime for the game process without overwriting the system default. Use the headset manufacturer's normal setup instructions; OpenXR support alone does not establish compatibility for an untested headset.
+Follow your headset manufacturer's setup instructions before launching HarleyVR. Other headsets have not yet been tested.
 
 ## Rift S deformation or uneven motion
 
-The successful direct Meta configuration temporarily disables Meta PC Asynchronous Spacewarp (ASW), verifies the setting, and restores its prior value after normal exit. HarleyVR's own scene interpolation stays on: it interpolates 3D scene motion and is separate from Meta's generated-frame smoothing. Do not treat those two switches as interchangeable.
+The Meta launcher temporarily disables **Asynchronous Spacewarp (ASW)** during play and restores its previous setting after normal exit. HarleyVR's own scene interpolation stays enabled to smooth motion between the arcade game's frames.
 
-Use the matching launcher and release defaults before changing several settings at once. If a release reports that restoration needs attention after an interrupted session, keep its recovery information and follow the displayed instructions; do not blindly overwrite a runtime setting used by other games.
+Start with the Meta launcher and its default settings. If an interrupted session leaves a restoration message, keep the recovery information and follow the launcher's instructions before changing ASW manually.
 
 ## The view is off-center
 
@@ -30,22 +30,22 @@ Sit in your playing position, look ahead and press the right stick or keyboard H
 
 ## Uneven motion
 
-Record the release version, CPU/GPU, headset, runtime and render resolution. Describe whether the whole view stutters or only traffic/rotors step. Try the release defaults before changing several settings at once. Report reproducible locations. No locked frame rate is promised across all hardware.
+Start with the default settings. In the menu preview, a lower **Headset render quality** setting can reduce GPU load after restarting the game. If the problem continues, note whether the whole view stutters or only nearby vehicles or helicopter rotors appear jerky. Include the location, headset, CPU/GPU and render quality in your report.
 
 ## Controller vibration and wheel force feedback
 
-Rift S Touch vibration has been confirmed for wall/car impacts and hard jump landings in development playtests. Engine rumble is intentionally disabled. Collision-response signals and safety gates determine which events produce a pulse; this is not a promise that every roadside prop will rumble.
+Controller vibration responds to detected crashes and hard jump landings. Engine rumble is disabled, and some minor contacts may not trigger a pulse.
 
-That controller feedback does not establish Logitech G29 wheel force-feedback support. Wheel range, analog input tuning and wheel drivers need separate validation. The in-game settings interface is in development, and no macOS VR build or Mac wheel-support result is being advertised.
+**Wheel force feedback is not implemented for HarleyVR.** The upcoming menu's [Steering travel setting](MENU.md#physical-wheel-or-joystick-travel) adjusts a mapped physical axis, but does not change a wheel's hardware rotation range. G29 support remains untested, and HarleyVR currently targets Windows.
 
 ## Missing roadside objects
 
-Some traffic, pedestrians and scenery cease to be supplied by the original arcade game outside its expected camera view. Raising headset resolution cannot restore geometry the game has omitted.
+The arcade game stops drawing some traffic, pedestrians and scenery outside its original camera view. These objects can disappear as you look to the side or pass them. Increasing resolution will not restore them.
 
 ## Saves and upgrades
 
-The planned portable package keeps settings in `Config`, player progress in `Saves` and arcade settings in `NVRAM`. Back up those folders before replacing a release. Save-state compatibility across versions is not guaranteed. Do not upload those folders publicly.
+The planned player package keeps settings in `Config`, progress in `Saves` and cabinet settings in `NVRAM`. Back up all three folders before upgrading. Save states may not work across different versions. Keep these folders private.
 
 ## Reporting a problem
 
-Use the repository bug-report form. Include the exact version and reproducible steps. Share only a reviewed, relevant log excerpt with personal paths removed. Never upload ROMs, save states, tokens or private account data.
+Use the repository's [bug-report form](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml). Include the version, headset, PC specifications and steps to reproduce the problem. Remove personal paths from log excerpts. Never upload ROMs, save states or private account data.

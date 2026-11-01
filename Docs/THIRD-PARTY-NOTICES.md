@@ -1,56 +1,55 @@
-# Third-party notices and source inventory
+# Third-party notices
 
-**November 1 notice audit completed; final release review remains open.** Missing notices identified in the inspected build have been restored from the matched source or dependency package. Exact copies and extracted attribution blocks are distinguished in [licenses/SHA256.json](licenses/SHA256.json). Their presence does not establish complete corresponding source or permission to use game imagery and trademarks.
+HarleyVR builds on Supermodel and the open-source components listed below. Their copyright notices and license terms are included in the [licenses folder](licenses/). File checksums and source references are available in the [license manifest](licenses/SHA256.json).
 
-## Supermodel and this modification
+## Supermodel
 
-Supermodel is copyright its contributors and is distributed under GNU GPL version 3 or, where stated in its source notices, any later version. Retain the upstream `LICENSE.txt`, user manual and component notices supplied with this distribution. Clearly identify this as an unofficial modification of [Supermodel](https://github.com/trzy/Supermodel), with no claim of endorsement by its developers, Sega, Harley-Davidson or headset manufacturers.
+[Supermodel](https://github.com/trzy/Supermodel) is copyright its contributors and is distributed under GNU GPL version 3 or, where stated in its source notices, any later version. HarleyVR retains its upstream license, [manual and acknowledgments](Supermodel-Manual.txt), and component notices.
 
-Provide the complete corresponding modified source and the build/install scripts for the released executable. A link to unmodified upstream source is insufficient for this fork. Optional code compiled into the executable remains part of the corresponding-source review even if the regular-game launcher does not enable it. The practical release plan is a tagged source revision/source archive paired with the downloadable Windows package. See [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html), particularly sections 4–6, and [BUILDING.md](BUILDING.md).
+Redistribution of a HarleyVR executable must include access to its complete corresponding modified source and the scripts needed to build and install it. This includes optional code compiled into the executable, even when a launcher leaves that feature disabled. See [GPLv3, sections 4–6](https://www.gnu.org/licenses/gpl-3.0.html) and the [build documentation](BUILDING.md).
 
-## External dependencies identified
+## Runtime libraries
 
-| Component | Use in the inspected build | License text staged here | Remaining review |
-| --- | --- | --- | --- |
-| OpenXR SDK loader | Dynamically loaded real OpenXR loader | `licenses/OpenXR-Apache-2.0.txt` | Confirm the copied loader's exact package provenance and any additional notices required by its build. |
-| JsonCpp 1.9.6 | Statically included inside the inspected OpenXR loader | `licenses/JsonCpp-1.9.6-LICENSE.txt` | Retain the MIT/public-domain notice with the loader; this dependency has no separate DLL. |
-| GCC runtime / libstdc++ | Runtime dependencies shipped beside the loader/executable | `licenses/GCC-GPL-3.0.txt`, `licenses/GCC-Runtime-Library-Exception-3.1.txt` | Confirm applicability and exact versions for each shipped DLL. Do not remove the Runtime Library Exception. |
-| winpthreads | Runtime dependency | `licenses/winpthreads-COPYING.txt` | Preserve the complete copyright and permission notices. |
-| MinGW-w64 CRT | Runtime code linked into the executable | `licenses/MinGW-w64-runtime-notices.txt` | Retain the composite notices applicable to the linked runtime. |
-| SDL2 | Statically linked window, input and audio support | `licenses/SDL2-LICENSE.txt` | Preserve source notices; record exact source/package version. |
-| SDL2_net | Statically linked upstream networking support | `licenses/SDL2_net-LICENSE.txt` | Preserve source notices; record exact source/package version. |
-| zlib | Statically linked decompression support | `licenses/zlib-LICENSE.txt` | Preserve source notices; record exact source/package version. |
+| Component | Purpose | License and notices |
+| --- | --- | --- |
+| OpenXR SDK loader | Connects the application to the installed OpenXR runtime | [Apache 2.0](licenses/OpenXR-Apache-2.0.txt) |
+| JsonCpp 1.9.6 | JSON support included in the OpenXR loader | [MIT/public-domain terms](licenses/JsonCpp-1.9.6-LICENSE.txt) |
+| GCC runtime / libstdc++ | C/C++ runtime support | [GPLv3](licenses/GCC-GPL-3.0.txt) with the [GCC Runtime Library Exception 3.1](licenses/GCC-Runtime-Library-Exception-3.1.txt) |
+| winpthreads | Threading support | [Copyright and permission notices](licenses/winpthreads-COPYING.txt) |
+| MinGW-w64 CRT | Windows runtime support | [Runtime notices](licenses/MinGW-w64-runtime-notices.txt) |
+| SDL2 | Window, input and audio support | [SDL2 license](licenses/SDL2-LICENSE.txt) |
+| SDL2_net | Networking support | [SDL2_net license](licenses/SDL2_net-LICENSE.txt) |
+| zlib | ZIP and decompression support | [zlib license](licenses/zlib-LICENSE.txt) |
 
-The four runtime DLLs were matched to the installed files and cached MSYS2 package members. Seven historical package recipes were matched to their recorded build metadata. OpenXR 1.1.62's upstream root and installed package supplied no separate NOTICE file; its incorporated JsonCpp notice is now included. The inspected versions are recorded in [BUILDING.md](BUILDING.md). Source availability and delivery for the final package still need review; a notices folder does not replace corresponding source where required.
+JsonCpp is linked into the OpenXR loader; it has no separate DLL. Package versions are listed in [BUILDING.md](BUILDING.md).
 
-Primary project references: [Khronos OpenXR SDK](https://github.com/KhronosGroup/OpenXR-SDK), [GCC Runtime Library Exception](https://www.gnu.org/licenses/gcc-exception-3.1.html), [SDL2](https://github.com/libsdl-org/SDL/tree/SDL2), [SDL_net](https://github.com/libsdl-org/SDL_net), [zlib](https://zlib.net/zlib_license.html), [MinGW-w64](https://www.mingw-w64.org/).
+Project references: [Khronos OpenXR SDK](https://github.com/KhronosGroup/OpenXR-SDK), [GCC Runtime Library Exception](https://www.gnu.org/licenses/gcc-exception-3.1.html), [SDL2](https://github.com/libsdl-org/SDL/tree/SDL2), [SDL_net](https://github.com/libsdl-org/SDL_net), [zlib](https://zlib.net/zlib_license.html), [MinGW-w64](https://www.mingw-w64.org/).
 
-## Components embedded in upstream source
+## Embedded components
 
-Preserve upstream source notices and the upstream manual's acknowledgments. The November 1 audit checked the selected source/link list and nested components; it is not a certification covering future source changes or every possible build configuration.
-
-- **GLEW:** [complete vendored-header notices](licenses/GLEW-vendored-notices.txt) now supplement the original manual, including Nigel Stewart, Mesa/Brian Paul and Khronos text omitted from its shorter acknowledgment.
-- **Dear ImGui:** the missing MIT notice has been restored to `Src/Pkgs/imgui/LICENSE.txt` and [licenses/Dear-ImGui-LICENSE.txt](licenses/Dear-ImGui-LICENSE.txt). All 15 vendored source/header files match the Git blobs at upstream revision [`05581da`](https://github.com/ocornut/imgui/tree/05581da18321bee38f6d5915a1466665cdd66fc8), identifying the bundled `1.92.6 WIP` snapshot. The restored 2014–2025 Omar Cornut notice is byte-for-byte identical to that revision's license. [File-by-file provenance](licenses/Dear-ImGui-SOURCE.json).
-- **ImGui's nested components:** retain the [STB dual-license block](licenses/ImGui-STB-dual-license.txt), [embedded-font attributions](licenses/ImGui-embedded-font-attributions.txt), [ProggyClean MIT notice](licenses/ProggyClean-MIT.txt), [ProggyVector terms](licenses/ProggyVector-LICENSE.txt), [gl3w dedication](licenses/ImGui-gl3w-public-domain.txt), and [Japanese glyph-list CC BY 4.0 attribution](licenses/ImGui-Japanese-glyph-list-attribution.txt). ProggyVector includes Bitstream Vera terms and DejaVu public-domain material; these are not replaced by ImGui's MIT license. The glyph-list terms concern that data, not the surrounding emulator code.
-- **MAME-derived components:** retain both the [BSD-3-Clause terms](licenses/MAME-BSD-3-Clause.txt) and [specific copyright holders](licenses/MAME-component-attributions.txt), including the security-chip code. Existing local source notices remain intact.
-- **tinyxml2 and minizip:** their [tinyxml2](licenses/tinyxml2-vendored-notice.txt) and [minizip](licenses/minizip-vendored-notice.txt) source notices are staged. The [Info-ZIP terms](licenses/Info-ZIP-source-LICENSE.txt) accompany the source-distributed decryption header; decryption is disabled in the inspected minizip build.
-- **minimp3:** retain its [dedication](licenses/minimp3-vendored-dedication.txt) and [CC0 text](licenses/minimp3-CC0-1.0.txt). This is the selected MPEG decoder; the manual's historical Amp credit alone did not identify it.
-- **CPU and sound emulation:** retain the [Musashi GPL-permission and historical notices](licenses/Musashi-vendored-notices.txt) and [CPU/sound source credits](licenses/CPU-Sound-vendored-notices.txt). Do not replace the recorded permission history with a blanket claim of original authorship.
+- **GLEW:** [copyright and license notices](licenses/GLEW-vendored-notices.txt), including Nigel Stewart, Mesa/Brian Paul and Khronos.
+- **Dear ImGui:** [MIT license](licenses/Dear-ImGui-LICENSE.txt), copyright 2014–2025 Omar Cornut. The bundled version is `1.92.6 WIP`, from [upstream revision `05581da`](https://github.com/ocornut/imgui/tree/05581da18321bee38f6d5915a1466665cdd66fc8). The notice also appears in `Src/Pkgs/imgui/LICENSE.txt`; [source references](licenses/Dear-ImGui-SOURCE.json) identify the included files.
+- **ImGui support code and data:** [STB dual-license terms](licenses/ImGui-STB-dual-license.txt), [gl3w public-domain dedication](licenses/ImGui-gl3w-public-domain.txt), and [Japanese glyph-list CC BY 4.0 attribution](licenses/ImGui-Japanese-glyph-list-attribution.txt). The glyph-list license applies to that data.
+- **ImGui embedded fonts:** [font attributions](licenses/ImGui-embedded-font-attributions.txt), [ProggyClean MIT license](licenses/ProggyClean-MIT.txt), and [ProggyVector license](licenses/ProggyVector-LICENSE.txt). ProggyVector includes Bitstream Vera terms and DejaVu public-domain material alongside its MIT notices.
+- **MAME-derived components:** [BSD-3-Clause terms](licenses/MAME-BSD-3-Clause.txt) and [component copyright holders](licenses/MAME-component-attributions.txt), including the security-chip code.
+- **tinyxml2 and minizip:** [tinyxml2 notice](licenses/tinyxml2-vendored-notice.txt) and [minizip notice](licenses/minizip-vendored-notice.txt). The [Info-ZIP license](licenses/Info-ZIP-source-LICENSE.txt) accompanies the source decryption header; ZIP decryption is disabled in the current build.
+- **minimp3:** [public-domain dedication](licenses/minimp3-vendored-dedication.txt) and [CC0 text](licenses/minimp3-CC0-1.0.txt) for the MPEG audio decoder.
+- **CPU and sound emulation:** [Musashi GPL permission and historical notices](licenses/Musashi-vendored-notices.txt), plus [CPU and sound component notices](licenses/CPU-Sound-vendored-notices.txt).
 
 ## Menu typography
 
-The forthcoming menu uses Barlow Condensed SemiBold and Russo One under the **SIL Open Font License 1.1**. Preserve both complete notices in player and source packages: [Barlow Condensed](licenses/BarlowCondensed-OFL.txt) and [Russo One](licenses/RussoOne-OFL.txt). The original font files and their notices were verified byte-for-byte against [Google Fonts revision `6c1dbe2`](https://github.com/google/fonts/tree/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl).
+The menu uses Barlow Condensed SemiBold and Russo One under the **SIL Open Font License 1.1**. Their full copyright and license texts are included: [Barlow Condensed](licenses/BarlowCondensed-OFL.txt) and [Russo One](licenses/RussoOne-OFL.txt). Source fonts are available at [Google Fonts revision `6c1dbe2`](https://github.com/google/fonts/tree/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl).
 
-The generated raster derivative is named **Harley Menu Typography**. Original font names are used for attribution; the original font files remain unchanged. Keep the font notices and reserved-name conditions with the generated atlas and its build inputs. [OFL FAQ](https://openfontlicense.org/ofl-faq/).
+The converted raster font data is named **Harley Menu Typography** and retains its OFL terms. Original font names are used for attribution. Redistributed font data must retain the applicable copyright, license and reserved-name conditions. See the [OFL FAQ](https://openfontlicense.org/ofl-faq/).
 
-## Game content and branding
+## Game content and trademarks
 
-No permission to distribute the original game's ROMs, music, extracted textures/models, save states containing game data or other game content is granted by the emulator's software license. This release should contain the modified emulator and permitted supporting files only. Players supply their own legally obtained compatible ROM set. Do not include ROM download links.
+HarleyVR is an unofficial fan project, not affiliated with or endorsed by SEGA, Harley-Davidson, Supermodel's developers or headset manufacturers. Names, marks and game visuals belong to their respective owners.
 
-Screenshots, videos, logos and other promotional material require a separate content review; software licensing does not automatically cover them. Keep project naming and descriptions clear that this is an unofficial community modification.
+The software licenses do not grant rights to the game's ROMs, music, models, textures, game-bearing save states, screenshots or trademarks. Players supply their own legally obtained compatible ROM set. The project does not provide ROMs or ROM download links; game imagery and branding remain subject to separate rights requirements.
 
-## Before publishing
+## Redistribution and verification
 
-Run `packaging/Test-ReleaseNotices.ps1` against the staged package. Its optional `-SourceRoot` check also verifies the restored ImGui notice and all 15 recorded source blobs. It fails on missing, changed or unsafe notice paths. **A passing notice check is not release clearance**: it does not prove complete corresponding source, future linked dependency coverage or artwork rights.
+Retain the applicable notices with source and binary distributions, including the complete GCC Runtime Library Exception and font terms. Match the source, build instructions and dependency versions to the executable being distributed.
 
-Finish the remaining component/source inventory, pair complete source with the final binary, verify all shipped DLL provenance, and review the source/archive exclusion list. Restoring ImGui's notice resolves that specific omission; it does not complete every release obligation or establish rights to game imagery or trademarks.
+Maintainers can run `packaging/Test-ReleaseNotices.ps1` to check the recorded notice files. Its optional `-SourceRoot` argument also checks the bundled ImGui source and license identities. This verifies file integrity; corresponding-source obligations, dependency coverage and rights to game imagery require separate review. See [BUILDING.md](BUILDING.md) for release preparation.
