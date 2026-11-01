@@ -1,0 +1,76 @@
+{
+  "status": "Draft inventory, not complete redistribution review",
+  "files": [
+    {
+      "file": "OpenXR-Apache-2.0.txt",
+      "sha256": "CFC7749B96F63BD31C3C42B5C471BF756814053E847C10F3EB003417BC523D30",
+      "bytes": 11358,
+      "provenance": "Installed dependency license: openxr-sdk/LICENSE",
+      "package": "mingw-w64-x86_64-openxr-sdk-1.1.62-1",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "GCC-GPL-3.0.txt",
+      "sha256": "8CEB4B9EE5ADEDDE47B31E975C1D90C73AD27B6B165A1DCD80C7C545EB65B903",
+      "bytes": 35147,
+      "provenance": "Installed dependency license: libgcc/COPYING3",
+      "package": "mingw-w64-x86_64-gcc-16.2.0-4",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "GCC-Runtime-Library-Exception-3.1.txt",
+      "sha256": "9D6B43CE4D8DE0C878BF16B54D8E7A10D9BD42B75178153E3AF6A815BDC90F74",
+      "bytes": 3324,
+      "provenance": "Installed dependency license: libgcc/COPYING.RUNTIME",
+      "package": "mingw-w64-x86_64-gcc-16.2.0-4",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "winpthreads-COPYING.txt",
+      "sha256": "63263614CDD29F2F93CBA85E992F041B31F9FC7B4033692F31269489A8A1B177",
+      "bytes": 2883,
+      "provenance": "Installed dependency license: winpthreads/COPYING",
+      "package": "winpthreads",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "MinGW-w64-runtime-notices.txt",
+      "sha256": "1DB8DA07B436C68833C0673FFEE3D9FCB2526047F3820B81661865DFEDC79A1F",
+      "bytes": 12155,
+      "provenance": "Installed dependency license: crt/COPYING.MinGW-w64-runtime.txt",
+      "package": "MinGW-w64 CRT",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "SDL2-LICENSE.txt",
+      "sha256": "97F35B302B361680EC1E891E95D2D52097BB95ABFF361434916D99DC1305F127",
+      "bytes": 884,
+      "provenance": "Installed dependency license: SDL2/LICENSE.txt",
+      "package": "mingw-w64-x86_64-SDL2-2.32.10-1",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "SDL2_net-LICENSE.txt",
+      "sha256": "1C040B8271B37E5076359F8FD54240E371114112924D2DF81EF87C7D6A1DFDFD",
+      "bytes": 884,
+      "provenance": "Installed dependency license: SDL2_net/LICENSE.txt",
+      "package": "mingw-w64-x86_64-SDL2_net-2.4.0-1",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "zlib-LICENSE.txt",
+      "sha256": "E32FF4E00D9D94930537635291DA39E7E612703334BF6FDE8C7F1686FE8A45A2",
+      "bytes": 1002,
+      "provenance": "Installed dependency license: zlib/LICENSE",
+      "package": "mingw-w64-x86_64-zlib-1.3.2-2",
+      "verbatimCopyVerified": true
+    }
+  ],
+  "gccNoticeSharedBy": [
+    "libgcc",
+    "libstdc++"
+  ],
+  "missingFullTextReview": [
+    "Dear ImGui vendored1.92.6 WIP LICENSE.txt absent; obtain correct-revision copyright/license text."
+  ]
+}

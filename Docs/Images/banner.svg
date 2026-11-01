@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+<title id="title">HarleyVR — The arcade ride. A new perspective.</title><desc id="desc">An original charcoal and orange banner with a stylized road and stereo viewing rings. Unofficial PC VR conversion.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111923"/><stop offset="1" stop-color="#080c12"/></linearGradient><linearGradient id="road" x2="0" y2="1"><stop stop-color="#394553" stop-opacity="0"/><stop offset="1" stop-color="#394553" stop-opacity=".55"/></linearGradient><linearGradient id="accent"><stop stop-color="#ffb868"/><stop offset="1" stop-color="#ff6a28"/></linearGradient></defs>
+<rect width="1280" height="360" rx="16" fill="url(#bg)"/>
+<path d="M780 360 L1010 135 L1040 135 L1270 360Z" fill="url(#road)"/>
+<g stroke="#71839b" stroke-width="1" opacity=".22"><path d="M710 263H1280M760 207H1280M836 163H1230M740 360L1010 135M1280 330L1040 135"/><path d="M795 170v-62h32v62m38-24V82h43v64m37-24V54h30v68m148 22V76h43v68m33 25V97h28v72"/></g>
+<path d="M1025 165V183M1025 207V235M1025 270V323" stroke="#f7a55f" stroke-width="7" opacity=".7"/>
+<g fill="none" stroke="url(#accent)" stroke-width="3"><circle cx="972" cy="154" r="58"/><circle cx="1092" cy="154" r="58"/><path d="M1030 154h4"/></g>
+<g fill="none" stroke="#778aa0" opacity=".7"><circle cx="972" cy="154" r="43"/><circle cx="1092" cy="154" r="43"/></g>
+<path d="M55 52H118" stroke="#ff9850" stroke-width="5"/>
+<text x="55" y="91" font-family="Arial,Helvetica,sans-serif" font-size="15" letter-spacing="4" fill="#aeb9c7">UNOFFICIAL PC VR CONVERSION</text>
+<text x="49" y="200" font-family="Arial,Helvetica,sans-serif" font-size="105" font-weight="800" letter-spacing="-5" fill="#f7f4ee">HARLEY<tspan fill="#ff9850">VR</tspan></text>
+<text x="55" y="250" font-family="Arial,Helvetica,sans-serif" font-size="21" letter-spacing="2.5" fill="#e4e7ed">THE ARCADE RIDE. A NEW PERSPECTIVE.</text>
+<text x="55" y="307" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#97a6b9">Harley-Davidson &amp; L.A. Riders · Supermodel · OpenXR</text>
+</svg>

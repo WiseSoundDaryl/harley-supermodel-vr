@@ -1,109 +1,120 @@
-# Supermodel: A Sega Model 3 Arcade Emulator
-*Copyright 2003-2026 The Supermodel Team*
+<p align="center"><img src="Docs/Images/banner.svg" width="100%" alt="HarleyVR — The arcade ride. A new perspective." /></p>
 
-## Overview
+<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 development tested · Release in preparation" /></p>
 
-**Supermodel** emulates Sega's Model 3 arcade platform, allowing you to relive state-of-the-art 3D arcade gaming as it existed from 1996 through 1999. It uses OpenGL, [SDL2](https://libsdl.org), and can run on Windows, Linux, and macOS. It also supports network play on low-latency network connections. The source code is freely available under the terms of the [GNU General Public License](http://www.gnu.org/copyleft/gpl.html).
+<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
 
-<p align="center">
-  <img src="Docs/Images/Daytona2_1.gif" width="375" height="250" /> <img src="Docs/Images/LAMachin.gif" width="375" height="250" />
-  <img src="Docs/Images/StarWars.gif" width="375" height="250" /> <img src="Docs/Images/FVipers2.gif" width="375" height="250" />
-</p>
+# HarleyVR
 
-<img src="Docs/Images/Real3D_Logo.png" align="right" height="100"> Model 3 first made its debut in 1996 with Virtua Fighter 3 and Scud Race, and for the subsequent three years boasted the most powerful 3D hardware of any gaming platform. Developed by Real3D, then a Lockheed Martin company, and with a heritage rooted in advanced flight simulator technology, Model 3 featured capabilities that would not appear on PCs for several years. Using an on-board scene graph and geometry processor, it could store, transform, light, and rasterize tens of thousands of polygons per frame at a fluid 57.524 frames per second.
+**Experience Harley-Davidson & L.A. Riders from the rider's seat in PC VR.**
 
-The aim of the Supermodel project is to develop an emulator that is both accurate and playable. As with virtually all arcade hardware, no public documentation for the Model 3 platform exists. What is known so far has been painstakingly reverse engineered from scratch.
+HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with OpenXR stereo rendering, independent head tracking and VR controller input. Look into a corner, glance at the city and ride the original arcade game from a new perspective.
 
-## How To Get It
+> **Release in preparation.** The first public Windows package is being prepared. VR source integration, portable packaging and final release validation are still in progress; this repository is not yet a downloadable, verified HarleyVR release. Follow [release status](Docs/RELEASE-STATUS.md) for what is ready and what remains.
+>
+> **Bring your own game.** No ROMs, extracted game models, textures or music are distributed. The planned first release targets the **Revision B** ROM set, `harleyb.zip`, which you must obtain lawfully yourself. Please do not request or upload ROMs here.
 
-Automated builds for Windows, macOS and Linux are now available here on GitHub.  
-Check out the releases page [here](https://github.com/trzy/Supermodel/releases).
+## The ride
 
-## Community
+| In the world | On the bike | Built for the headset |
+| --- | --- | --- |
+| **Genuine stereo depth.** A separate view is rendered for each eye. | **First-person riding.** A raised rider viewpoint, visible bike and familiar arcade steering. | **Independent head tracking.** Look around while riding; turning the bike still carries your view with the road. |
+| **Immersive rider selection.** See the bikes and riders in the game's 3D space. | **VR controller support.** Steer, accelerate, brake, select a rider, insert a coin and change view. | **Comfort treatment.** Stabilization and event-based vignettes reduce some of the original camera's abrupt motion. |
+| **Theater presentation.** Intros and flat screens appear on a virtual screen in a dark space. | **Impact feedback.** Controller vibration for detected crashes and hard landings; no engine buzz. | **Smoother scene motion.** Additional headset presentations and conservative scene interpolation, while the arcade simulation keeps its native speed. |
 
-<table border="0">
-  <tr>
-    <td><a href="https://discord.gg/XDd7TMMUMz"><img width="32" src="Docs/Images/Discord.svg"></a></td><td><a href="https://discord.gg/XDd7TMMUMz">Join the Discord server</a>.</td>
-  </tr>
+The first release focuses on **regular arcade gameplay**. Experimental walking, free hands, Dream Ride and alternate bike-mounted instruments are outside this release's scope.
+
+## Screenshots
+
+<table>
+<tr>
+<td width="50%" align="center"><img src="Docs/Images/ride.png" width="410" alt="First-person HarleyVR riding view on a palm-lined Los Angeles street" /><br /><b>The rider's view</b><br />Original arcade scenery and the regular HUD.</td>
+<td width="50%" align="center"><img src="Docs/Images/look-around.png" width="410" alt="A head-turned view showing the handlebars and surrounding street" /><br /><b>Look around independently</b><br />The same scene, viewed from a different head pose.</td>
+</tr>
+<tr>
+<td width="50%" align="center"><img src="Docs/Images/rider-selection.png" width="410" alt="A bike and rider in the immersive 3D selection scene" /><br /><b>Choose your ride</b><br />Rider selection stays in the 3D world.</td>
+<td width="50%" align="center"><img src="Docs/Images/cinema.png" width="410" alt="AT and MT transmission selection shown on a virtual screen surrounded by darkness" /><br /><b>A screen when it makes sense</b><br />Transmission selection in the virtual theater.</td>
+</tr>
 </table>
 
-We lost our web hosting and have no backup of the recent forum. For now, please use this GitHub page for official releases and [Discord](https://discord.gg/XDd7TMMUMz) for asking questions.
+<sub>Actual, unedited single-eye captures from the October 30 development build's desktop renderer tests. They illustrate the presentation; they are not headset recordings or evidence of headset frame rate. Game visuals belong to their respective owners.</sub>
 
-## Build Instructions
+## Getting started
 
-### Windows
+**There is no public player ZIP yet.** These are the intended steps for the first release, after the package is published and validated:
 
-The preferred method for building Supermodel is to use GCC and MSYS2. After installing [MSYS2](https://msys2.org), open the MSYS2 shell and install the required dependencies using the pacman package manager:
+1. Download the Windows player ZIP from [Releases](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) and extract it to a writable folder. The source-code ZIP is for developers, not a ready-to-play download.
+2. Put your own compatible **`harleyb.zip`** in the package's **`ROMs`** folder. Leave the ROM archive zipped.
+3. Install and configure your headset's official PC software. For the initial PSVR2 path, use Sony's PC adapter and the PlayStation VR2 App, and select **SteamVR as the active OpenXR runtime**.
+4. Open SteamVR, connect the headset and controllers, and wait until they are ready.
+5. Double-click **`Play-HarleyVR.cmd`**. Start seated, look straight ahead and recenter before riding.
 
-- GCC (```mingw64/mingw-w64-x86_64-gcc```)
-- Make (```mingw64/mingw-w64-x86_64-make```)
-- SDL2 (```mingw64/mingw-w64-x86_64-SDL2```, ```mingw64/mingw-w64-x86_64-SDL2_net```)
+The portable launcher is being prepared to use Windows' built-in PowerShell. Players will not need Codex, a compiler or this project's development folders. It will not start SteamVR or change your global runtime settings automatically.
 
-This can be done using the following commands:
+### Compatibility
 
-```
-pacman -S mingw64/mingw-w64-x86_64-gcc
-pacman -S mingw64/mingw-w64-x86_64-make
-pacman -S mingw64/mingw-w64-x86_64-SDL2
-pacman -S mingw64/mingw-w64-x86_64-SDL2_net
-```
+| Setup | Status |
+| --- | --- |
+| Windows 64-bit + PSVR2 + official PC adapter + SteamVR | Used for development playtests. The final public package still needs its own validation. |
+| Quest 2 / Rift S / other PC VR headsets | Not validated for the first public release. OpenXR support alone is not a compatibility promise. |
+| Linux / macOS / standalone headset installation | Outside the first release's scope. |
 
-At this point, you can continue using either the MSYS2 shell or Windows Command Prompt but ensure that both ```gcc``` and ```mingw32-make``` are in your path. In MSYS2, the location of these binaries will be ```/mingw64/bin``` and for Command Prompt, assuming MSYS2 was installed in the default location, add ```C:\msys64\mingw64\bin``` to your Windows ```PATH``` variable.
+A development PC with an **NVIDIA RTX 3090** has been used for testing. This is a reference, **not a minimum specification**. Performance depends on CPU, GPU, render resolution and runtime settings. No universal or locked 120 FPS claim is made.
 
-To build Supermodel use (Network support built in by default now, no need to specify anymore):
+## Controls
 
-```
-mingw32-make -f Makefiles/Makefile.Win32
-```
+PSVR2 Sense mappings for the regular-game configuration:
 
-If you wish to build via Visual Studio 2026,
-Make sure to run the Get_Libs.cmd files in the libraries directory. It will automatically pull in the required dependencies. Then either build inside the GUI or use the Build.cmd file in the MSVC folder.
+| Control | Action |
+| --- | --- |
+| **Left stick** | Steer / move through rider choices |
+| **R2** | Accelerate |
+| **L2** | Brake |
+| **Cross** | Start / confirm |
+| **Square** | Insert coin |
+| **Triangle** | Change view |
+| **Circle** | Game special / music selection |
+| **Right stick up / down** | Manual gear change |
+| **Right stick click** | Recenter |
+| **Options** | Pause, when the runtime delivers this button to the game |
+| **Both side grips, held for 2 seconds** | Exit |
+| **Keyboard Home / Escape** | Recenter / exit |
+| **Keyboard F5 / F7** | Save / load the selected emulator save slot |
 
-### Linux
+The game does not provide a universal Back action. Circle is the game's music/special input; it is not advertised as a horn. Controller haptics cover detected impacts and hard landings; headset rumble is not implemented.
 
-Ensure SDL2 is installed. Most package managers ought to have this available. For example, on Ubuntu, it should be sufficient to run:
+## Comfort and presentation
 
-```
-sudo apt install libsdl2-dev
-sudo apt install libsdl2-net-dev
-sudo apt install libglu1-mesa-dev
-```
+The driving camera aims to soften the original arcade camera's bumps and impacts. A shared binocular vignette narrows peripheral vision during supported comfort events. Fast menu transitions receive their own treatment, while intros, AT/MT selection and other flat presentation screens use the virtual theater.
 
-And then build Supermodel:
+Rider selection, main riding and the ending retain immersive 3D where supported. Looking away from a theater screen shows darkness. Camera stabilization does not make bike motion world-locked, and comfort settings cannot guarantee that everyone will tolerate the experience. Start with a short seated session and stop if it feels uncomfortable.
 
-```
-make -f Makefiles/Makefile.UNIX
-```
+## Known limitations
 
-### macOS
+- **Original game visibility.** Pedestrians, traffic or scenery may disappear outside the original game's camera view. The renderer cannot draw geometry the game stops supplying.
+- **Interpolation is selective.** Ambiguous, deformed or rapidly rotating objects may retain native animation steps. Some vehicle or helicopter components can still look less smooth than head movement.
+- **Comfort detection is imperfect.** Some hills can trigger the vignette; not every motion event is classified perfectly.
+- **Menus and overlays.** Text depth has been improved in tested selection and credits scenes. This is not a universal fix for every possible clipping or polygon depth conflict.
+- **Performance varies.** Good development playtests are not a guarantee of identical results on other PCs. The latest candidate has offline validation but no new final-package wearer test.
 
-Ensure Apple's Xcode Command Line Tools are installed:
+See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 
-From a terminal:
-```
-xcode-select --install
-```
+## Feedback and development
 
-Ensure SDL2 is installed.  Download the latest *.dmg files from both of the links below, and install per the READMEs in the .dmgs (i.e. in "/Library/Frameworks")
+When a public build is available, useful reports include its version, headset, runtime, CPU/GPU, where the problem occurs and steps to reproduce it. A short clip can help distinguish uneven world animation from head-tracking trouble. Remove personal information before sharing logs; never attach ROMs or save states.
 
-* SDL2: https://github.com/libsdl-org/SDL/releases
+- [Release status](Docs/RELEASE-STATUS.md)
+- [Build preparation and dependencies](Docs/BUILDING.md)
+- [Release checklist](Docs/RELEASE-CHECKLIST.md)
+- [Report a bug](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml)
 
-* SDL_net: https://github.com/libsdl-org/SDL_net/releases
+## Credits and license
 
+- **Supermodel:** [Bart Trzynadlowski and the Supermodel Team](https://github.com/trzy/Supermodel), whose emulator makes this work possible. The [original manual and acknowledgments](Docs/Supermodel-Manual.txt) are retained.
+- **HarleyVR:** project direction and playtesting by [WiseSoundDaryl](https://github.com/WiseSoundDaryl), with AI-assisted development.
+- **OpenXR:** Khronos Group; see the [dependency notices](Docs/THIRD-PARTY-NOTICES.md).
+- **Community reference:** [headsplosion's Lost World PC VR project](https://github.com/headsplosion/lost-world-supermodel-pcvr) was reviewed for technical ideas and clear presentation. Its README text and artwork have not been copied into this page.
 
-And then build Supermodel:
+Emulator modifications are distributed under **GPL-3.0-or-later**, retaining applicable upstream and third-party terms. See [LICENSE](LICENSE). The matching modified source and required notices must accompany the public binary release; those release checks are still in progress.
 
-```
-make -f Makefiles/Makefile.OSX
-```
-
-### Note: running on macOS
-If you try and run a macOS binary that was downloaded from the internet and/or built on a different machine, you need to grant macOS permission to execute the binary (just 1-time):
-
-* Open the folder containing the binary in Finder, and right (or ctrl) click on it:
-
-* Click "Open" when the following dialogue box appears : "macOS cannot verify the developer of “supermodel-git-xxxx”. Are you sure you want to open it?"
-
-* Close the terminal window that opens (after clicking open)
-
-Details: https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac
+Harley-Davidson, Harley-Davidson & L.A. Riders, SEGA and other names and marks belong to their respective owners. **This is an unofficial fan project, not affiliated with or endorsed by Harley-Davidson, SEGA or Sony.** The emulator's software license does not license the game, its ROMs or its artwork.

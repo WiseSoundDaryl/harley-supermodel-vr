@@ -1,0 +1,60 @@
+HarleyVR regular-game Windows ZIP - DRAFT PACKAGE SPECIFICATION
+
+This folder contains launcher SOURCE, not a playable release. No executable,
+ROM, player configuration, save state or NVRAM has been copied here.
+
+The intended public ZIP layout is:
+
+  Play-HarleyVR.cmd
+  Play-HarleyVR.ps1
+  supermodel.exe
+  libopenxr_loader.dll
+  libgcc_s_seh-1.dll
+  libstdc++-6.dll
+  libwinpthread-1.dll
+  release-ready.json
+  README.md
+  LICENSE.txt
+  THIRD-PARTY-NOTICES.txt
+  docs/                 setup instructions and their referenced images
+  Config/Games.xml
+  Config/Music.xml
+  Config/Supermodel.ini  reviewed generic defaults, not a player's file
+  Assets/p1crosshair.bmp
+  Assets/p2crosshair.bmp
+  ROMs/                 no ROMs included; user adds harleyb.zip
+  Saves/                initially empty; user's progress remains here
+  NVRAM/                initially empty; game creates its own data
+
+Only the regular main game is exposed. Hands/walking, alternate bike HUD and
+Dream Ride launchers are not part of this package. Main options are preserved
+exactly; the ROM path and writable working directory become package-relative.
+
+Runtime requirements: Windows x64, Windows PowerShell5.1+, SteamVR selected as
+the installed active OpenXR runtime. The user starts SteamVR. The launcher reads
+its registered JSON/library paths instead of assuming a Steam installation path.
+It does not change the system runtime, start SteamVR, copy existing profiles or
+enable bulk captures. It uses normal sound only for a user-initiated launch.
+PreflightOnly is read-only and neither loads a runtime nor launches a game.
+Running runtime processes is not proof that the headset is tracked or ready.
+
+The release-ready.json marker is intentionally NOT present. A future packager
+must create it only after the exact source commit, license/notice collection,
+clean build, fresh-profile behavior and final user playtest are accepted:
+
+  schema: 1
+  releaseReady: true
+  mode: regular
+  sourceCommit: complete40characterGitcommit
+  correspondingSource: HTTPS URL of the complete matching source
+  files: array of { path, sha256 } entries for all immutable files checked by
+         Play-HarleyVR.ps1. Paths use Windows backslashes for nested entries.
+
+Hashes detect missing/changed package files; this manifest is not a digital
+signature. User-editable Supermodel.ini and user ROM/Saves/NVRAM are not hash
+locked. Do not create a ready marker merely to bypass preparation checks.
+
+Remaining work: complete and test the packager; supply redistributable sources,
+notices and generic configuration; confirm behavior from cold boot with empty
+NVRAM; check all riders/menus/credits and saves; validate actual packaged build
+performance. This scaffold does not claim to have performed those steps.

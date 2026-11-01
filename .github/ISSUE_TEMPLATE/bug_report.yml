@@ -1,0 +1,37 @@
+name: Bug report
+description: Report a reproducible problem in a published HarleyVR build.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Please report the exact release. Do not attach ROMs, save states or personal information. Public binaries are still in preparation."
+  - type: input
+    id: version
+    attributes:
+      label: Release version
+      placeholder: Version shown on the downloaded release
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Headset, runtime and PC
+      description: Include CPU, GPU, Windows version and render resolution if known.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: What happened, and how can it be reproduced?
+      description: Include rider, location and whether the problem affects the whole view or specific objects.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Optional screenshot, short clip or reviewed log excerpt
+      description: Remove personal information. Do not attach ROMs or save states.
