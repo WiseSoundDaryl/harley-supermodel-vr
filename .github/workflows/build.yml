@@ -1,5 +1,7 @@
 ---
-name: Build Supermodel
+# Inherited reusable upstream build; not HarleyVR build or headset validation.
+# The HarleyVR source-integrity workflow does not invoke this build or package it.
+name: Upstream Supermodel build (not HarleyVR)
 
 on:
   workflow_call:

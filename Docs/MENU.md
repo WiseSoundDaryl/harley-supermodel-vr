@@ -47,7 +47,7 @@ This setting applies to a single mapped wheel or joystick axis, rather than the 
 
 ## Original arcade settings and Free Play
 
-Choose **Arcade settings → Enter arcade settings** to open the original cabinet menu. While arcade controls are active:
+Choose **Arcade settings → Enter arcade settings** to open the original cabinet menu. **Entering arcade settings ends the current ride.** Exit the cabinet menus to return to the arcade's startup flow; the interrupted ride does not resume. While arcade controls are active:
 
 | Function | Keyboard | VR controllers |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ To choose Free Play using the original cabinet menu:
 
 1. Open **COIN ASSIGNMENTS**.
 2. Use Service to reach **COIN/CREDIT SETTING**, then Test to select **#27 / FREE PLAY**.
-3. Select **EXIT** in each original arcade menu to save and return to the game.
+3. Select **EXIT** in each original arcade menu to save the cabinet settings and return to the arcade's startup flow.
 4. Reopen the HarleyVR panel and leave arcade controls to restore the normal riding mapping.
 
 Use the cabinet menu's **EXIT** options before leaving arcade controls in HarleyVR. Free Play is optional; existing cabinet settings are preserved until you change them. For more detail, see the original [SEGA owner's manual](https://www.arcade-museum.com/manuals-videogames/H/Harley-Davidson_00004.pdf), printed pages 26–27.

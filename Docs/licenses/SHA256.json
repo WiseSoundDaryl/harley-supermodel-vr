@@ -354,9 +354,7 @@
     "libgcc",
     "libstdc++"
   ],
-  "missingFullTextReview": [
-    "Dear ImGui vendored1.92.6 WIP LICENSE.txt absent; obtain correct-revision copyright/license text."
-  ],
+  "missingFullTextReview": [],
   "RequiredFiles": [
     "BarlowCondensed-OFL.txt",
     "CPU-Sound-vendored-notices.txt",

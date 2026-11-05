@@ -1,0 +1,63 @@
+name: HarleyVR source integrity
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harleyvr-integrity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  notices-and-syntax:
+    name: Notices and PowerShell syntax
+    runs-on: windows-2022
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Preserve recorded file bytes
+        run: |
+          git config --global core.autocrlf false
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot configure checkout line endings.' }
+          git config --global core.eol lf
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot configure checkout line endings.' }
+
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify notices and ImGui source identities
+        run: |
+          $result = & ./packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
+          if (-not $result.Passed -or -not $result.ImGuiSourceChecked -or $result.ImGuiSourceBlobs -ne 15) {
+            throw 'Notice and ImGui source verification did not complete.'
+          }
+          $result | Format-List
+
+      - name: Parse tracked PowerShell scripts
+        run: ./packaging/Test-SourceSyntax.ps1 -Root . | Format-List
+
+      - name: Record check scope
+        run: |
+          @'
+          ## Source integrity checks passed
+
+          Verified recorded notice hashes, the 15 recorded ImGui source identities,
+          and syntax of every tracked PowerShell script. The syntax check parses
+          scripts without executing them.
+
+          These checks do not establish a clean HarleyVR build, complete
+          corresponding source, dependency provenance, legal clearance, physical
+          headset compatibility or release readiness. No emulator, ROM, headset
+          test, player packaging or publication runs in this workflow.
+          '@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append

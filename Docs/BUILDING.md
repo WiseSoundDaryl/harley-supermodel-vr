@@ -22,7 +22,7 @@ Source staging is not yet complete. A public source archive must include require
 
 ## Build system and dependencies
 
-The implementation is based on the [official Supermodel source](https://github.com/trzy/Supermodel). The Windows makefile includes the Windows OpenXR implementation. The upstream-style entry point, from a complete source checkout in an MSYS2 MINGW64 shell, is:
+The implementation is based on the [official Supermodel source](https://github.com/trzy/Supermodel). The private development build includes the Windows OpenXR implementation; the public checkout does not yet contain that integration or its complete build inputs. The upstream-style entry point, from a complete source checkout in an MSYS2 MINGW64 shell, is:
 
 ```sh
 make -f Makefiles/Makefile.Win32 -j4
@@ -68,10 +68,21 @@ All automated emulator tests must use `-sound -dsb -sound-volume=0 -music-volume
 
 See [the release checklist](RELEASE-CHECKLIST.md) and [the license inventory](THIRD-PARTY-NOTICES.md) for remaining gates.
 
-The read-only notice check runs with Windows PowerShell 5.1 or later:
+## Automated source checks
+
+[HarleyVR source integrity](../.github/workflows/harleyvr-checks.yml) runs on pushes and pull requests to `master`, or by manual dispatch. It uses a Windows 2022 runner with read-only repository permissions and a pinned checkout action. Checkout preserves the recorded notice bytes instead of converting line endings.
+
+The workflow verifies notice hashes, the 15 recorded Dear ImGui source identities, and the syntax of every tracked PowerShell script. Syntax validation parses the scripts without executing them. It does not start the game, use ROMs or headsets, build or package software, or publish a release.
+
+The checks also run locally with Windows PowerShell 5.1 or later:
 
 ```powershell
 packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
+packaging/Test-SourceSyntax.ps1 -Root .
 ```
 
-Use the complete source checkout as `SourceRoot`, or omit that argument when checking a player package. The gate verifies recorded notice hashes and, with source supplied, the matched ImGui snapshot. It is intentionally separate from the clean-build, corresponding-source, dependency-provenance and final-release checks above.
+Use this checkout as `SourceRoot` to verify its recorded ImGui snapshot, or omit that argument when checking notices in a player package. The syntax check requires a Git checkout and checks tracked files only.
+
+A green source-integrity check is **not** a clean-build result, complete corresponding-source review, dependency-provenance check, legal clearance, physical-headset validation or release approval. Those gates remain outstanding as described above.
+
+[Upstream Supermodel build (not HarleyVR)](../.github/workflows/build.yml) is the inherited reusable workflow. Its Windows/Linux/macOS matrix and dependencies do not validate the VR integration; the new checks do not invoke it. The separate [release-preparation workflow](../.github/workflows/release.yml) remains intentionally blocked and cannot publish a player package.
