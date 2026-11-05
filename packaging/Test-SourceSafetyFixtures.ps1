@@ -21,6 +21,7 @@ $fixture=Join-Path $parent.FullName ('HarleyVR-source-safety-'+$token)
 $marker=Join-Path $fixture '.fixture-owner'
 $checks=0; $cases=New-Object 'System.Collections.Generic.List[string]'
 $created=$false
+$originalInputEncoding=[Console]::InputEncoding
 function Assert-Safety([bool]$Condition,[string]$Message) {
     $script:checks++
     if (-not $Condition) { throw ('Source-safety fixture failed: '+$Message) }
@@ -39,10 +40,26 @@ function Invoke-FixtureGit([string[]]$Arguments,[string]$InputText=$null,[int[]]
     $si.EnvironmentVariables['GIT_TERMINAL_PROMPT']='0'
     $p=New-Object Diagnostics.Process; $p.StartInfo=$si
     try {
-        if (-not $p.Start()) { throw 'Could not start Git for synthetic fixtures.' }
+        if ($si.PSObject.Properties['StandardInputEncoding']) {
+            $si.StandardInputEncoding=New-Object Text.UTF8Encoding($false)
+            $started=$p.Start()
+        } else {
+            $savedInputEncoding=[Console]::InputEncoding
+            try {
+                [Console]::InputEncoding=New-Object Text.UTF8Encoding($false)
+                $started=$p.Start()
+            } finally { [Console]::InputEncoding=$savedInputEncoding }
+        }
+        if (-not $started) { throw 'Could not start Git for synthetic fixtures.' }
         $out=$p.StandardOutput.ReadToEndAsync(); $err=$p.StandardError.ReadToEndAsync()
-        if ($null -ne $InputText) { $p.StandardInput.Write($InputText) }
-        $p.StandardInput.Close(); $p.WaitForExit()
+        # Git stdin is a byte protocol, independent of Console.InputEncoding.
+        # Avoid the Framework writer's optional BOM even when sending no input.
+        $inputPipe=$p.StandardInput.BaseStream
+        if ($null -ne $InputText) {
+            $inputBytes=[Text.Encoding]::UTF8.GetBytes($InputText)
+            $inputPipe.Write($inputBytes,0,$inputBytes.Length)
+        }
+        $inputPipe.Close(); $p.WaitForExit()
         $result=$out.GetAwaiter().GetResult(); $errors=$err.GetAwaiter().GetResult()
         if ($p.ExitCode -notin $Expected) { throw ('Synthetic Git operation failed: '+($Arguments -join ' ')) }
         return $result
@@ -85,9 +102,31 @@ function Check-Fixture([string]$Name,[bool]$Expected,[string]$Reason='') {
     return $result
 }
 try {
+    # Reproduce the Windows CI encoding that formerly prefixed Git object IDs
+    # with a BOM. Every default fixture run covers it, then restores the caller.
+    [Console]::InputEncoding=New-Object Text.UTF8Encoding($true)
+    Assert-Safety ([Console]::InputEncoding.WebName -ceq 'utf-8' -and [Console]::InputEncoding.GetPreamble().Length -eq 3) 'UTF8-BOM input regression environment'
     $null=New-Item -ItemType Directory -Path $fixture
     $created=$true
     [IO.File]::WriteAllText($marker,$token)
+    # Exercise the actual production Start helper's failure path without a
+    # replacement implementation or any executable fixture. This child scope
+    # uses an absent path and cannot start Git, an emulator or a runtime.
+    $tokens=$null; $parseErrors=$null
+    $syntax=[Management.Automation.Language.Parser]::ParseFile($checker,[ref]$tokens,[ref]$parseErrors)
+    $startFunction=@($syntax.FindAll({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'New-SafetyGit'},$true))
+    Assert-Safety ($parseErrors.Count -eq 0 -and $startFunction.Count -eq 1) 'actual Git start helper is available'
+    $failedStart=& {
+        param($Definition,$Directory)
+        $git=Join-Path $Directory 'intentionally-absent-tool.exe'; $checkedRoot=$Directory
+        . ([scriptblock]::Create($Definition))
+        $caught=$false
+        try { $null=New-SafetyGit 'cat-file --batch' $true } catch { $caught=$true }
+        [pscustomobject]@{Caught=$caught;Restored=([Console]::InputEncoding.WebName -ceq 'utf-8' -and [Console]::InputEncoding.GetPreamble().Length -eq 3)}
+    } $startFunction[0].Extent.Text $fixture
+    Assert-Safety $failedStart.Caught 'owned Git start failure is surfaced'
+    Assert-Safety $failedStart.Restored 'owned Git start failure restores UTF8-BOM caller encoding'
+    $cases.Add('owned Git start failure restores caller encoding')
     [IO.File]::WriteAllText((Join-Path $fixture '.empty-global-config'),'')
     $null=New-Item -ItemType Directory -Path (Join-Path $fixture '.empty-hooks')
     $null=Invoke-FixtureGit @('init','--quiet','--template=')
@@ -222,8 +261,9 @@ try {
         Assert-Safety ([string]::IsNullOrEmpty($answer)) ('source remains addable: '+$relative)
     }
     $null=Check-Fixture 'clean index after every negative case' $true
-    $result=[pscustomobject]@{Passed=$true;Checks=$checks;Cases=$cases.Count;CaseNames=$cases.ToArray();SyntheticOnly=$true;FixtureCleanup=$false;GameDataUsed=$false;GameOrRuntimeLaunched=$false;HistoryRewritten=$false;ReleaseReady=$false}
+    $result=[pscustomobject]@{Passed=$true;Checks=$checks;Cases=$cases.Count;CaseNames=$cases.ToArray();SyntheticOnly=$true;FixtureCleanup=$false;UTF8BomInputCovered=$true;ConsoleInputEncodingRestored=$false;GameDataUsed=$false;GameOrRuntimeLaunched=$false;HistoryRewritten=$false;ReleaseReady=$false}
 } finally {
+  try {
     if ($created -and (Test-Path -LiteralPath $fixture)) {
         $resolved=[IO.Path]::GetFullPath((Resolve-Path -LiteralPath $fixture).Path)
         $expected=[IO.Path]::GetFullPath((Join-Path $parent.FullName ('HarleyVR-source-safety-'+$token)))
@@ -232,6 +272,10 @@ try {
         if (@($items | Where-Object {$_.Attributes -band [IO.FileAttributes]::ReparsePoint}).Count) { throw 'Fixture cleanup refused a linked path.' }
         Remove-Item -LiteralPath $resolved -Recurse -Force
     }
+  } finally { [Console]::InputEncoding=$originalInputEncoding }
 }
 $result.FixtureCleanup=$true
+$result.ConsoleInputEncodingRestored=([Console]::InputEncoding.CodePage -eq $originalInputEncoding.CodePage -and
+    [Convert]::ToBase64String([Console]::InputEncoding.GetPreamble()) -ceq [Convert]::ToBase64String($originalInputEncoding.GetPreamble()))
+if (-not $result.ConsoleInputEncodingRestored) { throw 'The caller input encoding was not restored.' }
 $result

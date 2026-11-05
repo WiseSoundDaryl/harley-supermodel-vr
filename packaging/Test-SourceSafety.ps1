@@ -29,8 +29,23 @@ function New-SafetyGit([string]$Arguments, [bool]$InputPipe = $false) {
     $si.RedirectStandardInput = $InputPipe
     $si.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
     $p = New-Object System.Diagnostics.Process; $p.StartInfo = $si
-    if (-not $p.Start()) { $p.Dispose(); throw 'Could not read Git source objects.' }
-    return $p
+    try {
+        if ($InputPipe -and $si.PSObject.Properties['StandardInputEncoding']) {
+            $si.StandardInputEncoding=New-Object Text.UTF8Encoding($false)
+            $started=$p.Start()
+        } elseif ($InputPipe) {
+            # Framework creates and auto-flushes its stdin writer in Start.
+            # It lacks StandardInputEncoding, so normalize only that creation
+            # and restore the caller immediately, including on start failure.
+            $savedInputEncoding=[Console]::InputEncoding
+            try {
+                [Console]::InputEncoding=New-Object Text.UTF8Encoding($false)
+                $started=$p.Start()
+            } finally { [Console]::InputEncoding=$savedInputEncoding }
+        } else { $started=$p.Start() }
+        if (-not $started) { throw 'Could not read Git source objects.' }
+        return $p
+    } catch { $p.Dispose(); throw }
 }
 function Read-SafetyGit([string]$Arguments) {
     $p = New-SafetyGit $Arguments
@@ -120,6 +135,7 @@ $batch = New-SafetyGit '--no-replace-objects cat-file --batch' $true
 $errorTask = $batch.StandardError.ReadToEndAsync()
 try {
     $stream = $batch.StandardOutput.BaseStream
+    $inputStream = $batch.StandardInput.BaseStream
     $buffer = New-Object byte[] 65536
     foreach ($entry in $entries) {
         if ($entry -notmatch '(?s)^(?<mode>\d{6}) (?<oid>[0-9a-f]{40,64}) (?<stage>[0-3])\t(?<path>.+)$') { throw 'Unexpected Git index entry.' }
@@ -129,7 +145,11 @@ try {
         if ($mode -cnotin @('100644','100755')) { Add-SafetyFinding $path 'Links and submodules require separate source review'; continue }
         $pathFinding = Test-SafetyPath $path
         if ($pathFinding) { Add-SafetyFinding $path $pathFinding }
-        $batch.StandardInput.WriteLine($oid); $batch.StandardInput.Flush()
+        # This is a byte protocol. Framework's default stdin StreamWriter can
+        # inherit a UTF8 BOM from Console.InputEncoding on Windows CI runners.
+        # Send the validated ASCII object ID and LF directly, without a BOM/CR.
+        $request=[Text.Encoding]::ASCII.GetBytes($oid+"`n")
+        $inputStream.Write($request,0,$request.Length); $inputStream.Flush()
         $header = Read-SafetyHeader $stream
         if ($header -notmatch '^([0-9a-f]{40,64}) blob ([0-9]+)$' -or $Matches[1] -cne $oid) { throw 'Git object identity or type mismatch.' }
         [long]$length = $Matches[2]; [long]$remaining = $length; $bytesRead += $length
@@ -174,7 +194,8 @@ try {
             }
         } finally { $body.Dispose() }
     }
-    $batch.StandardInput.Close(); $batch.WaitForExit()
+    # Close the raw pipe, not the unused text writer (which may emit its BOM).
+    $inputStream.Close(); $batch.WaitForExit()
     $errors=$errorTask.GetAwaiter().GetResult()
     if ($batch.ExitCode -ne 0) { throw 'Git source-object reading failed.' }
 } finally {
