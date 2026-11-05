@@ -59,6 +59,53 @@ function Save-MetaAswJournal([string]$Path,$Journal) {
     $Journal | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $temporary -Encoding utf8
     Move-Item -LiteralPath $temporary -Destination $Path -Force
 }
+function Test-MetaJournalInteger($Value) {
+    # JSON numbers must be integral identities, not strings, booleans or fractions.
+    return ($Value -is [int] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte])
+}
+function Test-MetaJournalTimestamp($Value) {
+    # PowerShell 7 can deserialize ISO timestamps as DateTime; 5.1 keeps strings.
+    if ($Value -is [DateTime]) { return $Value.Kind -ne [DateTimeKind]::Unspecified }
+    if ($Value -is [DateTimeOffset]) { return $true }
+    if ($Value -isnot [string] -or $Value -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { return $false }
+    $parsed=[DateTimeOffset]::MinValue
+    return [DateTimeOffset]::TryParse($Value,[Globalization.CultureInfo]::InvariantCulture,
+        [Globalization.DateTimeStyles]::None,[ref]$parsed)
+}
+function Test-MetaJournalIdentity($Identity,[switch]$Service) {
+    if ($Identity -isnot [Collections.IDictionary] -or
+        -not $Identity.Contains('ProcessId') -or -not $Identity.Contains('StartedUTC')) { return $false }
+    if (-not (Test-MetaJournalInteger $Identity.ProcessId) -or
+        $Identity.ProcessId -le 0 -or $Identity.ProcessId -gt [int]::MaxValue -or
+        -not (Test-MetaJournalTimestamp $Identity.StartedUTC)) { return $false }
+    if ($Service -and (-not $Identity.Contains('Executable') -or
+        $Identity.Executable -isnot [string] -or [string]::IsNullOrWhiteSpace($Identity.Executable) -or
+        -not [IO.Path]::IsPathRooted($Identity.Executable))) { return $false }
+    return $true
+}
+function Read-MetaAswJournal([string]$Path) {
+    $json=Get-Content -Raw -LiteralPath $Path
+    # PowerShell 7 unwraps one-element JSON arrays. Recovery records must be
+    # objects, regardless of the JSON pipeline's enumeration behavior.
+    if ([string]::IsNullOrWhiteSpace($json) -or -not $json.TrimStart().StartsWith('{')) {
+        throw 'Unrecognized ASW recovery journal. Preserve it for review.'
+    }
+    $journal=$json | ConvertFrom-Json | ConvertTo-MetaJournalMap
+    if ($journal -isnot [Collections.IDictionary] -or
+        -not $journal.Contains('Schema') -or -not (Test-MetaJournalInteger $journal.Schema) -or $journal.Schema -ne 1 -or
+        -not $journal.Contains('BeforeMode') -or $journal.BeforeMode -isnot [string] -or $journal.BeforeMode -cnotin @('auto','off') -or
+        -not $journal.Contains('Status') -or $journal.Status -isnot [string] -or
+        $journal.Status -cnotin @('pending','restored','unchanged-off','external-change-preserved','service-changed-no-restore')) {
+        throw 'Unrecognized ASW recovery journal. Preserve it for review.'
+    }
+    if ($journal.Status -ceq 'pending' -and (
+        -not $journal.Contains('Owner') -or -not (Test-MetaJournalIdentity $journal.Owner) -or
+        -not $journal.Contains('Service') -or -not (Test-MetaJournalIdentity $journal.Service -Service) -or
+        -not $journal.Contains('Game') -or ($null -ne $journal.Game -and -not (Test-MetaJournalIdentity $journal.Game)))) {
+        throw 'Incomplete or invalid ASW recovery identity. Preserve the journal for review.'
+    }
+    return $journal
+}
 function Complete-MetaAswGuard($Context,[scriptblock]$ServiceProvider={Get-MetaServiceIdentity}) {
     $journal=$Context.Journal
     if($journal.Status -ne 'pending'){return $journal}
@@ -91,13 +138,8 @@ function Complete-MetaAswGuard($Context,[scriptblock]$ServiceProvider={Get-MetaS
 function Repair-MetaAswPending([string]$Path,[scriptblock]$Runner,
     [scriptblock]$ServiceProvider={Get-MetaServiceIdentity},[scriptblock]$ProcessAlive={param($i) Test-MetaProcessIdentity $i},$Events=$null) {
     if(!(Test-Path -LiteralPath $Path)){return $null}
-    $journal=Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json | ConvertTo-MetaJournalMap
-    if($journal.Schema -ne 1 -or $journal.BeforeMode -cnotin @('auto','off')){throw 'Unrecognized ASW recovery journal. Preserve it for review.'}
-    if($journal.Status -cnotin @('pending','restored','unchanged-off','external-change-preserved','service-changed-no-restore')){throw 'Unrecognized ASW journal status. Preserve it for review.'}
+    $journal=Read-MetaAswJournal $Path
     if($journal.Status -ne 'pending'){return $journal}
-    if(!$journal.Service.ProcessId -or !$journal.Service.Executable -or !$journal.Owner.ProcessId -or !$journal.Owner.StartedUTC -or !$journal.Service.StartedUTC){throw 'Incomplete ASW recovery identity. Preserve the journal for review.'}
-    $null=([DateTimeOffset]$journal.Service.StartedUTC).UtcDateTime.Ticks
-    $null=([DateTimeOffset]$journal.Owner.StartedUTC).UtcDateTime.Ticks
     if((& $ProcessAlive $journal.Owner) -or (& $ProcessAlive $journal.Game)) {
         throw 'The earlier Rift S launcher/game is still running. Its ASW setting has not been changed.'
     }
@@ -107,7 +149,7 @@ function Repair-MetaAswPending([string]$Path,[scriptblock]$Runner,
 function Start-MetaAswGuard([string]$Path,[scriptblock]$Runner,
     [scriptblock]$ServiceProvider={Get-MetaServiceIdentity},$Events=$null) {
     if(Test-Path -LiteralPath $Path) {
-        $old=Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
+        $old=Read-MetaAswJournal $Path
         if($old.Status -eq 'pending'){throw 'An outstanding ASW recovery must be resolved before starting another game.'}
     }
     $service=& $ServiceProvider

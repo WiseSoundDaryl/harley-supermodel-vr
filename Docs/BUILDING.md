@@ -72,16 +72,24 @@ See [the release checklist](RELEASE-CHECKLIST.md) and [the license inventory](TH
 
 [HarleyVR source integrity](../.github/workflows/harleyvr-checks.yml) runs on pushes and pull requests to `master`, or by manual dispatch. It uses a Windows 2022 runner with read-only repository permissions and a pinned checkout action. Checkout preserves the recorded notice bytes instead of converting line endings.
 
-The workflow verifies notice hashes, the 15 recorded Dear ImGui source identities, and the syntax of every tracked PowerShell script. Syntax validation parses the scripts without executing them. It does not start the game, use ROMs or headsets, build or package software, or publish a release.
+The workflow verifies notice hashes, the 15 recorded Dear ImGui source identities, tracked PowerShell syntax, and the [source-distribution policy](SOURCE-SAFETY.md). It also executes synthetic regression tests for Meta ASW recovery and both launcher preflight routes. These tests use disposable fixtures and mocked diagnostic, process and runtime boundaries. They do not start the game, contact the installed Meta diagnostic tool, change actual ASW settings, use ROMs or headsets, build player software, or publish a release.
 
 The checks also run locally with Windows PowerShell 5.1 or later:
 
 ```powershell
 packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
 packaging/Test-SourceSyntax.ps1 -Root .
+packaging/Test-SourceSafety.ps1 -Root .
+packaging/Test-SourceSafetyFixtures.ps1
+packaging/Test-MetaAswRecovery.ps1
+packaging/Test-LauncherPreflight.ps1
 ```
 
-Use this checkout as `SourceRoot` to verify its recorded ImGui snapshot, or omit that argument when checking notices in a player package. The syntax check requires a Git checkout and checks tracked files only.
+Use this checkout as `SourceRoot` to verify its recorded ImGui snapshot, or omit that argument when checking notices in a player package. Syntax checks read tracked working files. Source-safety checks read the staged Git blobs, including files omitted by sparse checkout; stage intended changes before running that check locally.
+
+The regression harnesses require no private reference manifest or external test framework. They create small, isolated temporary directories and remove only their own fixtures. ASW cases cover initial modes, interrupted sessions, identity changes, external settings, invalid recovery records and failed restoration. Launcher cases exercise the actual `-PreflightOnly` path, diagnostic messages, launch arguments and unchanged fixture files. A synthetic passing package contains inert test data, not runnable game files.
+
+`packaging/validation-result.json` remains the historical development record for the original launcher draft. `Test-LauncherDraft.ps1` retains its private-reference comparison for development use; the standalone commands above are the reproducible public checks. Current results appear in the workflow log, rather than treating the older record as validation of changed files.
 
 A green source-integrity check is **not** a clean-build result, complete corresponding-source review, dependency-provenance check, legal clearance, physical-headset validation or release approval. Those gates remain outstanding as described above.
 

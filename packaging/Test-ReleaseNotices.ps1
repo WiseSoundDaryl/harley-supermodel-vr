@@ -16,8 +16,10 @@ $ErrorActionPreference='Stop'
 
 function Get-NoticeRoot([string]$Path) {
     if([string]::IsNullOrWhiteSpace($Path)){throw 'A notice root directory is required.'}
-    $item=Get-Item -LiteralPath ([IO.Path]::GetFullPath($Path)) -Force
-    if(!$item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+    # Resolve relative roots from PowerShell's current location, which can differ
+    # from the process working directory after Set-Location or Push-Location.
+    $item=Get-Item -LiteralPath $Path -Force
+    if($item -isnot [IO.DirectoryInfo] -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
         throw "Notice root must be a real directory, not a link: $Path"
     }
     return $item.FullName

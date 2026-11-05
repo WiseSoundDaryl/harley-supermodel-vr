@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   notices-and-syntax:
-    name: Notices and PowerShell syntax
+    name: Source integrity and synthetic launcher checks
     runs-on: windows-2022
     timeout-minutes: 10
     defaults:
@@ -47,17 +47,59 @@ jobs:
       - name: Parse tracked PowerShell scripts
         run: ./packaging/Test-SourceSyntax.ps1 -Root . | Format-List
 
+      - name: Check source-distribution policy
+        run: |
+          $result = & ./packaging/Test-SourceSafety.ps1 -Root .
+          if (-not $result.Passed -or -not $result.StagedBlobsChecked -or $result.FilesChecked -le 0) {
+            throw 'Staged source-distribution verification did not complete.'
+          }
+          $result | Format-List
+
+      - name: Exercise source-policy fixtures
+        run: |
+          $result = & ./packaging/Test-SourceSafetyFixtures.ps1
+          if (-not $result.Passed -or -not $result.SyntheticOnly -or -not $result.FixtureCleanup -or
+              $result.Cases -le 0 -or $result.Checks -le 0) {
+            throw 'Synthetic source-policy fixtures did not complete.'
+          }
+          $result | Format-List
+
+      - name: Exercise synthetic Meta ASW recovery
+        run: |
+          $result = & ./packaging/Test-MetaAswRecovery.ps1
+          if (-not $result.Passed -or $result.Cases -le 0 -or $result.Checks -le 0 -or $result.NativeBoundaryAttempts -ne 0 -or
+              $result.RealMetaContacted -or $result.RealASWChanged -or -not $result.TemporaryFilesRemoved) {
+            throw 'Synthetic ASW recovery checks did not complete safely.'
+          }
+          $result | Format-List
+
+      - name: Exercise synthetic launcher preflight
+        run: |
+          $result = & ./packaging/Test-LauncherPreflight.ps1
+          if (-not $result.Passed -or $result.Cases -le 0 -or $result.Checks -le 0 -or
+              $result.SentinelProbesBlocked -le 0 -or $result.ForbiddenActionsReachedDuringPreflight -ne 0 -or
+              $result.GameLaunched -or $result.RuntimeLoaded -or $result.AswQueriedOrChanged -or -not $result.FixturesRemoved) {
+            throw 'Synthetic launcher preflight checks did not complete safely.'
+          }
+          $result | Format-List
+
       - name: Record check scope
         run: |
           @'
           ## Source integrity checks passed
 
           Verified recorded notice hashes, the 15 recorded ImGui source identities,
-          and syntax of every tracked PowerShell script. The syntax check parses
-          scripts without executing them.
+          tracked PowerShell syntax, and the staged source-distribution policy.
+          Synthetic regression tests exercised source-policy rejection, Meta ASW
+          recovery, and both launcher preflight routes using disposable fixtures.
+
+          Tests use inert payloads and mocked process/runtime/diagnostic boundaries.
+          They never invoke the installed Meta diagnostic tool or change real ASW.
 
           These checks do not establish a clean HarleyVR build, complete
           corresponding source, dependency provenance, legal clearance, physical
           headset compatibility or release readiness. No emulator, ROM, headset
-          test, player packaging or publication runs in this workflow.
+          test, player packaging or publication runs in this workflow. The source
+          policy checks the current index, not every historical Git object or all
+          possible encoded private data.
           '@ | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append

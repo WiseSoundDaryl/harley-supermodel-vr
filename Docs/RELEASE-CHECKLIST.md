@@ -21,6 +21,7 @@ This checklist is intentionally open. A local staging folder is not a published 
 - [ ] Preserve upstream licensing, copyright and credits; finish the remaining [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) component and corresponding-source checks.
 - [ ] Record dependency versions, provenance and source availability; verify real loader/runtime DLL identities.
 - [ ] Audit both public files and Git history for ROMs, extracted game assets, game-bearing saves, personal paths/settings, credentials, logs and private captures. Do not upload the development workspace wholesale.
+- [x] Add a read-only staged-source policy and synthetic rejection fixtures. This is preventive coverage; historical findings and redistribution rights still require the review above.
 
 ## 3. Make a self-contained player package
 
@@ -38,6 +39,7 @@ This checklist is intentionally open. A local staging folder is not a published 
 - [ ] Build from a fresh checkout using only the documented source/dependencies. No old development objects may be silently reused.
 - [ ] Extract the proposed player ZIP into a fresh folder and run without the development workspace being required.
 - [ ] Confirm missing-ROM/runtime/headset messages and orderly shutdown.
+- [x] Make launcher preflight and Meta ASW recovery regression tests runnable from the public checkout with synthetic fixtures. These do not validate the final player package or an installed Meta runtime.
 - [ ] Check attract screen, coin/start, building intro, every rider and transmission choice, gameplay, pause/recenter, controller exit, game-over/restart, ending and credits.
 - [ ] Check first-person default, full bike, independent head movement, stereo depth and theater presentation. Check menus/text occlusion and existing HUD readability.
 - [ ] Check crash and landing vibration, vignette response and hills; document remaining false positives rather than claiming they are all solved.

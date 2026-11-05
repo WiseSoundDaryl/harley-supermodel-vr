@@ -377,3 +377,88 @@ pkg/
 
 
 
+
+# HarleyVR source checkout: player packages and private runs live elsewhere.
+# Case-explicit patterns also work on case-sensitive developer/CI systems.
+[Rr][Oo][Mm]/
+[Rr][Oo][Mm][Ss]/
+[Ss][Aa][Vv][Ee]/
+[Ss][Aa][Vv][Ee][Ss]/
+[Nn][Vv][Rr][Aa][Mm]/
+[Dd]iagnostics/
+/[Rr]uns/
+/[Rr]eports/
+/[Cc]aptures/
+/[Pp]rofiles/
+/[Pp]go/
+/[Pp]rivate/
+/[Dd]ist/
+
+# Runtime binaries, archives, emulation data and profile-guided build outputs.
+*.[Ee][Xx][Ee]
+*.[Dd][Ll][Ll]
+*.[Ss][Oo]
+*.[Ss][Oo].*
+*.[Dd][Yy][Ll][Ii][Bb]
+*.[Oo]
+*.[Aa]
+*.[Ll][Ii][Bb]
+*.[Zz][Ii][Pp]
+*.[7][Zz]
+*.[Rr][Aa][Rr]
+*.[Tt][Aa][Rr]
+*.[Gg][Zz]
+*.[Tt][Gg][Zz]
+*.[Xx][Zz]
+*.[Bb][Zz]2
+*.[Rr][Oo][Mm]
+*.[Bb][Ii][Nn]
+*.[Ss][Tt][0-9]*
+*.[Nn][Vv]
+*.[Nn][Vv][Rr][Aa][Mm]
+*.[Gg][Cc][Dd][Aa]
+*.[Gg][Cc][Nn][Oo]
+*.[Pp][Rr][Oo][Ff][Rr][Aa][Ww]
+*.[Pp][Rr][Oo][Ff][Dd][Aa][Tt][Aa]
+*.[Pp][Gg][Cc]
+*.[Pp][Gg][Dd]
+*.[Ee][Tt][Ll]
+*.[Dd][Mm][Pp]
+
+# Writable player files are not generic source defaults. Document examples may
+# use a reviewed *.example suffix; Config/Games.xml and Music.xml stay tracked.
+**/[Ss]upermodel.ini
+**/[Hh]arleyvr-menu.ini
+**/[Mm]eta-asw-pending.json
+**/[Rr]elease-ready.json
+**/[Ss]teamvr.vrsettings
+**/[Oo]penvrpaths.vrpath
+*.[Oo][Bb][Jj]
+*.[Pp][Dd][Bb]
+*.[Pp][Cc][Hh]
+*.[Ii][Ll][Kk]
+*.[Ee][Xx][Pp]
+*.[Ii][Oo][Bb][Jj]
+*.[Ii][Pp][Dd][Bb]
+*.[Ll][Oo][Gg]
+*.[Mm][Pp]4
+*.[Mm][Kk][Vv]
+*.[Aa][Vv][Ii]
+*.[Ss][Aa][Vv]
+*.[Ss][Aa][Vv].*
+*.[Ss][Tt][Aa][Tt][Ee]
+*.[Ss][Tt][Aa][Tt][Ee].*
+*.[Ss][Aa][Vv][Ee]
+*.[Ss][Aa][Vv][Ee].*
+*.[Nn][Vv].*
+*.[Nn][Vv][Rr][Aa][Mm].*
+*.[Pp][Ff][Xx]
+*.[Pp]12
+**/[Mm]eta-asw-recovery.json
+.[Ee][Nn][Vv]
+.[Ee][Nn][Vv].*
+!**/.[Ee][Nn][Vv]*.[Ee][Xx][Aa][Mm][Pp][Ll][Ee]
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
