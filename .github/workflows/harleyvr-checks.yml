@@ -36,11 +36,25 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Verify notices and ImGui source identities
+      - name: Verify notices and audited source subset
         run: |
           $result = & ./packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
-          if (-not $result.Passed -or -not $result.ImGuiSourceChecked -or $result.ImGuiSourceBlobs -ne 15) {
-            throw 'Notice and ImGui source verification did not complete.'
+          if (-not $result.Passed -or -not $result.ImGuiSourceChecked -or $result.ImGuiSourceBlobs -ne 15 -or
+              -not $result.RecordedSourceSubsetChecked -or $result.VerifiedRecordedSourceReferences -ne 15 -or
+              $result.PendingRecordedSourceReferences -ne 3 -or $result.AllRecordedSourcesVerified -ne $false -or
+              @($result.RecordedSourceFindings).Count -ne 3) {
+            throw 'Notice, ImGui and audited source-subset verification did not complete.'
+          }
+          $result | Format-List
+          Write-Warning 'Three recorded CPU/sound source identities remain unresolved; the audited subset does not verify them.'
+          $result.RecordedSourceFindings | Format-List
+
+      - name: Exercise recorded source-identity fixtures
+        run: |
+          $result = & ./packaging/Test-VendoredSourceIdentitiesFixtures.ps1
+          if (-not $result.Passed -or -not $result.SyntheticOnly -or -not $result.FixturesRemoved -or
+              $result.FilesModified -ne $false -or $result.Cases -le 0 -or $result.Checks -le 0) {
+            throw 'Recorded source-identity regression fixtures did not complete safely.'
           }
           $result | Format-List
 
@@ -89,9 +103,15 @@ jobs:
           ## Source integrity checks passed
 
           Verified recorded notice hashes, the 15 recorded ImGui source identities,
-          tracked PowerShell syntax, and the staged source-distribution policy.
-          Synthetic regression tests exercised source-policy rejection, Meta ASW
-          recovery, and both launcher preflight routes using disposable fixtures.
+          an audited subset of 15 manifest source references, tracked PowerShell
+          syntax, and the staged source-distribution policy. The source sets overlap.
+          Three CPU/sound manifest references remain unresolved and are not verified
+          by this green check. Their recorded hashes remain unchanged; see
+          Docs/RECORDED-SOURCE-VERIFICATION.md for the findings and strict-check scope.
+
+          Synthetic regression tests exercised recorded source identities,
+          source-policy rejection, Meta ASW recovery, and both launcher preflight
+          routes using disposable fixtures.
 
           Tests use inert payloads and mocked process/runtime/diagnostic boundaries.
           They never invoke the installed Meta diagnostic tool or change real ASW.

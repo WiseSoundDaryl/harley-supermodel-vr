@@ -72,12 +72,15 @@ See [the release checklist](RELEASE-CHECKLIST.md) and [the license inventory](TH
 
 [HarleyVR source integrity](../.github/workflows/harleyvr-checks.yml) runs on pushes and pull requests to `master`, or by manual dispatch. It uses a Windows 2022 runner with read-only repository permissions and a pinned checkout action. Checkout preserves the recorded notice bytes instead of converting line endings.
 
-The workflow verifies notice hashes, the 15 recorded Dear ImGui source identities, tracked PowerShell syntax, and the [source-distribution policy](SOURCE-SAFETY.md). It also executes synthetic regression tests for Meta ASW recovery and both launcher preflight routes. These tests use disposable fixtures and mocked diagnostic, process and runtime boundaries. They do not start the game, contact the installed Meta diagnostic tool, change actual ASW settings, use ROMs or headsets, build player software, or publish a release.
+The workflow verifies notice hashes, the 15 recorded Dear ImGui source identities, an audited subset of 15 source references in the license manifest, tracked PowerShell syntax, and the [source-distribution policy](SOURCE-SAFETY.md). Three other recorded CPU/sound source identities remain unresolved; a passing subset check does not verify them. See [recorded source verification](RECORDED-SOURCE-VERIFICATION.md) for the scope, line-ending rules and findings. The two source counts overlap and must not be added together.
+
+Synthetic regression tests cover recorded source identities, Meta ASW recovery and both launcher preflight routes. They use disposable fixtures and mocked diagnostic, process and runtime boundaries. They do not start the game, contact the installed Meta diagnostic tool, change actual ASW settings, use ROMs or headsets, build player software, or publish a release.
 
 The checks also run locally with Windows PowerShell 5.1 or later:
 
 ```powershell
 packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
+packaging/Test-VendoredSourceIdentitiesFixtures.ps1
 packaging/Test-SourceSyntax.ps1 -Root .
 packaging/Test-SourceSafety.ps1 -Root .
 packaging/Test-SourceSafetyFixtures.ps1
@@ -85,7 +88,9 @@ packaging/Test-MetaAswRecovery.ps1
 packaging/Test-LauncherPreflight.ps1
 ```
 
-Use this checkout as `SourceRoot` to verify its recorded ImGui snapshot, or omit that argument when checking notices in a player package. Syntax checks read tracked working files. Source-safety checks read the staged Git blobs, including files omitted by sparse checkout; stage intended changes before running that check locally.
+Use this checkout as `SourceRoot` to verify its recorded ImGui snapshot and the explicitly audited subset of other manifest references, or omit that argument when checking notices in a player package. The result separately reports verified and pending references; `AllRecordedSourcesVerified` remains false. The standalone `Test-VendoredSourceIdentities.ps1` defaults to strict `All` scope and currently fails on the three unresolved identities. `-Scope AuditedSubset` selects the same bounded policy used by the notice checker and CI.
+
+Syntax checks read tracked working files. Source-safety checks read the staged Git blobs, including files omitted by sparse checkout; stage intended changes before running that check locally.
 
 The regression harnesses require no private reference manifest or external test framework. They create small, isolated temporary directories and remove only their own fixtures. ASW cases cover initial modes, interrupted sessions, identity changes, external settings, invalid recovery records and failed restoration. Launcher cases exercise the actual `-PreflightOnly` path, diagnostic messages, launch arguments and unchanged fixture files. A synthetic passing package contains inert test data, not runnable game files.
 

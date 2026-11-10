@@ -5,7 +5,8 @@ Checks the recorded release notices without modifying files or starting software
 .DESCRIPTION
 This is a file-integrity gate only. It cannot establish legal clearance, complete
 corresponding source, or the exact versions/licenses of code linked into a binary.
-With -SourceRoot it also checks the recorded 15 Dear ImGui source blobs and notice.
+With -SourceRoot it also checks the recorded 15 Dear ImGui source blobs and notice,
+plus the audited local-source subset; unresolved references remain explicit.
 #>
 [CmdletBinding()]
 param(
@@ -114,7 +115,7 @@ foreach($entry in $entries) {
 }
 foreach($name in $required){if(!$seen.Contains($name)){throw "Required notice missing from manifest: $name"}}
 
-$sourceChecked=$false; $sourceCount=0; $upstreamRevision=$null
+$sourceChecked=$false; $sourceCount=0; $upstreamRevision=$null; $recordedSources=$null
 if($SourceRoot) {
     $checkedSource=Get-NoticeRoot $SourceRoot
     $staged=Get-NoticeFile $checkedRoot 'Docs/licenses/Dear-ImGui-LICENSE.txt'
@@ -144,6 +145,9 @@ if($SourceRoot) {
         if((Get-NoticeGitBlobHash $file -NormalizeCheckoutCRLF) -ne $entry.gitBlobSHA){throw "ImGui source differs from recorded upstream blob: $leaf"}
     }
     $sourceChecked=$true; $sourceCount=$sourceEntries.Count; $upstreamRevision=$sourceRecord.verifiedUpstreamRevision
+    $sourceChecker=Get-NoticeFile $PSScriptRoot 'Test-VendoredSourceIdentities.ps1'
+    $recordedSources=& $sourceChecker.FullName -ManifestPath $manifestFile.FullName -SourceRoot $checkedSource -Scope AuditedSubset
+    if(!$recordedSources.Passed){throw 'Audited recorded-source verification did not complete.'}
 }
 [pscustomobject]@{
     Passed=$true; NoticeCheckOnly=$true; ReleaseReady=$false; Root=$checkedRoot;
@@ -151,6 +155,13 @@ if($SourceRoot) {
     VerifiedNoticeFiles=$entries.Count; RequiredNoticeFiles=$required.Count;
     ImGuiSourceChecked=$sourceChecked; ImGuiSourceBlobs=$sourceCount; ImGuiUpstreamRevision=$upstreamRevision;
     ImGuiSourceHashNormalization='CRLF to LF for the 15 recorded source/header files only. Every other byte, including bare CR, is preserved. Notice and license hashes use raw bytes.';
+    RecordedSourceSubsetChecked=($null -ne $recordedSources);
+    VerifiedRecordedSourceReferences=if($recordedSources){$recordedSources.VerifiedReferences}else{0};
+    PendingRecordedSourceReferences=if($recordedSources){$recordedSources.PendingReferences}else{0};
+    AllRecordedSourcesVerified=if($recordedSources){$recordedSources.AllRecordedSourcesVerified}else{$false};
+    RecordedSourceFindings=if($recordedSources){@($recordedSources.Findings)}else{@()};
+    RecordedSourcePolicySHA256=if($recordedSources){$recordedSources.PolicySHA256}else{$null};
+    RecordedSourceHashNormalization=if($recordedSources){$recordedSources.SourceHashNormalization}else{$null};
     FilesModified=$false; CorrespondingSourceVerified=$false; LinkedBinaryProvenanceVerified=$false;
-    Limits='Only recorded notice integrity and optional ImGui source identities were checked. Complete corresponding source, exact linked source/version auditing, final package contents, artwork rights and release validation remain separate requirements.'
+    Limits='Only recorded notice integrity and optional ImGui/audited local-source identities were checked. Pending source differences remain unresolved. Complete corresponding source, exact linked source/version auditing, final package contents, artwork rights and release validation remain separate requirements.'
 }

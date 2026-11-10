@@ -52,4 +52,6 @@ The software licenses do not grant rights to the game's ROMs, music, models, tex
 
 Retain the applicable notices with source and binary distributions, including the complete GCC Runtime Library Exception and font terms. Match the source, build instructions and dependency versions to the executable being distributed.
 
-Maintainers can run `packaging/Test-ReleaseNotices.ps1` to check the recorded notice files. Its optional `-SourceRoot` argument also checks the bundled ImGui source and license identities. This verifies file integrity; corresponding-source obligations, dependency coverage and rights to game imagery require separate review. See [BUILDING.md](BUILDING.md) for release preparation.
+Maintainers can run `packaging/Test-ReleaseNotices.ps1` to check the recorded notice files. Its optional `-SourceRoot` argument also checks the bundled ImGui identities and an explicitly audited subset of recorded local source references. Three CPU/sound references describe different source versions from the public checkout and remain unresolved; their recorded hashes are preserved. See [recorded source verification](RECORDED-SOURCE-VERIFICATION.md) for the precise scope and strict-check option.
+
+These checks verify selected file identities, not legal clearance, complete corresponding source, dependency coverage or rights to game imagery. See [BUILDING.md](BUILDING.md) for release preparation.

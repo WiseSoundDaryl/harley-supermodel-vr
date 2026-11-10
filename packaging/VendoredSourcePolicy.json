@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "normalization": "canonical-crlf",
+  "scope": "Reviewed source-reference coverage at public commit 4289df07f23114e73e218c78318b73075db4c523. Pending identities pin investigated differences; they do not replace the license manifest hashes or establish provenance.",
+  "verified": [
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/CPU/PowerPC/PPCDisasm.cpp"
+    },
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/CPU/Z80/Z80.cpp"
+    },
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/CPU/Z80/Z80.h"
+    },
+    {
+      "notice": "GLEW-vendored-notices.txt",
+      "path": "Supermodel/Src/Pkgs/GL/glew.h"
+    },
+    {
+      "notice": "ImGui-Japanese-glyph-list-attribution.txt",
+      "path": "Supermodel/Src/Pkgs/imgui/imgui_draw.cpp"
+    },
+    {
+      "notice": "ImGui-STB-dual-license.txt",
+      "path": "Supermodel/Src/Pkgs/imgui/imstb_rectpack.h"
+    },
+    {
+      "notice": "ImGui-STB-dual-license.txt",
+      "path": "Supermodel/Src/Pkgs/imgui/imstb_textedit.h"
+    },
+    {
+      "notice": "ImGui-STB-dual-license.txt",
+      "path": "Supermodel/Src/Pkgs/imgui/imstb_truetype.h"
+    },
+    {
+      "notice": "ImGui-embedded-font-attributions.txt",
+      "path": "Supermodel/Src/Pkgs/imgui/imgui_draw.cpp"
+    },
+    {
+      "notice": "MAME-component-attributions.txt",
+      "path": "Supermodel/Src/Model3/Crypto.cpp"
+    },
+    {
+      "notice": "MAME-component-attributions.txt",
+      "path": "Supermodel/Src/Model3/Crypto.h"
+    },
+    {
+      "notice": "Musashi-vendored-notices.txt",
+      "path": "Supermodel/Src/CPU/68K/Musashi/m68k.h"
+    },
+    {
+      "notice": "minimp3-vendored-dedication.txt",
+      "path": "Supermodel/Src/Pkgs/minimp3.h"
+    },
+    {
+      "notice": "minizip-vendored-notice.txt",
+      "path": "Supermodel/Src/Pkgs/unzip.h"
+    },
+    {
+      "notice": "tinyxml2-vendored-notice.txt",
+      "path": "Supermodel/Src/Pkgs/tinyxml2.h"
+    }
+  ],
+  "pending": [
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/CPU/PowerPC/ppc.cpp",
+      "recordedSHA256": "9752C5FC141E197A6D6228819749B5C59C85176D068941B296C2D5EFE3F0DBC2",
+      "publicCanonicalSHA256": "BF45D1144E0D2598197083D470F2A8FF92EDE02FE2C180617754274E1278CAAF",
+      "reason": "The recorded hash identifies private Harley-modified source; the current public source differs. Corresponding-source integration remains pending."
+    },
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/Sound/SCSP.cpp",
+      "recordedSHA256": "9C45800B61053CC3C8D64C03CEB7433F9A2F58DF52F9B0D67412E709D1E83082",
+      "publicCanonicalSHA256": "2ABD5BDA4427B9BC7F578347D776433EB9044FBE63D62FA7E61F8317E6DB248E",
+      "reason": "The recorded hash identifies the earlier sound implementation also present in public history before b1f2c162e8a8878f0dd737b900b393d19b8c98bd. The current public source differs."
+    },
+    {
+      "notice": "CPU-Sound-vendored-notices.txt",
+      "path": "Supermodel/Src/Sound/SCSPDSP.cpp",
+      "recordedSHA256": "D184C8CD283FFAB51922C38E19B2EBB371FD32D3F1C15DAFCADA1602D7CA27E5",
+      "publicCanonicalSHA256": "9F21E868343A8FCF47A5119155A94E6B9EED7A23AEA459AC90F5BF8C5782A865",
+      "reason": "The recorded hash identifies the earlier sound implementation also present in public history before b1f2c162e8a8878f0dd737b900b393d19b8c98bd. The current public source differs."
+    }
+  ]
+}
