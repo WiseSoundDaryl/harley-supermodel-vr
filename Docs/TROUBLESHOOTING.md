@@ -26,7 +26,13 @@ Start with the Meta launcher and its default settings. If an interrupted session
 
 ## The view is off-center
 
-Sit in your playing position, look ahead and press the right stick or keyboard Home. The regular camera follows the bike's heading; head tracking lets you look independently within that view.
+Sit in your playing position, look ahead and click the right stick or press keyboard **Home** with the game window focused. In the menu-enabled preview, this also repositions an open panel; its **Recenter** action does the same. The regular camera follows the bike's heading; head tracking lets you look independently within that view.
+
+## Opening or leaving the ride menu
+
+With the ride-menu preview enabled and the game window focused, **Escape**, **Tab** or **Alt+P** opens the panel. Escape/Backspace goes back within it or closes its main page; Tab/Alt+P toggles the whole panel. Choose **Exit game** and confirm to quit. With the ride menu disabled or unavailable, **Escape exits** and **Alt+P pauses/resumes**.
+
+Menu/Options can toggle the panel only when the runtime delivers that button to HarleyVR. If it opens system software, use keyboard Tab; the headset's system/Home button is not a HarleyVR binding. These preview bindings still need headset validation. See the [menu guide](MENU.md#opening-and-navigating), including the separate **EXIT** procedure for the original arcade settings.
 
 ## Uneven motion
 

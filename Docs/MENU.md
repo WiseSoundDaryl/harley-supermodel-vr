@@ -16,7 +16,13 @@ Pause the ride to adjust your view, sound and comfort settings. **Resume** retur
 | Select / confirm | Enter | A / Cross |
 | Back within this menu | Backspace or Escape | B / Circle |
 
-Escape also opens the panel during riding. **Back** navigates this settings panel; the original arcade game keeps its own controls. Let the sticks and buttons return to neutral when resuming. If your headset reserves its menu button for system software, use keyboard Tab.
+These bindings describe the menu-enabled preview implementation; controller delivery and menu flow still require headset validation. Keyboard shortcuts require the game window to have focus.
+
+**Escape** opens the panel during riding. Inside the panel, **Escape/Backspace** or **B/Circle** cancels a confirmation, returns to the parent page, or closes the main page and resumes the game. **Tab/Alt+P** toggles the whole panel, including from a subpage. **Home** or **right-stick click** recenters the view and an open panel.
+
+To quit from the panel, choose **Exit game** and confirm. Holding both side grips for two seconds exits directly, without that confirmation. When the ride menu is disabled or unavailable, **Escape exits** and **Alt+P** or a delivered Menu/Options button pauses/resumes.
+
+The headset's system/Home button is not a HarleyVR menu binding. If Menu/Options opens system software instead, use keyboard **Tab**. Let the sticks and buttons return to neutral when resuming. **Back** applies only to this settings panel; it does not leave the original arcade Test/Service menu. Use that menu's **EXIT** entries as described below.
 
 ## Comfort, camera and display
 

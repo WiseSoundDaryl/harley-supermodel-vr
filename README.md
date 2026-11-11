@@ -56,7 +56,7 @@ The first release focuses on **regular arcade gameplay**. Experimental walking, 
 
 The menu includes a vignette toggle and strength control, rider height and camera pullback, virtual-screen size, render-quality presets and audio settings. It also provides access to the game's **Test/Service menu**, including Free Play and other cabinet options. Existing arcade settings are preserved until you change them.
 
-Open the preview menu with **Tab**, **Alt+P**, or a supported controller's **Menu/Options** button. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
+With the ride-menu preview enabled, open it with **Escape**, **Tab**, **Alt+P**, or a supported controller's **Menu/Options** button. Keyboard shortcuts require the game window to have focus. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
 
 ## Getting started
 
@@ -94,12 +94,15 @@ PSVR2 Sense and Rift S Touch mappings for the regular-game configuration:
 | **Circle** | **B** | Game special / music selection |
 | **Right stick up / down** | **Right stick up / down** | Manual gear change |
 | **Right stick click** | **Right stick click** | Recenter |
-| **Options** | **Menu** | Pause, when the runtime delivers this button to the game |
-| **Both side grips, held for 2 seconds** | **Both side grips, held for 2 seconds** | Exit |
-| **Keyboard Home / Escape** | **Keyboard Home / Escape** | Recenter / exit |
+| **Options** | **Menu** | Open / close the ride menu, when the runtime delivers this button to the game |
+| **Both side grips, held for 2 seconds** | **Both side grips, held for 2 seconds** | Exit without confirmation |
+| **Keyboard Home** | **Keyboard Home** | Recenter |
+| **Keyboard Escape** | **Keyboard Escape** | Open the ride menu / Back; exit when the ride menu is disabled |
 | **Keyboard F5 / F7** | **Keyboard F5 / F7** | Save / load the selected emulator save slot |
 
-Circle/B controls the game's music/special input. The [menu preview](Docs/MENU.md) uses separate navigation bindings: Escape opens or backs out of that menu. Controller vibration covers crashes and hard landings; headset rumble is not implemented.
+The [ride-menu preview](Docs/MENU.md) uses separate navigation bindings: Escape/Backspace and B/Circle go back, or close its main page. To quit from the panel, choose **Exit game** and confirm. Without the ride menu, Escape exits and Alt+P or a delivered Menu/Options button pauses/resumes. The preview's controller delivery and menu flow still require headset validation.
+
+During riding, Circle/B controls the game's music/special input. Controller vibration covers crashes and hard landings; headset rumble is not implemented.
 
 ## Comfort and presentation
 
