@@ -14,6 +14,15 @@ Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 
+<details>
+<summary><strong>Watch 20 seconds of first-person riding</strong></summary>
+
+![First-person ride through Los Angeles traffic with a glance down at the bike](Docs/Images/gameplay-preview.webp)
+
+Gameplay from an October 2026 PSVR2 development build, recorded from the SteamVR mirror.
+
+</details>
+
 ## The ride
 
 - **First-person riding:** a raised viewpoint, visible bike and familiar arcade steering.
@@ -77,7 +86,7 @@ The release will include separate **Meta** and **SteamVR** launchers and install
 | Quest 2 / other PC VR headsets | Testing pending |
 | Linux / macOS / standalone headset installation | Not supported by the first release |
 
-Hardware requirements are still being established. Performance depends on your PC, headset and render resolution.
+We playtested on Windows 11 Pro with an AMD Ryzen 7 5800X3D, an NVIDIA GeForce RTX 3090 (24 GB), and 32 GB RAM. The Rift S was set to **80 Hz** and the PSVR2 to **120 Hz**. Frame delivery varies with the headset and render preset. Minimum PC requirements are still being established.
 
 ## Controls
 
@@ -120,12 +129,12 @@ See [troubleshooting](Docs/TROUBLESHOOTING.md) before reporting a problem.
 
 ## Feedback and development
 
-For bug reports, include your build, headset, runtime, PC specifications and steps to reproduce the issue. Remove personal information from logs, and never attach ROMs or save states.
+For bug reports, include your build, headset, runtime, render preset, refresh rate and steps to reproduce the issue. Remove personal information from logs, and never attach ROMs or save states.
 
 - [Release status](Docs/RELEASE-STATUS.md)
 - [Ride menu and arcade settings](Docs/MENU.md)
 - [Build preparation and dependencies](Docs/BUILDING.md)
-- [Report a bug](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml)
+- [How to report a bug](Docs/TROUBLESHOOTING.md#reporting-a-problem)
 
 ## Credits and license
 

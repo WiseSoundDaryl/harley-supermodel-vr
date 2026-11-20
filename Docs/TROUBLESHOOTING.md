@@ -54,4 +54,6 @@ The planned player package keeps settings in `Config`, progress in `Saves` and c
 
 ## Reporting a problem
 
-Use the repository's [bug-report form](https://github.com/WiseSoundDaryl/harley-supermodel-vr/issues/new?template=bug_report.yml). Include the version, headset, PC specifications and steps to reproduce the problem. Remove personal paths from log excerpts. Never upload ROMs, save states or private account data.
+On the [HarleyVR repository](https://github.com/WiseSoundDaryl/harley-supermodel-vr), choose **Issues → New issue → Bug report** when the tracker is open. If you received a test build directly, you can also send the same details to the person who shared it.
+
+Include the build, headset, runtime, render preset, headset refresh rate (if known), PC specifications and steps to reproduce the problem. For a riding hitch, include the rider and the road or landmark where it happened. Remove personal paths from log excerpts. Never upload ROMs, save states or private account data.

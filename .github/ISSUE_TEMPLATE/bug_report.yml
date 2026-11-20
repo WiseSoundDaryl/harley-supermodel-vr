@@ -1,15 +1,15 @@
 name: Bug report
-description: Report a reproducible problem in a published HarleyVR build.
+description: Report a gameplay, performance or setup problem with a HarleyVR build.
 title: "[Bug]: "
 body:
   - type: markdown
     attributes:
-      value: "Please report the exact release. Do not attach ROMs, save states or personal information. Public binaries are still in preparation."
+      value: "Please identify the build you played. Do not attach ROMs, save states or personal information."
   - type: input
     id: version
     attributes:
-      label: Release version
-      placeholder: Version shown on the downloaded release
+      label: Release version or test build
+      placeholder: Release version or the name of the test build you launched
     validations:
       required: true
   - type: input
@@ -19,6 +19,23 @@ body:
       description: Include CPU, GPU, Windows version and render resolution if known.
     validations:
       required: true
+  - type: dropdown
+    id: preset
+    attributes:
+      label: Headset render preset
+      options:
+        - Performance
+        - Balanced
+        - Quality
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: refresh
+    attributes:
+      label: Headset refresh rate (Hz)
+      description: If known, enter the headset refresh rate selected in SteamVR or Meta.
+      placeholder: e.g. 80, 90 or 120
   - type: textarea
     id: reproduce
     attributes:
