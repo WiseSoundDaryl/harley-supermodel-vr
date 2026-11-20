@@ -44,7 +44,11 @@ The converted raster font data is named **Harley Menu Typography** and retains i
 
 ## Game content and trademarks
 
-HarleyVR is an unofficial fan project, not affiliated with or endorsed by SEGA, Harley-Davidson, Supermodel's developers or headset manufacturers. Names, marks and game visuals belong to their respective owners.
+HarleyVR is an independent fan project. SEGA, Harley-Davidson, the Supermodel developers, Valve, Meta and Sony do not sponsor or endorse it. Platform and hardware names identify the software used to run HarleyVR and the devices used in playtesting.
+
+- **Meta and Oculus.** Meta, Meta Horizon, Meta Quest, Oculus and Oculus Rift are trademarks of Meta Platforms, Inc. or its affiliates. Oculus Rift S identifies the headset used to test the direct Meta OpenXR runtime. [Meta trademark glossary](https://www.meta.com/brand/resources/meta/our-trademarks/) · [Meta VR products](https://www.meta.com/legal/meta-platforms-technologies-products/)
+- **PlayStation.** PlayStation VR2 (PS VR2) identifies the Sony Interactive Entertainment headset used to test the SteamVR edition. PlayStation and PlayStation VR2 Sense are trademarks of Sony Interactive Entertainment Inc. [Sony trademark notice](https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/) · [PS VR2 PC adapter manual](https://www.playstation.com/content/dam/global_pdc/en/corporate/support/manuals/psvr2-docs/ps-vr2-pc-adapter/CFI-ZVP1_PSVR2_PC_Adapter_Instruction_Manual%24en.pdf)
+- **Valve.** Steam and SteamVR are trademarks of Valve Corporation. [Valve trademark notice](https://store.steampowered.com/legal/trademark_policy) · [Steam branding guidelines](https://partner.steamgames.com/public/marketing/Steam_Guidelines_01042017.pdf)
 
 The software licenses do not grant rights to the game's ROMs, music, models, textures, game-bearing save states, screenshots or trademarks. Players supply their own legally obtained compatible ROM set. The project does not provide ROMs or ROM download links; game imagery and branding remain subject to separate rights requirements.
 

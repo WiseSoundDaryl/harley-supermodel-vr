@@ -1,12 +1,12 @@
 # First public release checklist
 
-This checklist covers the first Windows beta. PSVR2 and Rift S use separate, playtested emulator builds. PSVR2 includes the optional startup Dream Ride. Direct Meta retains the original arcade interface. The [release status](RELEASE-STATUS.md) and the [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) identify the candidate and published downloads.
+This checklist covers the first Windows beta. SteamVR and Meta PC VR use separate, playtested emulator builds. SteamVR includes the optional startup Dream Ride. Meta PC VR uses the original arcade interface. The [release status](RELEASE-STATUS.md) and the [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) identify the candidate and published downloads.
 
 ## 1. Freeze the release candidate
 
 - [x] Choose the exact regular-game executable and source revision; preserve the successful previous build unchanged.
 - [x] Record executable, four real runtime DLL and configuration hashes.
-- [x] Record a separate reference executable and source archive for the playtested PSVR2 and Rift S editions.
+- [x] Record a separate reference executable and source archive for the SteamVR and Meta PC VR editions.
 - [ ] Keep the familiar steering camera and regular controls. Do not accidentally enable experimental hands/walking, alternate HUD, rejected camera filters or diagnostic capture.
 - [x] Give the release an honest version such as a beta/prerelease until its release gates pass. Do not advertise a locked 120 FPS or universal headset compatibility.
 
@@ -38,7 +38,7 @@ This checklist covers the first Windows beta. PSVR2 and Rift S use separate, pla
 - [x] Launch both editions from fresh extractions with clean factory settings.
 - [ ] Verify headset-specific error messages across additional machines.
 - [x] Make launcher preflight and Meta ASW recovery regression tests runnable from the public checkout with synthetic fixtures. These do not validate the final player package or an installed Meta runtime.
-- [x] Exercise every rider in AT and MT through the bounded PSVR2 release replay matrix.
+- [x] Exercise every rider in AT and MT in the SteamVR edition’s automated gameplay checks.
 - [ ] Cover remaining manual interactions and full-length rides separately from replay checkpoints.
 - [ ] Check first-person default, full bike, independent head movement, stereo depth and theater presentation. Check menus/text occlusion and existing HUD readability.
 - [ ] Check crash and landing vibration, vignette response and hills; document remaining false positives rather than claiming they are all solved.
@@ -46,7 +46,7 @@ This checklist covers the first Windows beta. PSVR2 and Rift S use separate, pla
 - [ ] Validate intended free-play defaults only on newly created profiles; keep coin insertion and configurable arcade coin settings available. Do not overwrite existing player choices.
 - [ ] Check saving/loading and preservation of existing user progress during upgrades.
 - [ ] Run bounded native-state, image, audio and performance checks. Treat desktop/synthetic timing as offline evidence, not fresh physical headset FPS.
-- [x] Record the player feedback for the selected PSVR2 and Rift S executables. Final package startup and fresh-machine coverage are tracked separately.
+- [x] Record the player feedback from playtests with PlayStation VR2 and Oculus Rift S. Final package startup and fresh-machine coverage are tracked separately.
 - [ ] Prefer at least one fresh-machine tester before a broad announcement. Label tested headset/runtime combinations explicitly; untested devices remain unverified.
 
 ## 5. Publish the GitHub release

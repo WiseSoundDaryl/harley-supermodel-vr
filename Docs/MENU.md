@@ -1,6 +1,6 @@
 # HarleyVR ride menu
 
-The PSVR2 edition includes the ride menu at startup and during the game. The direct Meta edition for Rift S uses the original arcade interface.
+The **SteamVR edition** includes the ride menu at startup and during play. The **Meta PC VR edition** uses the original arcade interface.
 
 <p align="center"><img src="Images/menu-main.png" width="840" alt="HarleyVR ride menu with the original game's three-rider closing image" /></p>
 

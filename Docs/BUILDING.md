@@ -1,11 +1,11 @@
 # Building HarleyVR on Windows
 
-The beta uses two Windows x64 executables. The repository's `Src/` and `Makefiles/` carry the PSVR2 edition. The Rift S edition preserves the separately playtested direct Meta build. The versioned source assets include the PowerPC training counters and the edition-specific build instructions. Use the matching archive from the [GitHub Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases).
+The beta uses two Windows x64 executables. The repository's `Src/` and `Makefiles/` carry the SteamVR edition. The Meta PC VR edition uses a separately playtested executable. The versioned source assets include the PowerPC training counters and the edition-specific build instructions. Use the matching archive from the [GitHub Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases).
 
 | Edition | Source archive | Reference executable SHA-256 |
 | --- | --- | --- |
-| PSVR2 / SteamVR | `HarleyVR-PSVR2-source.zip` | `ad45a8fb2911fd94b40c132b499ccc748043d4307e3e44056201032ece38223a` |
-| Rift S / Meta | `HarleyVR-RiftS-source.zip` | `5c10ba397d591a5ed1a1b4659833c8f05ae98a4009205f398c1b9d0a1e3f8680` |
+| SteamVR | `HarleyVR-PSVR2-source.zip` | `ad45a8fb2911fd94b40c132b499ccc748043d4307e3e44056201032ece38223a` |
+| Meta PC VR | `HarleyVR-RiftS-source.zip` | `5c10ba397d591a5ed1a1b4659833c8f05ae98a4009205f398c1b9d0a1e3f8680` |
 | Windows launcher and package builder | `HarleyVR-Launchers-source.zip` | [Launcher source](../packaging/beta/Launcher/HarleyVR.cs) |
 
 ## Compile an emulator

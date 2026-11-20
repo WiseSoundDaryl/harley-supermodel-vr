@@ -1,20 +1,22 @@
 <p align="center"><img src="Docs/Images/banner.svg" width="100%" alt="HarleyVR — The arcade ride. A new perspective." /></p>
 
-<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 and Rift S playtested · Windows beta" /></p>
+<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · SteamVR and Meta PC VR · Windows beta" /></p>
 
-<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#the-psvr2-ride-menu">Ride menu</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
+<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#steamvr-ride-menu">Ride menu</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
 
 # HarleyVR
 
-**Experience Harley-Davidson & L.A. Riders from the rider's seat in PC VR.**
+**Play Harley-Davidson & L.A. Riders on Windows with SteamVR or Meta PC VR.** Both editions come in one download.
 
-<p align="center"><a href="Docs/Images/gameplay-preview.webp"><img src="Docs/Images/gameplay-preview.gif" width="480" alt="First-person ride through Los Angeles traffic with a glance down at the bike" /></a><br /><sub>October 2026 PSVR2 development build, recorded from the SteamVR mirror. Select the animation for a larger view.</sub></p>
+<p align="center"><a href="Docs/Images/gameplay-preview.webp"><img src="Docs/Images/gameplay-preview.gif" width="480" alt="First-person ride through Los Angeles traffic with a glance down at the bike" /></a><br /><sub>Gameplay recorded from the SteamVR mirror in October 2026. Select the animation for a larger view.</sub></p>
 
 Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
 > **First Windows beta** · [Download HarleyVR for Windows](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/download/v0.1.0-beta.1/HarleyVR-Windows-x64.zip) · [Release notes and source](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.1)
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
+
+**Using a Quest on PC?** If you connect through Steam Link or otherwise run SteamVR, open **HarleyVR-SteamVR.exe**. If you use Meta Horizon Link or Air Link directly, open **HarleyVR-Meta.exe** with SteamVR closed. Both run on your Windows PC. Quest playtesting is still pending. [Steam Link setup](https://help.steampowered.com/en/faqs/view/0E2C-406B-9135-38A4) · [Meta Link setup](https://www.meta.com/help/quest/509273027107091/)
 
 ## The ride
 
@@ -25,7 +27,7 @@ Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D
 - **VR controller support:** steer, accelerate, brake, change view and feel feedback from crashes and hard landings.
 - **Smoother scene motion:** interpolation improves movement between game frames while preserving the original arcade simulation speed.
 
-Regular arcade play is the default on both headsets. PSVR2 also offers **Bonus → Dream Ride** at startup for a ride with the gameplay HUD and countdown disabled.
+Regular arcade play is the default in both editions. In the SteamVR edition, choose **Bonus → Dream Ride** at startup to explore the city without the HUD or countdown.
 
 ## Screenshots
 
@@ -42,9 +44,9 @@ Regular arcade play is the default on both headsets. PSVR2 also offers **Bonus �
 
 <sub>Single-eye screenshots from the desktop VR renderer. Game visuals belong to their respective owners.</sub>
 
-## The PSVR2 ride menu
+## SteamVR ride menu
 
-**On PSVR2, the ride menu is available at startup and during play.** Pause your ride to adjust comfort, camera position, display quality and audio, or open the original arcade settings.
+The SteamVR edition opens with the ride menu. You can bring it up again during play to adjust comfort, camera position, display quality and audio, or enter the original arcade settings. The Meta PC VR edition opens directly into the arcade game.
 
 <table>
 <tr>
@@ -58,52 +60,56 @@ Regular arcade play is the default on both headsets. PSVR2 also offers **Bonus �
 
 The menu includes a vignette toggle and strength control, rider height and camera pullback, virtual-screen size, render-quality presets and audio settings. It also provides access to the game's **Test/Service menu**, including Free Play and other cabinet options. Existing arcade settings are preserved until you change them.
 
-Click the **left stick** to open or close the menu. You can also hold the **left side grip** and click the **right stick**. The PS/Home buttons open SteamVR. The dedicated Rift S edition uses the original arcade interface. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
+Click the **left stick** to open or close the menu. You can also hold the **left side grip** and click the **right stick**, or press **Tab** on the keyboard. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
 
 ## Getting started
 
-1. Extract **HarleyVR-Windows-x64.zip** into a writable folder. Keep the executable, both headset folders and their companion files together.
+1. Extract the entire **HarleyVR-Windows-x64.zip** into a writable folder.
 2. Put your own Revision B archive at `ROMs/harleyb.zip`. Leave it zipped.
-3. For **PSVR2**, start SteamVR and use **HarleyVR-SteamVR.exe**. For **Rift S**, open Meta Horizon Link, leave SteamVR closed and use **HarleyVR-Meta.exe**. **HarleyVR.exe** offers both choices.
-4. On PSVR2, choose **Enter game** from the ride menu. Move between rows with the **right stick**, select with **Cross**, and go back with **Circle**. In the arcade game, insert a coin with **Square / X** and start with **Cross / A**. The Meta launcher temporarily disables Asynchronous Spacewarp and restores the previous setting on exit.
+3. Choose the launcher for the PC VR software you use. **HarleyVR.exe** also lets you pick either edition.
 
-To add the PSVR2 shortcut to your Steam library, choose **Games → Add a Non-Steam Game**, browse to **HarleyVR-SteamVR.exe**, then enable the VR-library option in the shortcut properties if available.
+| Edition | Open first | Launch |
+| --- | --- | --- |
+| **SteamVR** | SteamVR, with your headset and controllers ready | **HarleyVR-SteamVR.exe**. Choose **Enter game** in the ride menu. |
+| **Meta PC VR** | Meta Horizon Link, with SteamVR closed | **HarleyVR-Meta.exe**. The arcade game starts directly. |
+
+In the arcade game, **X / Square** inserts a coin and **A / Cross** starts a ride. The Meta launcher temporarily disables Asynchronous Spacewarp and restores your previous setting on exit.
+
+To launch from your Steam library, choose **Games → Add a Non-Steam Game**, browse to **HarleyVR-SteamVR.exe**, then enable the VR-library option in the shortcut properties if available.
 
 ### Compatibility
 
-| Setup | Status |
-| --- | --- |
-| Windows 64-bit + PSVR2 + official PC adapter + SteamVR | Playtested |
-| Windows 64-bit + Rift S + Touch controllers + direct Meta OpenXR | Playtested, including crash and landing vibration |
-| Quest 2 / other PC VR headsets | Testing pending |
-| Linux / macOS / standalone headset installation | Not supported by the first release |
+HarleyVR uses OpenXR on 64-bit Windows. If your headset runs through SteamVR, choose the SteamVR edition. If you use Meta’s PC runtime directly, choose the Meta PC VR edition. Controller bindings can vary by device.
 
-We playtested on Windows 11 Pro with an AMD Ryzen 7 5800X3D, an NVIDIA GeForce RTX 3090 (24 GB), and 32 GB RAM. The Rift S was set to **80 Hz** and the PSVR2 to **120 Hz**. Frame delivery varies with the headset and render preset. Minimum PC requirements are still being established.
+| Edition | Personally playtested with | Refresh rate |
+| --- | --- | --- |
+| SteamVR | PlayStation VR2 (PS VR2), Sony’s PC adapter and Sense controllers | 120 Hz |
+| Meta PC VR | Oculus Rift S and Touch controllers | 80 Hz |
+
+The test PC ran Windows 11 Pro with a Ryzen 7 5800X3D, GeForce RTX 3090 (24 GB), and 32 GB RAM. Reports from players using other PC headsets are welcome.
 
 ## Controls
 
-PSVR2 Sense and Rift S Touch mappings for the regular-game configuration:
+Button labels below are shown for Touch and Sense controllers.
 
-| PSVR2 Sense | Rift S Touch | Action |
-| --- | --- | --- |
-| **Left stick** | **Left stick** | Steer / move through rider choices |
-| **R2** | **Right trigger** | Accelerate |
-| **L2** | **Left trigger** | Brake |
-| **Cross** | **A** | Start / confirm |
-| **Square** | **X** | Insert coin |
-| **Triangle** | **Y** | Change view |
-| **Circle** | **B** | Game special / music selection |
-| **Right stick up / down** | **Right stick up / down** | Manual gear change |
-| **Right stick click** | **Right stick click** | Recenter |
-| **Left stick click** | — | Open / close the PSVR2 ride menu |
-| **Both side grips, held for 2 seconds** | **Both side grips, held for 2 seconds** | Exit without confirmation |
-| **Keyboard Home** | **Keyboard Home** | Recenter |
-| **Keyboard Escape** | **Keyboard Escape** | PSVR2 opens the ride menu or goes back. Rift S exits the game. |
-| **Keyboard F5 / F7** | **Keyboard F5 / F7** | Save / load the selected emulator save slot |
+| Action | Control |
+| --- | --- |
+| Steer / move through rider choices | Left stick |
+| Accelerate / brake | Right trigger / left trigger (R2 / L2 on Sense) |
+| Start / confirm | A / Cross |
+| Insert coin | X / Square |
+| Change view | Y / Triangle |
+| Game special / music selection | B / Circle |
+| Shift up / down in manual | Right stick up / down |
+| Recenter | Click the right stick or press **Home** |
+| Exit the game immediately | Hold both side grips for 2 seconds |
+| Save / load the selected emulator save slot | **F5** / **F7** |
 
-In the [PSVR2 ride menu](Docs/MENU.md), Escape/Backspace and Circle go back. Choose **Exit game** and confirm to quit. On Rift S, use **Alt+P** to pause or resume.
+**SteamVR:** Click the left stick or press **Tab** to toggle the [ride menu](Docs/MENU.md). Use the right stick to move between rows, **A / Cross** to select, and **B / Circle** to go back. **Escape** opens the menu while riding or goes back inside it. Choose **Exit game** and confirm to quit.
 
-During riding, Circle/B controls the game's music/special input. Controller vibration covers crashes and hard landings; headset rumble is not implemented.
+**Meta PC VR:** **Alt+P** pauses or resumes the arcade game. **Escape** exits.
+
+Controller vibration covers crashes and hard landings. This beta has no headset rumble.
 
 ## Comfort and presentation
 
@@ -137,4 +143,4 @@ For bug reports, include your build, headset, runtime, render preset, refresh ra
 
 Emulator modifications are licensed under **GPL-3.0-or-later**. Third-party components and font data retain their respective licenses. See [LICENSE](LICENSE) and [third-party notices](Docs/THIRD-PARTY-NOTICES.md).
 
-Harley-Davidson, Harley-Davidson & L.A. Riders, SEGA and other names and marks belong to their respective owners. **This is an unofficial fan project, not affiliated with or endorsed by Harley-Davidson, SEGA or Sony.** The emulator's software license does not license the game, its ROMs or its artwork.
+HarleyVR is an independent, unofficial fan project. SEGA, Harley-Davidson, Valve, Meta and Sony do not sponsor or endorse it. Product names identify the original game, compatible software and tested hardware. Game content and trademarks belong to their respective rights holders. [Trademark and game-content notices](Docs/THIRD-PARTY-NOTICES.md#game-content-and-trademarks)
