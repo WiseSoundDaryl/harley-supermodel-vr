@@ -1,10 +1,10 @@
 # Troubleshooting
 
-HarleyVR's first public Windows release is in preparation. These notes cover setup and common questions; check [release status](RELEASE-STATUS.md) for availability.
+These instructions cover the Windows beta and its separate PSVR2 and Rift S launch routes.
 
 ## The source download does not launch
 
-GitHub's source-code archive is for developers. When the public release is available, download the **Windows player ZIP** from the [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases).
+GitHub's source-code archive is for developers. Download the **Windows player ZIP** from the [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases).
 
 ## Missing game
 
@@ -26,23 +26,23 @@ Start with the Meta launcher and its default settings. If an interrupted session
 
 ## The view is off-center
 
-Sit in your playing position, look ahead and click the right stick or press keyboard **Home** with the game window focused. In the menu-enabled preview, this also repositions an open panel; its **Recenter** action does the same. The regular camera follows the bike's heading; head tracking lets you look independently within that view.
+Sit in your playing position, look ahead and click the right stick or press keyboard **Home** with the game window focused. On PSVR2, this also repositions an open panel; its **Recenter** action does the same. The regular camera follows the bike's heading; head tracking lets you look independently within that view.
 
 ## Opening or leaving the ride menu
 
-With the ride-menu preview enabled and the game window focused, **Escape**, **Tab** or **Alt+P** opens the panel. Escape/Backspace goes back within it or closes its main page; Tab/Alt+P toggles the whole panel. Choose **Exit game** and confirm to quit. With the ride menu disabled or unavailable, **Escape exits** and **Alt+P pauses/resumes**.
+On PSVR2, with the game window focused, **Escape**, **Tab** or **Alt+P** opens the panel. Escape/Backspace goes back within it or closes its main page; Tab/Alt+P toggles the whole panel. Choose **Exit game** and confirm to quit. On Rift S, **Escape exits** and **Alt+P pauses/resumes**.
 
-Menu/Options can toggle the panel only when the runtime delivers that button to HarleyVR. If it opens system software, use keyboard Tab; the headset's system/Home button is not a HarleyVR binding. These preview bindings still need headset validation. See the [menu guide](MENU.md#opening-and-navigating), including the separate **EXIT** procedure for the original arcade settings.
+On PSVR2, click the **left stick**, or hold the **left side grip** and click the **right stick**. The PS/Home buttons belong to SteamVR. See the [menu guide](MENU.md#opening-and-navigating) for controller navigation and the cabinet menu's **EXIT** procedure.
 
 ## Uneven motion
 
-Start with the default settings. In the menu preview, a lower **Headset render quality** setting can reduce GPU load after restarting the game. If the problem continues, note whether the whole view stutters or only nearby vehicles or helicopter rotors appear jerky. Include the location, headset, CPU/GPU and render quality in your report.
+Start with the default settings. On PSVR2, a lower **Headset render quality** setting can reduce GPU load after restarting the game. If the problem continues, note whether the whole view stutters or only nearby vehicles or helicopter rotors appear jerky. Include the location, headset, CPU/GPU and render quality in your report.
 
 ## Controller vibration and wheel force feedback
 
 Controller vibration responds to detected crashes and hard jump landings. Engine rumble is disabled, and some minor contacts may not trigger a pulse.
 
-**Wheel force feedback is not implemented for HarleyVR.** The upcoming menu's [Steering travel setting](MENU.md#physical-wheel-or-joystick-travel) adjusts a mapped physical axis, but does not change a wheel's hardware rotation range. G29 support remains untested, and HarleyVR currently targets Windows.
+**Wheel force feedback is not implemented for HarleyVR.** The PSVR2 menu's [Steering travel setting](MENU.md#physical-wheel-or-joystick-travel) adjusts a mapped physical axis, but does not change a wheel's hardware rotation range. G29 support remains untested, and HarleyVR currently targets Windows.
 
 ## Missing roadside objects
 
@@ -50,7 +50,7 @@ The arcade game stops drawing some traffic, pedestrians and scenery outside its 
 
 ## Saves and upgrades
 
-The planned player package keeps settings in `Config`, progress in `Saves` and cabinet settings in `NVRAM`. Back up all three folders before upgrading. Save states may not work across different versions. Keep these folders private.
+The Windows player package keeps settings in `Config`, progress in `Saves` and cabinet settings in `NVRAM`. Back up all three folders before upgrading. On Rift S, also preserve the launcher recovery journal if it reports that ASW restoration is pending, and complete recovery before replacing the old installation. Save states may not work across different versions. Keep these folders private.
 
 ## Reporting a problem
 

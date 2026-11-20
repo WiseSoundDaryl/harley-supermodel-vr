@@ -13,7 +13,7 @@ public:
 	R3DFrameBuffers();
 	~R3DFrameBuffers();
 
-	void	Draw();					// draw and composite the transparent layers
+	void	Draw(bool preserveAlpha = false);	// composite; optional premultiplied RGBA destination
 	
 	Result	CreateFBO(int width, int height);
 	void	DestroyFBO();
@@ -22,6 +22,11 @@ public:
 	void	SetFBO(Layer layer);
 	void	StoreDepth();
 	void	RestoreDepth();
+	GLuint ColourTexture() const { return m_texIDs[0]; }
+	// Valid as a complete presentation depth only when the caller certifies
+	// one world priority without high-priority overlays. StoreDepth retains
+	// opaque depth before either transparency layer changes the working depth.
+	GLuint OpaqueDepthRenderbuffer() const { return m_renderBufferIDCopy; }
 
 private:
 

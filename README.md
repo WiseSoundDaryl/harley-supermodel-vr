@@ -1,8 +1,8 @@
 <p align="center"><img src="Docs/Images/banner.svg" width="100%" alt="HarleyVR — The arcade ride. A new perspective." /></p>
 
-<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 and Rift S playtested · Release in preparation" /></p>
+<p align="center"><img src="Docs/Images/status.svg" width="760" alt="Windows 64-bit · OpenXR · PSVR2 and Rift S playtested · Windows beta" /></p>
 
-<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#the-ride-menu--in-development">Ride menu</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
+<p align="center"><b><a href="#the-ride">Features</a> · <a href="#screenshots">Screenshots</a> · <a href="#the-psvr2-ride-menu">Ride menu</a> · <a href="#getting-started">Setup</a> · <a href="#controls">Controls</a> · <a href="#known-limitations">Known limitations</a> · <a href="Docs/BUILDING.md">For developers</a></b></p>
 
 # HarleyVR
 
@@ -12,7 +12,7 @@
 
 Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
-> **First Windows release in development.** There is no public player download yet. Follow [release status](Docs/RELEASE-STATUS.md) for availability and upcoming work.
+> **Windows beta v0.1.0-beta.1.** The [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) lists published downloads. Choose **HarleyVR-Windows-x64.zip** for play.
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 
@@ -25,7 +25,7 @@ Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D
 - **VR controller support:** steer, accelerate, brake, change view and feel feedback from crashes and hard landings.
 - **Smoother scene motion:** interpolation improves movement between game frames while preserving the original arcade simulation speed.
 
-The first release focuses on **regular arcade gameplay**. Experimental walking, free hands, Dream Ride and alternate bike-mounted instruments are outside this release's scope.
+Regular arcade play is the default on both headsets. PSVR2 also offers **Bonus → Dream Ride** at startup for a ride with the gameplay HUD and countdown disabled.
 
 ## Screenshots
 
@@ -42,9 +42,9 @@ The first release focuses on **regular arcade gameplay**. Experimental walking, 
 
 <sub>Single-eye screenshots from the desktop VR renderer. Game visuals belong to their respective owners.</sub>
 
-## The ride menu — in development
+## The PSVR2 ride menu
 
-**A new in-game menu is in development, with headset playtesting next.** Pause your ride to adjust comfort, camera position, display quality and audio, or open the original arcade settings.
+**On PSVR2, the ride menu is available at startup and during play.** Pause your ride to adjust comfort, camera position, display quality and audio, or open the original arcade settings.
 
 <table>
 <tr>
@@ -58,17 +58,16 @@ The first release focuses on **regular arcade gameplay**. Experimental walking, 
 
 The menu includes a vignette toggle and strength control, rider height and camera pullback, virtual-screen size, render-quality presets and audio settings. It also provides access to the game's **Test/Service menu**, including Free Play and other cabinet options. Existing arcade settings are preserved until you change them.
 
-With the ride-menu preview enabled, open it with **Escape**, **Tab**, **Alt+P**, or a supported controller's **Menu/Options** button. Keyboard shortcuts require the game window to have focus. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
+Click the **left stick** to open or close the menu. You can also hold the **left side grip** and click the **right stick**. The PS/Home buttons open SteamVR. The dedicated Rift S edition uses the original arcade interface. See the [menu guide](Docs/MENU.md) for navigation, settings and Free Play setup.
 
 ## Getting started
 
-While the public package is being prepared:
+1. Extract **HarleyVR-Windows-x64.zip** into a writable folder. Keep the executable, both headset folders and their companion files together.
+2. Put your own Revision B archive at `ROMs/harleyb.zip`. Leave it zipped.
+3. For **PSVR2**, start SteamVR and use **HarleyVR-SteamVR.exe**. For **Rift S**, open Meta Horizon Link, leave SteamVR closed and use **HarleyVR-Meta.exe**. **HarleyVR.exe** offers both choices.
+4. On PSVR2, choose **Enter game** from the ride menu. Move between rows with the **right stick**, select with **Cross**, and go back with **Circle**. In the arcade game, insert a coin with **Square / X** and start with **Cross / A**. The Meta launcher temporarily disables Asynchronous Spacewarp and restores the previous setting on exit.
 
-1. Set up your headset and controllers using their official PC software.
-2. For **Rift S**, open Meta Horizon Link and keep SteamVR closed. For **PSVR2**, open SteamVR.
-3. Keep your own compatible **`harleyb.zip`** archive ready. Leave it zipped.
-
-The release will include separate **Meta** and **SteamVR** launchers and installation instructions. The Meta launcher temporarily disables Asynchronous Spacewarp during play and restores the previous setting on exit. HarleyVR's own scene interpolation remains enabled.
+To add the PSVR2 shortcut to your Steam library, choose **Games → Add a Non-Steam Game**, browse to **HarleyVR-SteamVR.exe**, then enable the VR-library option in the shortcut properties if available.
 
 ### Compatibility
 
@@ -96,13 +95,13 @@ PSVR2 Sense and Rift S Touch mappings for the regular-game configuration:
 | **Circle** | **B** | Game special / music selection |
 | **Right stick up / down** | **Right stick up / down** | Manual gear change |
 | **Right stick click** | **Right stick click** | Recenter |
-| **Options** | **Menu** | Open / close the ride menu, when the runtime delivers this button to the game |
+| **Left stick click** | — | Open / close the PSVR2 ride menu |
 | **Both side grips, held for 2 seconds** | **Both side grips, held for 2 seconds** | Exit without confirmation |
 | **Keyboard Home** | **Keyboard Home** | Recenter |
-| **Keyboard Escape** | **Keyboard Escape** | Open the ride menu / Back; exit when the ride menu is disabled |
+| **Keyboard Escape** | **Keyboard Escape** | PSVR2 opens the ride menu or goes back. Rift S exits the game. |
 | **Keyboard F5 / F7** | **Keyboard F5 / F7** | Save / load the selected emulator save slot |
 
-The [ride-menu preview](Docs/MENU.md) uses separate navigation bindings: Escape/Backspace and B/Circle go back, or close its main page. To quit from the panel, choose **Exit game** and confirm. Without the ride menu, Escape exits and Alt+P or a delivered Menu/Options button pauses/resumes. The preview's controller delivery and menu flow still require headset validation.
+In the [PSVR2 ride menu](Docs/MENU.md), Escape/Backspace and Circle go back. Choose **Exit game** and confirm to quit. On Rift S, use **Alt+P** to pause or resume.
 
 During riding, Circle/B controls the game's music/special input. Controller vibration covers crashes and hard landings; headset rumble is not implemented.
 

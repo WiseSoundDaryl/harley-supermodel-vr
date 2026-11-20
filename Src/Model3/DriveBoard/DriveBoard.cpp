@@ -134,11 +134,6 @@ void CDriveBoard::LoadState(CBlockFile* SaveState)
             SaveState->Read(m_allowInterrupts);
             SaveState->Read(m_dataSent);
             SaveState->Read(m_dataReceived);
-            {
-              std::lock_guard<std::mutex> lock(m_commandMutex);
-              m_commands.clear();
-              m_lastCommand = m_dataSent;
-            }
             SaveState->Read(m_nmiTimerVal);
 
             // Load CTC state
@@ -257,14 +252,7 @@ UINT8 CDriveBoard::Read(void)
 
 void CDriveBoard::Write(UINT8 data)
 {
-  std::lock_guard<std::mutex> lock(m_commandMutex);
-  if (data != m_lastCommand)
-  {
-    if (m_commands.size() >= 16)
-      m_commands.pop_front();
-    m_commands.push_back(data);
-    m_lastCommand = data;
-  }
+  m_dataSent = data;
 }
 
 UINT8 CDriveBoard::Read8(UINT32 addr)
@@ -337,16 +325,6 @@ void CDriveBoard::RunFrame(void)
     return;
   }
 
-  // The next command the main board wrote, shown to the Z80 for this whole frame
-  {
-    std::lock_guard<std::mutex> lock(m_commandMutex);
-    if (!m_commands.empty())
-    {
-      m_dataSent = m_commands.front();
-      m_commands.pop_front();
-    }
-  }
-
   int frameCycles = GetFramecycles();
 
   while (frameCycles > 0)
@@ -371,6 +349,11 @@ void CDriveBoard::RunFrame(void)
           // reset timer
           m_nmiTimerVal = freq / m_z80CTC.CalcFrequency(1, freq);
       }
+
+      // billboard needs this
+      if (m_allowInterrupts) {
+          m_z80.SetINT(true);       // once per frame seems enough, not sure what triggers this
+      }
   }
 }
 
@@ -379,7 +362,7 @@ Result CDriveBoard::Init(const UINT8* romPtr)
     // This constructor must present a valid ROM
     if (!romPtr)
     {
-      return ErrorLog("Internal error: No drive board ROM supplied.");
+      return ErrorLog("Internal error: no drive board ROM supplied.");
     }
 
     // Assign ROM (note that the ROM data has not yet been loaded)
@@ -435,11 +418,6 @@ void CDriveBoard::Reset()
     m_allowNMIInterupts = false;
     m_dataSent = 0;
     m_dataReceived = 0;
-    {
-      std::lock_guard<std::mutex> lock(m_commandMutex);
-      m_commands.clear();
-      m_lastCommand = 0;
-    }
     m_z80.Reset();        // always reset to provide a valid Z80 state
     m_z80CTC.Reset();
 
@@ -462,7 +440,6 @@ CDriveBoard::CDriveBoard(const Util::Config::Node& config)
     m_allowNMIInterupts(false),
     m_dataSent(0),
     m_dataReceived(0),
-    m_lastCommand(0),
     m_dip1(0x00),
     m_dip2(0x00),
     m_initState(0),

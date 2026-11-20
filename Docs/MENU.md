@@ -1,6 +1,6 @@
 # HarleyVR ride menu
 
-**Menu preview.** The ride menu is in development and awaits headset testing. These desktop previews show the upcoming interface. See [release status](RELEASE-STATUS.md) for availability.
+The PSVR2 edition includes the ride menu at startup and during the game. The direct Meta edition for Rift S uses the original arcade interface.
 
 <p align="center"><img src="Images/menu-main.png" width="840" alt="HarleyVR ride menu with the original game's three-rider closing image" /></p>
 
@@ -10,19 +10,19 @@ Pause the ride to adjust your view, sound and comfort settings. **Resume** retur
 
 | Action | Keyboard | VR controllers |
 | --- | --- | --- |
-| Open / close panel | Tab or Alt+P | Menu / Options, when available to the game |
+| Open / close panel | Tab or Alt+P | Click left stick, or hold left side grip and click right stick |
 | Move between rows | Up / Down | Right stick up / down |
 | Adjust selected setting | Left / Right | Left stick left / right |
 | Select / confirm | Enter | A / Cross |
 | Back within this menu | Backspace or Escape | B / Circle |
 
-These bindings describe the menu-enabled preview implementation; controller delivery and menu flow still require headset validation. Keyboard shortcuts require the game window to have focus.
+Keyboard shortcuts require the game window to have focus.
 
 **Escape** opens the panel during riding. Inside the panel, **Escape/Backspace** or **B/Circle** cancels a confirmation, returns to the parent page, or closes the main page and resumes the game. **Tab/Alt+P** toggles the whole panel, including from a subpage. **Home** or **right-stick click** recenters the view and an open panel.
 
 To quit from the panel, choose **Exit game** and confirm. Holding both side grips for two seconds exits directly, without that confirmation. When the ride menu is disabled or unavailable, **Escape exits** and **Alt+P** or a delivered Menu/Options button pauses/resumes.
 
-The headset's system/Home button is not a HarleyVR menu binding. If Menu/Options opens system software instead, use keyboard **Tab**. Let the sticks and buttons return to neutral when resuming. **Back** applies only to this settings panel; it does not leave the original arcade Test/Service menu. Use that menu's **EXIT** entries as described below.
+The headset's system/Home button is not a HarleyVR menu binding. Click the **left stick** or use keyboard **Tab** to bring up the panel. Let the sticks and buttons return to neutral when resuming. **Back** applies only to this settings panel; it does not leave the original arcade Test/Service menu. Use that menu's **EXIT** entries as described below.
 
 ## Comfort, camera and display
 
@@ -35,7 +35,7 @@ The headset's system/Home button is not a HarleyVR menu binding. If Menu/Options
 | Rider height / camera pullback | Changes the seated camera offset, in game units rather than metres | On Resume |
 | Virtual screen width | Changes the apparent width of theater screens, from 40–100 degrees | Immediately |
 | Desktop FOV | Changes the desktop preview's field of view | On Resume; unavailable in headset sessions |
-| Headset render quality | 50% Performance, 75% Balanced or 100% Quality of the runtime's recommended eye dimensions | **Next launch** |
+| Headset render quality | 50% Performance, 75% Balanced or 100% Quality of the runtime's recommended eye dimensions | **Startup → Enter game** |
 
 Higher render quality gives a sharper image and requires more GPU power. It leaves the headset refresh rate and lens FOV unchanged. Camera stabilization and the dark surroundings of theater screens remain active when the vignette is off. Some hills may still trigger the vignette when enabled.
 
@@ -65,9 +65,9 @@ To choose Free Play using the original cabinet menu:
 1. Open **COIN ASSIGNMENTS**.
 2. Use Service to reach **COIN/CREDIT SETTING**, then Test to select **#27 / FREE PLAY**.
 3. Select **EXIT** in each original arcade menu to save the cabinet settings and return to the arcade's startup flow.
-4. Reopen the HarleyVR panel and leave arcade controls to restore the normal riding mapping.
+4. Open the HarleyVR panel, choose **Return to Startup** and confirm **Restart to Startup** to exit cabinet setup.
 
-Use the cabinet menu's **EXIT** options before leaving arcade controls in HarleyVR. Free Play is optional; existing cabinet settings are preserved until you change them. For more detail, see the original [SEGA owner's manual](https://www.arcade-museum.com/manuals-videogames/H/Harley-Davidson_00004.pdf), printed pages 26–27.
+Use the cabinet menu's **EXIT** options to save settings before restarting to the HarleyVR startup menu. Free Play is optional; existing cabinet settings are preserved until you change them. For more detail, see the original [SEGA owner's manual](https://www.arcade-museum.com/manuals-videogames/H/Harley-Davidson_00004.pdf), printed pages 26–27.
 
 To reveal the region selector, open **GAME ASSIGNMENTS**, then enter **Shift up, Shift up, Shift down, Shift down, View, Music, View, Music**. These inputs remain available while arcade controls are active.
 

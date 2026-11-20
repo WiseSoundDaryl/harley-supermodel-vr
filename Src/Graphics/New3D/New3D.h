@@ -30,12 +30,26 @@
 
 #include <unordered_map>
 #include <atomic>
+#include <memory>
 #include <GL/glew.h>
 #include "Types.h"
 #include "Graphics/IRender3D.h"
 #include "Model.h"
+#include "SceneModelBuffers.h"
+#include "SceneInterpolation.h"
+#include "InspectionGeometry.h"
+#include "TrackedArms.h"
+#include "HandlebarGrip.h"
 #include "Mat4.h"
+#include "RiderComfort.h"
+#include "MenuComfort.h"
+#include "FlatIntro.h"
+#include "SpatialPanel.h"
+#include "DesktopEyeLayout.h"
+#include "StableChase.h"
+#include "RenderProfiler.h"
 #include "R3DShader.h"
+#include "HeadsetVisibilityMask.h"
 #include "VBO.h"
 #include "R3DData.h"
 #include "Plane.h"
@@ -44,12 +58,14 @@
 #include "PolyHeader.h"
 #include "R3DFrameBuffers.h"
 #include <mutex>
+#include <cstdio>
 #include "TextureBank.h"
 
 namespace New3D {
 
 class CNew3D final : public IRender3D
 {
+	friend struct SceneInterpolationTestAccess;
 public:
 	/*
 	* RenderFrame(void):
@@ -58,7 +74,30 @@ public:
 	* EndFrame(). This function traverses the scene database and builds up display
 	* lists.
 	*/
-	void RenderFrame(void) override;
+	void RenderFrame(void);
+	void Attach2DRenderer(CRender2D* renderer) override;
+	void SetSceneClock(uint64_t frame, uint64_t epoch) override;
+	void SetGamePresentationState(const GamePresentationState& state) override;
+	void SubmitMenuInput(int steering, bool start) override;
+	bool SetPresentationPose(const PresentationPose& pose) override;
+	bool RenderPresentation(const PresentationPose& pose) override;
+	bool RenderHeadsetEyes(const PresentationEye (&eyes)[2], float gameUnitsPerMeter = 16.0f) override;
+	void SetHeadsetPresentation(bool enabled) override;
+	bool CanDeferNativePreparation() override;
+	// Owner thread, outside a presentation: allocate fixed eye resources without
+	// consuming a scene or changing caller-owned OpenGL bindings.
+	bool PrepareHeadsetTargets(int width, int height);
+	bool GetPresentationState(PresentationState& state) const override;
+	bool GetHapticState(HapticState& state) const override;
+	bool GetBodyStatus(BodyStatus& state) const override;
+	bool SetBodyMode(bool arms, bool exploring, float unitsPerMeter) override;
+	bool MoveBody(float rightMeters, float forwardMeters, float yawDegrees) override;
+	void SetTrackedHands(const TrackedHands& hands) override { m_bodyHands = hands; }
+	void SetBodyBlackout(bool enabled) override { m_bodyBlackout = m_bodyOptIn && enabled; }
+	void SetBodyVignette(float strength) override;
+	void SetBodyGripButtons(bool left, bool right, bool active = true) override;
+	void SetUserMenuPanel(unsigned texture, bool visible, uint64_t revision) override;
+	void InvalidatePresentation() override;
 
 	/*
 	* BeginFrame(void):
@@ -66,7 +105,7 @@ public:
 	* Prepare to render a new frame. Must be called once per frame prior to
 	* drawing anything.
 	*/
-	void BeginFrame(void) override;
+	void BeginFrame(void);
 
 	/*
 	* EndFrame(void):
@@ -74,7 +113,7 @@ public:
 	* Signals the end of rendering for this frame. Must be called last during
 	* the frame.
 	*/
-	void EndFrame(void) override;
+	void EndFrame(void);
 
 	/*
 	* UploadTextures(x, y, width, height):
@@ -87,7 +126,7 @@ public:
 	*		width	Width of texture data in texels.
 	*		height	Height.
 	*/
-	void UploadTextures(unsigned level, unsigned x, unsigned y, unsigned width, unsigned height) override;
+	void UploadTextures(unsigned level, unsigned x, unsigned y, unsigned width, unsigned height);
 
 	/*
 	* AttachMemory(cullingRAMLoPtr, cullingRAMHiPtr, polyRAMPtr, vromPtr,
@@ -105,30 +144,20 @@ public:
 	*/
 	void AttachMemory(const UINT32 *cullingRAMLoPtr,
 		const UINT32 *cullingRAMHiPtr, const UINT32 *polyRAMPtr,
-		const UINT32 *vromPtr, const UINT16 *textureRAMPtr) override;
+		const UINT32 *vromPtr, const UINT16 *textureRAMPtr);
 
 	/*
 	* SetStepping(stepping):
 	*
-	* Sets the hardware stepping, which determines the data formats and some
-	* behavior. The Real3D Pro-1000 uses the Model 3 Step 1.0 formats. This
-	* should be called prior to any other emulation functions and after
-	* Init().
+	* Sets the Model 3 hardware stepping, which also determines the Real3D
+	* functionality. The default is Step 1.0. This should be called prior to
+	* any other emulation functions and after Init().
 	*
 	* Parameters:
-	*   stepping  Hardware stepping.
+	*   stepping  0x10 for Step 1.0, 0x15 for Step 1.5, 0x20 for Step 2.0, or
+	*             0x21 for Step 2.1. Anything else defaults to 1.0.
 	*/
-	void SetStepping(Game::Stepping stepping) override;
-
-	/*
-	* SetVROMIsPolygonRAM(enable):
-	*
-	* If enabled, there is no VROM (Real3D Pro-1000): the VROM pointer points
-	* to polygon RAM, so models at 0x100000 and above are in writable polygon
-	* RAM. Then models are not cached as ROM models, and color table addresses
-	* have 24 bits instead of 20 bits.
-	*/
-	void SetVROMIsPolygonRAM(bool enable) override;
+	void SetStepping(int stepping);
 
 	/*
 	* Init(xOffset, yOffset, xRes, yRes, totalXRes, totalYRes):
@@ -153,21 +182,7 @@ public:
 	*		occurred. Any allocated memory will not be freed until the
 	*		destructor is called. Prints own error messages.
 	*/
-	Result Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsigned yRes, unsigned totalXRes, unsigned totalYRes, unsigned aaTarget) override;
-
-	/*
-	 * SetScreenSize(width, height):
-	 *
-	 * Set the physical display size that viewport coordinates refer to.
-	 * Model 3 uses 496x384. Pro-1000 uses values from the selected sync file
-	 * (for example, 636x480 for sync file 1). Call this before Init(), or
-	 * call it at any time to update the ratios when the sync file changes.
-	 *
-	 * Parameters:
-	 *		width	Display width in native coordinate units.
-	 *		height	Display height in native coordinate units.
-	 */
-	void SetScreenSize(float width, float height) override;
+	Result Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsigned yRes, unsigned totalXRes, unsigned totalYRes, unsigned aaTarget);
 
 	/*
 	* SetSunClamp(bool enable);
@@ -177,7 +192,7 @@ public:
 	* Parameters:
 	*		enable	Set clamp mode
 	*/
-	void SetSunClamp(bool enable) override;
+	void SetSunClamp(bool enable);
 
 	/*
 	* SetBlockCulling(bool enable);
@@ -187,7 +202,7 @@ public:
 	* Parameters:
 	*		enable	Set block culling
 	*/
-	void SetBlockCulling(bool enable) override;
+	void SetBlockCulling(bool enable);
 
 	/*
 	* GetLosValue(int layer);
@@ -197,7 +212,7 @@ public:
 	* Parameters:
 	*		layer	Priority layer to read from
 	*/
-	float GetLosValue(int layer) override;
+	float GetLosValue(int layer);
 
 	/*
 	* CRender3D(config):
@@ -219,14 +234,11 @@ private:
 	// Real3D address translation
 	const UINT32 *TranslateCullingAddress(UINT32 addr);
 	const UINT32 *TranslateModelAddress(UINT32 addr);
-	const UINT32 *ModelMemoryEnd(const UINT32 *data) const;	// one past the end of the memory a model lives in
 
 	// Matrix stack
 	void MultMatrix(UINT32 matrixOffset, Mat4& mat);
-	void MultInverseMatrix(UINT32 matrixOffset, Mat4& mat);
-	void InitMatrixStack(UINT32 matrixBaseAddr, UINT32 envIdx, Mat4& mat);
+	void InitMatrixStack(UINT32 matrixBaseAddr, Mat4& mat);
 	void ResetMatrix(Mat4& mat) const;
-	void SaveCoordSysRot();
 
 	// Scene database traversal
 	bool DrawModel(UINT32 modelAddr);
@@ -253,6 +265,81 @@ private:
 	void TranslateLosPosition(int inX, int inY, int& outX, int& outY) const;
 	bool ProcessLos(int priority);
 	void CalcViewport(Viewport* vp);
+
+	// Desktop stereo diagnostic. A draw pair always shares one decoded scene.
+	void BuildScene();
+	struct RaceLayout { bool valid = false, settled = false; };
+	RaceLayout InspectRaceLayout() const;
+	struct MenuLayout {
+		MenuComfort::Phase phase = MenuComfort::Phase::Other;
+		unsigned worldViewports = 0, clockViewports = 0, nativeUI = 0;
+		float clockHeight = -1.0f;
+		bool raceLayout = false, raceSettled = false;
+	};
+	MenuLayout InspectMenuLayout() const;
+	void SelectPresentationWorld();
+	void UpdateMenuComfort();
+	void ResetMenuComfort();
+	bool FlatIntroActive() const;
+	bool TheaterIntroActive() const;
+	bool GeneralTheaterEnabled() const;
+	bool ImmersiveOverlayPanel() const;
+	float TheaterScreenAngle() const;
+	float TheaterHalfWidth() const;
+	bool StereoTheaterActive() const;
+	void ClearPresentationTarget();
+	bool DrivingHUDScene() const;
+	bool EnsureHUDTarget();
+	void PrepareHUDPanel();
+	void DrawHUDPanel(GLuint target, const Mat4& headView);
+	bool CertifyHUDDepth() const;
+	bool DrawBikeHUD(int x, int y, int width, int height, const Mat4& view, const Mat4& projection,
+		float unitsPerMeter, GLuint depth, const SpatialPanel::State* knownState = nullptr);
+	Mat4 PanelProjection(int width, int height) const;
+	float CinematicVignetteStrength() const;
+	float UserComfortStrength() const;
+	bool UploadScene();
+	void StressROMCache(bool bypass);
+	void DrawPreparedScene(bool processLos, GLuint outputTarget, bool preserveAlpha = false);
+	void DrawPreparedSceneOnce(bool processLos, GLuint outputTarget, bool preserveAlpha);
+	bool OpenDuplicateAudit();
+	void PrepareDuplicateAuditMask();
+	void CaptureDuplicateAuditStage(unsigned stage, bool finalColor = false);
+	void RecordDuplicateAuditMesh(const Model& model, const Mesh& mesh, int priority, bool overlay, Layer layer);
+	void UpdateDiagnosticSettings();
+	Viewport GetRenderViewport(const Viewport& viewport, bool interpolate = true);
+	void UpdateEyeLayout();
+	bool HasWideEyeViewport(const Viewport& viewport) const;
+	void GetEyeSlopes(const Viewport& viewport, float (&slopes)[4]) const;
+	Mat4 GetEyeTransform(const Viewport& viewport, bool interpolate = true) const;
+	void ResetSceneInterpolation();
+	void PrepareSceneInterpolation(int64_t nowNs);
+	void SampleSceneInterpolation(int64_t nowNs, int64_t displayTimeNs, bool matchingEyes = true);
+	void SampleSceneInterpolationForEyes(int64_t nowNs, const PresentationEye (&eyes)[2]);
+	const float* InterpolatedModel(const Node& node, const Model& model, bool& anchored) const;
+	bool ShouldDrawViewport(const Viewport& viewport) const;
+	void CaptureRootCamera(UINT32 addr, UINT32 nodeFlags, UINT32 matrixIndex, UINT32 sibling);
+	void PrepareRiderAnchor();
+	void ApplyRiderComfort();
+	void DrawComfortVignette(int x, int y, int width, int height, bool cinematic = false, float amount = 1.0f, const float* headsetAperture = nullptr, const SpatialPanel::State* knownState = nullptr);
+	void TraceCameraScene();
+	void TraceCameraLandmarks(FILE* file);
+	void TraceDrawStateDuplicates(bool bypass);
+	bool OpenCameraTrace();
+	bool EnsureEyeTargets();
+	void DestroyEyeTargets();
+	void DrawStereoDiagnostic(const Mat4* headView = nullptr, bool composite = true);
+	void PrepareHeadsetScene();
+	bool EnsureHeadsetTargets(int width, int height);
+	void DestroyHeadsetTargets();
+	bool DrawHeadsetPanel(bool theater, int width, int height, const Mat4& view, const Mat4& projection, float unitsPerMeter, const SpatialPanel::State* knownState = nullptr, int theaterEye = 0);
+	void AnchorUserMenu(const PresentationEye (&eyes)[2], const Mat4 (&views)[2]);
+	bool DrawUserMenu(int width, int height, const Mat4& view, const Mat4& projection, float unitsPerMeter);
+	void CompositeStereoEyes();
+	bool CanReuseStereoEyes() const;
+	bool CanPresentPreparedScene() const;
+	bool PresentationSettingsMatch() const;
+	void LogDiagnosticScene(size_t centerModels);
 	void TranslateTexture(unsigned& x, unsigned& y, int width, int height, int& page) const;
 
 	/*
@@ -261,6 +348,150 @@ private:
 
 	// Misc
 	std::string m_gameName;
+	const Util::Config::Node& m_config;
+	bool m_stereoDiagnostic = false;
+	bool m_stereoUI = false;
+	bool m_stereoMonoPreview = false;
+	bool m_stereoCinematicVignette = false;
+	bool m_stereoMenuComfort = false;
+	bool m_stereoFlatIntro = false;
+	bool m_stereoTheaterIntro = false;
+	int m_stereoTheaterDepth = 0;
+	float m_cinemaUnits = 16.0f, m_cinemaAngle = 70.0f;
+	bool m_cinemaCaptureStereo = false, m_eyeImagesStereoTheater = false;
+	int m_cinemaCaptureEye = 0;
+	GamePresentationState m_gamePresentationState;
+	bool m_stereoVRHUD = false, m_stereoHideHUD = false, m_stereoBikeHUD = false;
+	SpatialPanel m_spatialPanel;
+	Mat4 m_panelHeadView;
+	bool m_hudPanelValid = false;
+	bool m_hudDepthCertified = false;
+	FlatIntro m_flatIntro;
+	MenuComfort m_menuComfort;
+	MenuComfort::Phase m_menuPhase = MenuComfort::Phase::Other;
+	bool m_menuSelectMarkerA = false, m_menuSelectMarkerB = false;
+	bool m_menuIntroMarkerA = false, m_menuIntroMarkerB = false;
+	bool m_menuLayoutMatch = false;
+	bool m_menuRaceLayout = false, m_menuRaceSettled = false;
+	unsigned m_menuClockViewports = 0, m_menuWorldViewports = 0, m_menuNativeUI = 0;
+	float m_menuClockHeight = -1.0f;
+	bool m_menuTicked = false;
+	uint64_t m_menuFrame = 0, m_menuEpoch = 0, m_menuComfortTicks = 0;
+	uint32_t m_menuCameraViewport = 0;
+	int m_menuSteering = 128, m_menuNavigation = 0;
+	bool m_menuStart = false;
+	CRender2D* m_tileRenderer = nullptr; // non-owning, same GL owner/lifetime as renderer
+	bool m_uiOnlyScene = false;
+	bool m_hasImmersiveWorld = false;
+	enum class ViewportPass { All, World, Overlay };
+	ViewportPass m_viewportPass = ViewportPass::All;
+	bool m_stereoCullBypass = false;
+	float m_stereoLodDistance = 1.0f;
+	float m_stereoEyeSeparation = 1.0f;
+	float m_stereoYaw = 0.0f;
+	float m_stereoPitch = 0.0f;
+	bool m_stereoHorizonLock = false;
+	bool m_stereoRiderAnchor = false;
+	bool m_stereoFullBike = false;
+	bool m_stereoStableChase = false;
+	float m_stereoChaseHeight = 20.0f;
+	float m_stereoChaseBack = 40.0f;
+	float m_stereoRiderUp = 0.0f;
+	float m_stereoRiderBack = 0.0f;
+	bool m_stereoRiderComfort = false;
+	float m_stereoVignetteScale = 1.0f;
+	uint64_t m_sceneFrame = 0, m_sceneEpoch = 0;
+	RiderComfort m_riderComfort;
+	RiderComfort::Result m_comfortResult;
+	GLSLShader m_comfortShader;
+	GLuint m_comfortVao = 0;
+	bool m_comfortShaderFailed = false;
+	GLSLShader m_cinematicShader;
+	GLuint m_cinematicVao = 0;
+	bool m_cinematicShaderFailed = false;
+	float m_stereoHorizonFov = 90.0f;
+	std::vector<uint32_t> m_diagnosticNodePath;
+	std::vector<Mat4> m_riderMatrixPath;
+	std::vector<bool> m_riderMatrixNodePath;
+	struct RiderCandidate {
+		uint32_t viewport = 0, objectNode = 0, sourceModel = 0;
+		bool topologyValid = false;
+		Mat4 bodyView, modelView;
+	};
+	std::vector<RiderCandidate> m_riderCandidates;
+	std::string m_riderLastStatus;
+	bool m_recordModelPaths = false;
+	struct DuplicateAuditSnapshot { unsigned stage = 0; std::vector<uint8_t> bytes; };
+	std::string m_duplicateAuditPath;
+	FILE* m_duplicateAuditFile = nullptr;
+	bool m_duplicateAuditActive = false, m_duplicateAuditCandidate = false, m_duplicateAuditFailed = false;
+	bool m_duplicateAuditMaskComplete = true;
+	bool m_duplicateAuditMeshDirty = true, m_duplicateAuditLastLayered = false, m_duplicateAuditLastNoLos = false;
+	uint32_t m_duplicateAuditLastSource = 0;
+	unsigned m_duplicateAuditDraws = 0, m_duplicateAuditStageCursor = 0, m_duplicateAuditTransitionsLogged = 0;
+	size_t m_duplicateAuditBytes = 0, m_duplicateAuditCandidates = 0, m_duplicateAuditSelected = 0;
+	size_t m_duplicateAuditSkipped = 0, m_duplicateAuditTransitions = 0;
+	std::vector<DuplicateAuditSnapshot> m_duplicateAuditBaseline;
+	std::unordered_map<const Model*, std::vector<bool>> m_duplicateAuditMask;
+	std::string m_cameraTracePath;
+	FILE* m_cameraTraceFile = nullptr;
+	bool m_cameraTraceFailed = false, m_cameraTraceModelsWritten = false;
+	uint64_t m_cameraTraceFrame = 0, m_cameraTraceLastFrame = 0;
+	uint64_t m_cameraTraceStart = 1;
+	uint64_t m_drawStateTraceLastFrame[2] = { 0, 0 };
+	unsigned m_cameraTraceLimit = 120, m_cameraTraceSamples = 0;
+	bool m_diagnosticEyeActive = false;
+	bool m_bypassFrustum = false;
+	bool m_diagnosticLogPending = true;
+	bool m_eyeTargetsFailed = false;
+	bool m_eyeImagesValid = false;
+	bool m_eyeImagesTheater = false;
+	bool m_preparedSceneValid = false;
+	uint64_t m_preparedSceneFrame = 0, m_preparedSceneEpoch = 0;
+	bool m_diagnosticCenterFallback = false, m_diagnosticCachedPair = false;
+	uint64_t m_eyeImageFrame = 0, m_eyeImageEpoch = 0;
+	uint64_t m_diagnosticRenderSerial = 0;
+	RenderProfiler m_renderProfiler;
+	Mat4 m_eyeView;
+	bool m_bodyOptIn = false, m_bodyArms = false, m_bodyExploring = false, m_bodyBlackout = false;
+	float m_bodyUnits = 16, m_bodyYaw = 0, m_bodyGround = 0;
+	float m_bodyVignette = 0;
+	HandlebarGrip::Controller m_bodyGrip;
+	std::array<TrackedArms::Vec3,2> m_bodyGripPositions{};
+	bool m_bodyNearGrip[2] = {false,false};
+	uint32_t m_bodyGripRider = 0, m_bodyGripCharacter = 0;
+	std::array<float,3> m_bodyPosition{};
+	uint64_t m_bodyFrame = 0, m_bodyEpoch = 0;
+	TrackedHands m_bodyHands;
+	std::vector<InspectionGeometry::Triangle> m_bodyFloor;
+	struct BodyArmModel { const Model* source = nullptr; TrackedArms::Matrix matrix{}; };
+	std::array<BodyArmModel,6> m_bodyArmModels{};
+	std::array<TrackedArms::Vec3,2> m_bodyWrists{};
+	float m_bodyWristError[2] = {};
+	bool m_bodyWristClamped[2] = {false,false};
+	std::array<TrackedArms::Quaternion,2> m_bodyHandAlignment{};
+	bool m_bodyHandAligned[2] = {false,false};
+	const Viewport* BodyAnchor() const;
+	bool BuildInspectionFloor();
+	void PrepareTrackedArms(int64_t displayTimeNs);
+	const float* BodyArmMatrix(const Model& model) const;
+	bool IsBodyArm(const Viewport& viewport, const Model& model) const;
+	Mat4 BodyNavigationView() const;
+	Mat4 m_presentationHeadView;
+	bool m_presentationPoseSet = false, m_presentationPoseIdentity = true;
+	struct EyeTarget { GLuint framebuffer = 0; GLuint texture = 0; };
+	bool m_headsetPresentation = false, m_headsetEyeActive = false;
+	Mat4 m_headsetProjection;
+	int m_headsetEyeWidth = 0, m_headsetEyeHeight = 0;
+	int m_headsetTargetWidth = 0, m_headsetTargetHeight = 0;
+	std::unique_ptr<R3DFrameBuffers> m_headsetFrameBuffers;
+	HeadsetVisibilityMask m_visibilityMasks;
+	EyeTarget m_headsetTarget;
+	EyeTarget m_hudTarget;
+	EyeTarget m_eyeTargets[2];
+	int m_eyeSourceX = 0, m_eyeSourceY = 0;
+	int m_eyeSourceWidth = 0, m_eyeSourceHeight = 0;
+	DesktopEyeLayout m_eyeLayout;
 	int m_numPolyVerts;
 	GLenum m_primType;
 
@@ -270,8 +501,7 @@ private:
 	bool m_noWhiteFlash;
 
 	// Stepping
-	bool	m_step10;			// Model 3 Step 1.0 or Pro-1000 (Step 1.0 formats and behavior)
-	bool	m_step15;			// Model 3 Step 1.5
+	int		m_step;
 	int		m_offset;			// offset to subtract for words 3 and higher of culling nodes
 	float	m_vertexFactor;		// fixed-point conversion factor for vertices
 	float	m_textureNPFactor;	// fixed-point conversion factor for texture NP values
@@ -280,13 +510,11 @@ private:
 	const UINT32	*m_cullingRAMLo;	// 4 MB
 	const UINT32	*m_cullingRAMHi;	// 1 MB
 	const UINT32	*m_polyRAM;			// 4 MB
-	const UINT32	*m_vrom;			// 64 MB (polygon RAM if m_vromIsPolygonRAM)
-	bool			m_vromIsPolygonRAM = false;
+	const UINT32	*m_vrom;			// 64 MB
 	const UINT16	*m_textureRAM;		// 8 MB
 
 	// Resolution and scaling factors (to support resolutions higher than 496x384) and offsets
 	float		m_xRatio, m_yRatio;
-	float		m_screenWidth = 496.0f, m_screenHeight = 384.0f;	// native display coordinate range (Model 3: 496x384, Pro-1000: sync-file dependent)
 	unsigned	m_xOffs, m_yOffs;
 	unsigned	m_xRes, m_yRes;           // resolution of Model 3's 496x384 display area within the window
 	unsigned 	m_totalXRes, m_totalYRes; // total OpenGL window resolution
@@ -295,7 +523,6 @@ private:
 	// Real3D Base Matrix Pointer
 	const float	*m_matrixBasePtr;
 	UINT32 m_colorTableAddr = 0x400;		// address of color table in polygon RAM
-	float m_coordSysRot[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };	// rotation of the viewport's coordinate system (no translation), used by reset_matrix
 	LODBlendTable* m_LODBlendTable;
 
 	NodeAttributes	m_nodeAttribs;
@@ -314,9 +541,40 @@ private:
 	UINT16			m_prevTexCoords[4][2];	// basically relying on undefined behavour
 
 	std::vector<Node>	 m_nodes;				// this represents the entire render frame
+	SceneModelBuffers m_sceneModelBuffers;	// bounded empty storage; no models outlive their scene
+	// Bounded transforms only. Model/node pointers refer exclusively to the
+	// current prepared scene; previous records are matched by unique ROM asset
+	// and viewport signature, never traversal addresses or vector positions.
+	struct InterpolationModel {
+		uint32_t source = 0;
+		uint64_t signature = 0;
+		float scale = 1; // constant positive uniform model scale; cameras remain rigid
+		SceneInterpolation::Pose pose, previous;
+		SceneInterpolation::Matrix sampled{};
+		bool rigid = false, matched = false, anchored = false;
+	};
+	struct InterpolationViewport {
+		std::array<uint32_t, 5> key{};
+		const Node* node = nullptr;
+		size_t offset = 0, count = 0;
+		SceneInterpolation::Pose camera, previous;
+		SceneInterpolation::Matrix game{}, inverseGame{}, correction{};
+		bool matched = false;
+	};
+	std::vector<InterpolationModel> m_interpolationModels, m_previousInterpolationModels;
+	std::vector<InterpolationViewport> m_interpolationViewports, m_previousInterpolationViewports;
+	std::vector<size_t> m_interpolationOrder, m_previousInterpolationOrder;
+	SceneInterpolation::Clock m_scenePlayback;
+	SceneInterpolation::Sample m_interpolationSample;
+	bool m_sceneInterpolationEnabled = false, m_sceneInterpolationActive = false;
+	uint64_t m_interpolationFrame = 0, m_interpolationEpoch = 0, m_interpolationPair = 0;
+	uint32_t m_interpolationMatched = 0, m_interpolationFallback = 0, m_interpolationAnchored = 0;
 	std::vector<FVertex> m_polyBufferRam;		// dynamic polys
 	std::vector<FVertex> m_polyBufferRom;		// rom polys
 	std::unordered_map<UINT32, std::shared_ptr<std::vector<Mesh>>> m_romMap;	// a hash table for all the ROM models. The meshes don't have model matrices or tex offsets yet
+	bool m_romCacheStressApplied = false;
+	bool m_romCacheResetPending = false;
+	bool m_geometryUploadFailed = false;
 	TextureBank			m_textureBank[2];
 
 	GLuint m_vao;
@@ -338,6 +596,14 @@ private:
 		float bnbw;
 		float correction;
 	} m_planes;	
+
+	// Presentation-only UI. Append storage so existing renderer fields retain
+	// their offsets; the owner of this texture is the application menu.
+	GLuint m_userMenuTexture = 0;
+	uint64_t m_userMenuRevision = 0;
+	bool m_userMenuVisible = false, m_userMenuAnchorValid = false;
+	float m_userMenuPositionMeters[3] = {};
+	float m_userMenuYawDegrees = 0;
 };
 
 } // New3D

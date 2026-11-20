@@ -271,9 +271,9 @@ uniform float	fogAttenuation;
 uniform float	fogAmbient;
 uniform bool	fixedShading;
 uniform bool	smoothShading;
-uniform float	layerDepthBias;		// PRO-1000: >1.0 pulls layered polys towards the viewer (reverse z)
-uniform bool	step15Luminous;
+uniform int		hardwareStep;
 uniform int		colourLayer;
+uniform bool	polyAlpha;
 
 // matrices (shared with vertex shader)
 uniform mat4	projMat;
@@ -418,7 +418,7 @@ void QuadraticInterpolation()
 	fsColor			= fs_in.color;
 	fsLODBase		= fs_in.LODBase;
 
-	gl_FragDepth = depth * layerDepthBias;
+	gl_FragDepth = depth;
 }
 
 void main()

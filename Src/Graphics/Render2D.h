@@ -35,7 +35,7 @@
 #include "New3D/GLSLShader.h"
 #include "FBO.h"
 #include "../Model3/TileGenBuffer.h"
-#include "IRender2D.h"
+#include "TileUploadTracker.h"
 
   /*
    * CRender2D:
@@ -45,7 +45,7 @@
    * the constructor, all members assume that a global GL device
    * context is available and that GL functions may be called.
    */
-class CRender2D : public IRender2D
+class CRender2D
 {
 public:
 	/*
@@ -54,7 +54,7 @@ public:
 	 * Prepare to render a new frame. Must be called once per frame prior to
 	 * drawing anything.
 	 */
-	void BeginFrame(void) override;
+	void BeginFrame(void);
 
 	/*
 	 * PreRenderFrame(void):
@@ -62,7 +62,13 @@ public:
 	 * Draws the all top layers (above 3D graphics) and bottom layers (below 3D
 	 * graphics) but does not yet display them. May send data to the GPU.
 	 */
-	void PreRenderFrame(void) override;
+	void PreRenderFrame(void);
+
+	// Native owner-thread upload scheduling. Headset preparation may postpone
+	// the transfer until CPU scene decoding finishes, but never beyond EndFrame
+	// or a draw-buffer replacement. Frozen presentation methods never upload.
+	void SetDeferredUploads(bool enabled);
+	void CompletePreparedLayers(void);
 
 	/*
 	 * RenderFrameBottom(void):
@@ -70,7 +76,7 @@ public:
 	 * Overwrites the color buffer with bottom surface that was pre-rendered by
 	 * the last call to PreRenderFrame().
 	 */
-	void RenderFrameBottom(void) override;
+	void RenderFrameBottom(void);
 
 	/*
 	 * RenderFrameTop(void):
@@ -79,7 +85,30 @@ public:
 	 * call to PreRenderFrame(). Previously drawn graphics layers will be visible
 	 * through transparent regions.
 	 */
-	void RenderFrameTop(void) override;
+	void RenderFrameTop(void);
+
+	// Draw a previously uploaded tile surface into an explicit eye target.
+	// Does not clear, upload emulated memory, or select the native AA target.
+	void DrawPreparedLayer(bool bottom, GLuint target, int x, int y, int width, int height, bool preserveAlpha = false);
+	// Exact caller-owned state for native HUD assembly. This does not replace
+	// the generic, state-preserving entry point above. Capture once before the
+	// bottom layer, then derive the post-overlay state from the 3D compositor's
+	// documented postconditions instead of querying immediately after its draws.
+	struct PreparedLayerState {
+		GLint framebuffer = 0, drawBuffer = GL_BACK, program = 0, vao = 0;
+		GLint viewport[4]{}, scissorBox[4]{}, activeTexture = GL_TEXTURE0, texture = 0;
+		GLint srcRGB = GL_SRC_ALPHA, dstRGB = GL_ONE_MINUS_SRC_ALPHA;
+		GLint srcAlpha = GL_SRC_ALPHA, dstAlpha = GL_ONE_MINUS_SRC_ALPHA;
+		GLint eqRGB = GL_FUNC_ADD, eqAlpha = GL_FUNC_ADD;
+		GLboolean depth = GL_FALSE, cull = GL_FALSE, blend = GL_FALSE;
+		GLboolean stencil = GL_FALSE, scissor = GL_FALSE;
+		static PreparedLayerState Capture();
+		void Restore() const;
+		bool Equals(const PreparedLayerState& other) const;
+	};
+	void DrawPreparedLayerOwned(bool bottom, GLuint target, int x, int y, int width, int height,
+		bool preserveAlpha, const PreparedLayerState& restoreState);
+	bool HasPreparedLayers() const { return m_surfacePrepared[0] && m_surfacePrepared[1]; }
 
 	/*
 	 * EndFrame(void):
@@ -87,7 +116,7 @@ public:
 	 * Signals the end of rendering for this frame. Must be called last during
 	 * the frame.
 	 */
-	void EndFrame(void) override;
+	void EndFrame(void);
 
 	/*
 	 * WriteVRAM(addr, data):
@@ -173,7 +202,7 @@ public:
 	 *    OKAY is successful, otherwise FAILED if a non-recoverable error
 	 *    occurred. Prints own error messages.
 	 */
-	Result Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsigned yRes, unsigned totalXRes, unsigned totalYRes, unsigned aaTarget, UpscaleMode upscaleMode) override;
+	Result Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsigned yRes, unsigned totalXRes, unsigned totalYRes, unsigned aaTarget, UpscaleMode upscaleMode);
 
 	/*
 	 * CRender2D(config):
@@ -185,7 +214,7 @@ public:
 	 *    config  Run-time configuration.
 	 */
 	CRender2D(const Util::Config::Node& config);
-	~CRender2D(void) override;
+	~CRender2D(void);
 
 private:
 
@@ -208,8 +237,12 @@ private:
 
 	GLuint m_vao;
 	GLuint m_textureIDs[2];
+	bool m_surfacePrepared[2] = { false, false };
 	GLSLShader m_drawShader;
 	std::shared_ptr<TileGenBuffer> m_drawBuffers[2];
+	TileUploadTracker m_tileUploadTracker[2]; // append only: preserve all existing member offsets
+	bool m_deferTileUploads = false;
+	bool m_tileUploadPending = false;
 };
 
 

@@ -20,3 +20,8 @@ Tests generate harmless text, small signature probes and disposable Git indexes.
 Passing checks do not establish redistribution rights, an exhaustive secrets audit, or a clean history. Image signatures establish file type, not permission to publish the content. Review new images and source dependencies before adding them. A future legitimate asset that conflicts with policy needs a narrow, documented exception and regression coverage.
 
 Before release, inspect the selected public refs and their history separately. Distinguish inherited templates and dependency fixtures from personal data and game files. If a potentially sensitive artifact is found, record its identity privately, avoid copying its contents into an issue or log, and arrange maintainer review. Do not automatically rewrite the shared history or delete local development evidence. Keep the corresponding-source, license, package and headset gates in the [release checklist](RELEASE-CHECKLIST.md) open until independently verified.
+
+
+## Beta history review
+
+The November 20 review read all 1,355 commits and 4,591 distinct file blobs reachable from the preceding public revision `991ccff7`. The two inherited zlib object files matched the official zlib 1.2.1 source distribution. The inherited Expat import library matched the official Expat 2.0.0 Windows distribution; the installer and official source carry matching license text after line-ending normalization. These three retired build files are absent from the player package. The staged-file check remains part of subsequent source changes. [zlib archive](https://zlib.net/fossils/zlib-1.2.1.tar.gz) · [Expat release](https://github.com/libexpat/libexpat/releases/tag/R_2_0_0)

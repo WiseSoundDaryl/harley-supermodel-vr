@@ -1,0 +1,4 @@
+9b4a141bf6ded0043a887ecc884374b0cd35adfee0a05e78837199f534600acc  HarleyVR-Launchers-source.zip
+50dc83d09c6510c4b147cf17059560a185c13ccab98adc66298a1852d938b711  HarleyVR-PSVR2-source.zip
+b6535a87c29d42adfb3c2f1e645fa8d3bc96477300365472a11bc2d4746bc4ef  HarleyVR-RiftS-source.zip
+182f5693cbca8760f13f55aaf653dd5405ecd3ddb8805fa0476d4019b922e658  HarleyVR-Windows-x64.zip

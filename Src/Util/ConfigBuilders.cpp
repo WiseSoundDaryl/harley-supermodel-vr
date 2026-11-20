@@ -40,7 +40,7 @@ namespace Util
 
       // Push the top level of the XML tree
       for (const XMLElement *e = xml.RootElement(); e != 0; e = e->NextSiblingElement())
-        q.emplace(e, config);
+        q.push( { e, config } );
 
       // Process the elements in order, pushing subsequent levels along with the
       // config nodes to add them to
@@ -59,7 +59,7 @@ namespace Util
 
         // Push all child elements
         for (const XMLElement *e = element->FirstChildElement(); e != 0; e = e->NextSiblingElement())
-          q.emplace(e, node);
+          q.push( { e, node } );
       }
     }
 
@@ -316,17 +316,6 @@ namespace Util
       }
     }
 
-    // A section whose settings have all been removed is not written
-    static bool HasSettings(const Node &section)
-    {
-      for (auto it = section.begin(); it != section.end(); ++it)
-      {
-        if (it->IsLeaf() && it->Exists())
-          return true;
-      }
-      return false;
-    }
-
     static void WriteSection(std::ofstream &file, const Node &section)
     {
       file << "[ " << section.Key() << " ]" << std::endl;
@@ -355,7 +344,7 @@ namespace Util
       WriteSection(file, config);
       for (auto it = config.begin(); it != config.end(); ++it)
       {
-        if (it->HasChildren() && HasSettings(*it))
+        if (it->HasChildren())
           WriteSection(file, *it);
       }
       printf("Configuration successfully saved to '%s'.\n", filename.c_str());

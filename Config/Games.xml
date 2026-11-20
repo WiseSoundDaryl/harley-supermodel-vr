@@ -1401,32 +1401,6 @@
     </roms>
   </game>
 
-  <game name="pro1000">
-    <identity>
-      <title>Real3D Pro-1000</title>
-      <version>SDK Firmware</version>
-      <manufacturer>Real3D</manufacturer>
-      <year>1997</year>
-    </identity>
-    <hardware>
-      <platform>Real3D Pro-1000</platform>
-      <!-- Model: 1100 (1 pixel processor), 1200 (2), or 1400 (4) -->
-      <stepping>1100</stepping>
-      <!-- Polygon memory in MB: 8 (standard), 16, 24, or 32 (with memory cards) -->
-      <polygon_memory>8</polygon_memory>
-    </hardware>
-    <roms>
-      <!-- Flash parts 1 and 4: boot stub and loop code (software revision 5.4), loaded at 0xFFF00000 -->
-      <region name="cpu_rom" stride="1" chunk_size="1">
-        <file offset="0" name="p1_p4.bin" crc32="0x6026A0DB" />
-      </region>
-      <!-- Flash part 2: INIT ROM (revision 54), loaded at 0xFFF80000 -->
-      <region name="init_rom" stride="1" chunk_size="1">
-        <file offset="0" name="p2.bin" crc32="0x945BBCF5" />
-      </region>
-    </roms>
-  </game>
-
   <game name="scud">
     <identity>
       <title>Scud Race</title>
@@ -2951,7 +2925,7 @@
         <file offset="0" name="epr-20920.20" crc32="0x428D05FC" />
         <file offset="2" name="epr-20919.19" crc32="0x7A0713D2" />
         <file offset="4" name="epr-20918.18" crc32="0x0E9CDC5B" />
-        <file offset="6" name="epr-20917.17" crc32="0x969E4BDA" />
+        <file offset="6" name="epr-20917.17" crc32="0xC3BBB270" />
       </region>
       <region name="banked_crom" stride="8" chunk_size="2" byte_swap="true">
         <!-- CROM0 -->

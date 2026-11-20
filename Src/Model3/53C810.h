@@ -28,11 +28,10 @@
 #ifndef INCLUDED_53C810_H
 #define INCLUDED_53C810_H
 
-#include "CPU/IRQController.h"
+#include "IRQ.h"
 #include "PCI.h"
 #include "BlockFile.h"
 #include "CPU/Bus.h"
-#include "SCSIBus.h"
 
 /*
  * struct NCR53C810Context:
@@ -58,19 +57,13 @@ struct NCR53C810Context
 
 	// Operational status
 	bool	halt;		// set true if halted by interrupt instruction
-	bool	idle;		// set true if SCRIPTS have not been started since reset or were stopped by an unrecognized instruction
-	bool	waiting;	// set true if the last instruction is waiting on the SCSI bus (re-executed by the next Run())
-	bool	carry;		// ALU carry flag (register arithmetic, carry tests)
-
-	// SCSI bus: the initiator on the bus, or null if no bus is attached (target mode)
-	ISCSIInitiator	*initiator;
 
 	// Big endian bus object for DMA memory access and instruction fetching
 	IBus	*Bus;
 
 	// IRQ handling
-	IIRQController	*IRQ;		// IRQ controller
-	uint16_t	scsiIRQ;	// IRQ line mask to use when calling IRQ controller
+	CIRQ		*IRQ;		// IRQ controller
+	unsigned	scsiIRQ;	// IRQ bit to use when calling IRQ handler
 };
 
 /*
@@ -171,23 +164,6 @@ public:
 	UINT8 GetBaseAddress(void) const;
 
 	/*
-	 * Run(maxInstructions):
-	 *
-	 * Executes SCRIPTS until the SCRIPTS processor halts or the instruction
-	 * limit is reached, whichever comes first. A limit is always required
-	 * because SCRIPTS can loop indefinitely. SCRIPTS are also started
-	 * immediately (with a fixed limit) when the registers that start them are
-	 * written; this may be called periodically to continue execution.
-	 *
-	 * Parameters:
-	 *		maxInstructions	Maximum number of instructions to execute.
-	 *
-	 * Returns:
-	 *		Number of instructions executed.
-	 */
-	unsigned Run(unsigned maxInstructions);
-
-	/*
 	 * Reset(void):
 	 *
 	 * Resets the device. 
@@ -205,24 +181,10 @@ public:
 	 *						over. Used to read/write memory.
 	 *		IRQObjectPtr	Pointer to the IRQ controller. Used to trigger SCSI
 	 *						and DMA interrupts.
-	 *		scsiIRQBit		IRQ line mask to pass along to IRQ controller
+	 *		scsiIRQBit		IRQ identifier bit to pass along to IRQ controller
 	 *						when asserting interrupts.
 	 */
-	void Init(IBus *BusObjectPtr, IIRQController *IRQObjectPtr, uint16_t scsiIRQBit);
-
-	/*
-	 * AttachInitiator(initiator):
-	 *
-	 * Connects the controller to a SCSI bus that has an initiator on it. The
-	 * controller can then operate as a target: it can be selected, transfer
-	 * bytes, disconnect, and reselect. If no initiator is attached, the
-	 * controller is never selected.
-	 *
-	 * Parameters:
-	 *		initiator	The initiator, or null to disconnect from the bus. The
-	 *					initiator must stay available while it is attached.
-	 */
-	void AttachInitiator(ISCSIInitiator *initiator);
+	void Init(IBus *BusObjectPtr, CIRQ *IRQObjectPtr, unsigned scsiIRQBit);
 
 	/*
 	 * C53C810(void):
@@ -235,8 +197,7 @@ public:
 
 private:
 	// Private members
-	Result	ExecuteInstruction(void);	// fetches and executes the instruction at DSP
-	void	SingleStep(void);			// executes one instruction and raises the single step interrupt
+	void	Run(bool singleStep);
 	void	BuildOpTable(void);
 	void	Insert(UINT8 mask, UINT8 op, Result (*Handler)(struct NCR53C810Context *));
 	Result	(*OpTable[256])(struct NCR53C810Context *);
@@ -244,8 +205,8 @@ private:
 	// Context (register file)
 	struct NCR53C810Context	Ctx;
 
-	// IRQ line mask for this SCSI controller
-	uint16_t	scsiIRQ;
+	// IRQ identifier for this SCSI controller
+	unsigned	scsiIRQ;
 
 	// Base address of the SCSI device (varies by game)
 	UINT8	baseAddress;

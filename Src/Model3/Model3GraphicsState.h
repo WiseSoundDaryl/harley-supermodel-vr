@@ -49,12 +49,6 @@
 class CModel3GraphicsState: public IEmulator, public IBus
 {
 public:
-  // Loads only the graphics part of a state file, from the constructor
-  bool SupportsSaveStates(void) const override
-  {
-    return false;
-  }
-
   void SaveState(CBlockFile *SaveState) override
   {
   }
@@ -111,21 +105,8 @@ public:
     return m_game;
   }
 
-  void AttachRenderers(IRender2D *render2D, IRender3D *render3D, SuperAA* superAA) override
+  Result LoadGame(const Game &game, const ROMSet &rom_set) override
   {
-    m_tileGen.AttachRenderer(dynamic_cast<CRender2D *>(render2D));
-    render3D->SetStepping(m_game.stepping);
-    m_real3D.AttachRenderer(render3D);
-  }
-
-  Result Init(const Game &game, const ROMSet &rom_set) override
-  {
-    m_vrom.reset(new uint8_t[64*1024*1024], std::default_delete<uint8_t[]>());
-    m_irq.Init();
-    if (Result::OKAY != m_tileGen.Init(&m_irq))
-      return Result::FAIL;
-    if (Result::OKAY != m_real3D.Init(m_vrom.get(), this, &m_irq, CIRQ::NMI, Real3DConfig::Model3(game.stepping)))
-      return Result::FAIL;
     m_game = game;
     if (rom_set.get_rom("vrom").size <= 32*0x100000)
     {
@@ -134,6 +115,33 @@ public:
     }
     else
       rom_set.get_rom("vrom").CopyTo(m_vrom.get(), 64*0x100000);
+    int stepping = ((m_game.stepping[0] - '0') << 4) | (m_game.stepping[2] - '0');
+    m_real3D.SetStepping(stepping);
+    return Result::OKAY;
+  }
+
+  void AttachRenderers(CRender2D *render2D, IRender3D *render3D, SuperAA* superAA) override
+  {
+    m_tileGen.AttachRenderer(render2D);
+    m_real3D.AttachRenderer(render3D);
+  }
+
+  void AttachInputs(CInputs *InputsPtr) override
+  {
+  }
+
+  void AttachOutputs(COutputs *OutputsPtr) override
+  {
+  }
+
+  Result Init(void) override
+  {
+    m_vrom.reset(new uint8_t[64*1024*1024], std::default_delete<uint8_t[]>());
+    m_irq.Init();
+    if (Result::OKAY != m_tileGen.Init(&m_irq))
+      return Result::FAIL;
+    if (Result::OKAY != m_real3D.Init(m_vrom.get(), this, &m_irq, 0x100))
+      return Result::FAIL;
     return Result::OKAY;
   }
 

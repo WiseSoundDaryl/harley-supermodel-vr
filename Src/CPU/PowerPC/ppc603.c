@@ -27,6 +27,7 @@
 
 void ppc603_exception(int exception)
 {
+	ClearIdleLoopWatch();
 #ifdef SUPERMODEL_DEBUGGER
 		if (PPCDebug != NULL)
 			PPCDebug->CPUException(exception);
@@ -230,6 +231,7 @@ static void ppc603_check_interrupts(void)
 
 void ppc_reset(void)
 {
+	ClearIdleLoopWatch();
 	ppc.fatalError = false;	// reset the fatal error flag
 	
 	ppc.pc = ppc.npc = 0xfff00100;
@@ -246,36 +248,19 @@ void ppc_reset(void)
 	DEC = 0xffffffff;
 	ppc.total_cycles = 0;
 	ppc.cur_cycles = 0;
-	ppc.overrun = 0;
 	ppc.icount = 0;
-}
-
-/*
- * Extra cycles taken by the instruction being executed, e.g. the wait states of a slow memory access. The timebase
- * and decrementer are derived from the cycle count, so they advance by these cycles too. If the time slice runs out,
- * the cycles past its end are taken from the next one.
- */
-void ppc_add_cycles(int cycles)
-{
-	ppc.icount -= cycles;
 }
 
 int ppc_execute(int cycles)
 {
+	// RAM can change between slices; prove convergence again on the new contents.
+	ClearIdleLoopWatch();
 	UINT32 opcode;
 
-	// Nothing to run (a caller's cycle count may have run out). Any overrun is kept for the next slice.
-	if (cycles <= 0)
-		return 0;
-
-	// The previous time slice may have run over (ppc_add_cycles)
-	int start = cycles - ppc.overrun;
-	ppc.overrun = 0;
-
-	ppc.cur_cycles = start;
-	ppc.icount = start;
-	ppc.tb_base_icount = start + ppc.timer_frac;
-	ppc.dec_base_icount = start + ppc.timer_frac;
+	ppc.cur_cycles = cycles;
+	ppc.icount = cycles;
+	ppc.tb_base_icount = cycles + ppc.timer_frac;
+	ppc.dec_base_icount = cycles + ppc.timer_frac;
 
 	// Check if decrementer exception occurs during execution (exception occurs after decrementer
 	// has passed through zero)
@@ -327,8 +312,22 @@ int ppc_execute(int cycles)
 
 		switch(opcode >> 26)
 		{
+			case 10:	ppc_cmpli(opcode); break;
+			case 11:	ppc_cmpi(opcode); break;
+			case 14:	ppc_addi(opcode); break;
+			case 15:	ppc_addis(opcode); break;
+			case 16:	ppc_bcx(opcode); break;
+			case 18:	ppc_bx(opcode); break;
+			case 24:	ppc_ori(opcode); break;
+			case 25:	ppc_oris(opcode); break;
+			case 34:	ppc_lbz(opcode); break;
 			case 19:	optable19[(opcode >> 1) & 0x3ff](opcode); break;
-			case 31:	optable31[(opcode >> 1) & 0x3ff](opcode); break;
+			case 31:
+				if (((opcode >> 1) & 0x3ff) == 0)
+					ppc_cmp(opcode);
+				else
+					optable31[(opcode >> 1) & 0x3ff](opcode);
+				break;
 			case 59:	optable59[(opcode >> 1) & 0x3ff](opcode); break;
 			case 63:	optable63[(opcode >> 1) & 0x3ff](opcode); break;
 			default:	optable[opcode >> 26](opcode); break;
@@ -336,8 +335,7 @@ int ppc_execute(int cycles)
 
 		ppc.icount--;
 		
-		// <= rather than ==, as ppc_add_cycles() can step over the trigger cycle
-		if (ppc.icount <= ppc.dec_trigger_cycle)
+		if (ppc.icount == ppc.dec_trigger_cycle)
 		{
 			ppc.dec_trigger_cycle = DEC_TRIGGER_NONE;
 			ppc.interrupt_pending |= 0x2;
@@ -367,10 +365,8 @@ int ppc_execute(int cycles)
 	}
 	*/
 
-	int executed = ppc.cur_cycles - ppc.icount;
+	int executed = cycles - ppc.icount;
 	ppc.total_cycles += executed;
-	if (ppc.icount < 0)
-		ppc.overrun = -ppc.icount;
 	ppc.cur_cycles = 0;
 	ppc.icount = 0;
 	ppc.tb_base_icount = 0;

@@ -28,11 +28,14 @@
 #ifndef INCLUDED_IEMULATOR_H
 #define INCLUDED_IEMULATOR_H
 
+#include "Graphics/IRender3D.h"
+
 class CBlockFile;
 struct Game;
 struct ROMSet;
-class IRender2D;
-class IRender3D;
+class CRender2D;
+class CInputs;
+class COutputs;
 class SuperAA;
 
 /*
@@ -67,16 +70,7 @@ public:
    *    SaveState   Block file to load state information from.
    */
   virtual void LoadState(CBlockFile *SaveState) = 0;
-
-  /*
-   * SupportsSaveStates(void):
-   *
-   * Returns:
-   *    True if SaveState() and LoadState() are supported. If false, do not
-   *    call them.
-   */
-  virtual bool SupportsSaveStates(void) const = 0;
-
+  
   /*
    * SaveNVRAM(NVRAM):
    *
@@ -111,12 +105,30 @@ public:
    */
   virtual void RunFrame(void) = 0;
 
+  // Optional work on the RunFrame/GL owner thread while emulation workers run.
+  // Register or clear only outside RunFrame; context must remain alive until
+  // the callback is cleared and the active RunFrame has returned. A callback
+  // must return promptly without throwing. It may redraw an already prepared
+  // presentation, but must not run/sync emulation, save/load/reset/pause, or
+  // mutate emulated inputs or configuration that worker threads can read.
+  // Defer those actions until RunFrame returns. Implementations without a safe
+  // worker-wait presentation window may ignore this optional registration.
+  // Return true only after productive presentation work completed successfully:
+  // the owner rechecks worker completion, then may retry without an extra wait.
+  // Pending, denied and failed attempts return false to retain the bounded wait.
+  using FrameWaitCallback = bool (*)(void*);
+  virtual void SetFrameWaitCallback(FrameWaitCallback, void*) {}
+
   /*
    * RenderFrame(void):
    *
    * Renders one video frame.
    */
   virtual void RenderFrame(void) = 0;
+
+  // Redraw a prepared scene on the GL owner thread without advancing emulation
+  // or invoking video callbacks. The caller captures/presents the back buffer.
+  virtual bool RenderPresentation(const IRender3D::PresentationPose& pose) { return false; }
 
   /*
    * Reset(void):
@@ -135,42 +147,64 @@ public:
   virtual const Game &GetGame(void) const = 0;
 
   /*
+   * LoadGame(game, rom_set):
+   *
+   * Loads a game, copying in the provided ROMs and setting the hardware
+   * stepping.
+   *
+    * Parameters:
+   *    game      Game information.
+   *    rom_set   ROMs.
+   *
+   * Returns:
+   *    OKAY if successful, FAIL otherwise. Prints errors.
+   */
+  virtual Result LoadGame(const Game &game, const ROMSet &rom_set) = 0;
+  
+  /*
    * AttachRenderers(Render2DPtr, Render3DPtr):
    *
-   * Attaches the renderers to the appropriate device objects. Call it after
-   * Init(). Call it again when the renderers are replaced (for example, when
-   * the OpenGL context is created again).
-   *
-   * Other dependencies (inputs, outputs, console input, network server) go to
-   * the constructor of each emulator.
+   * Attaches the renderers to the appropriate device objects.
    *
    * Parameters:
-   *    Render2DPtr   Pointer to a 2D layer renderer object (the type that
-   *                  the emulator needs: CRender2D for Model 3,
-   *                  CPro1000Render2D for the Pro-1000).
+   *    Render2DPtr   Pointer to a tile renderer object.
    *    Render3DPtr   Same as above but for a 3D renderer.
    */
-  virtual void AttachRenderers(IRender2D *Render2DPtr, IRender3D *Render3DPtr, SuperAA *superAA) = 0;
+  virtual void AttachRenderers(CRender2D *Render2DPtr, IRender3D *Render3DPtr, SuperAA *superAA) = 0;
+  
+  /*
+   * AttachInputs(InputsPtr):
+   *
+   * Attaches OSD-managed inputs.
+   *
+   * Parameters:
+   *    InputsPtr Pointer to the object containing input states.
+   */
+  virtual void AttachInputs(CInputs *InputsPtr) = 0;
+  
+  /*
+   * AttachOutputs(InputsPtr):
+   *
+   * Attaches OSD-managed outputs (cabinet lamps, etc.)
+   *
+   * Parameters:
+   *    OutputsPtr  Pointer to the object containing output states.
+   */
+  virtual void AttachOutputs(COutputs *OutputsPtr) = 0;
 
   /*
-   * Init(game, rom_set):
+   * Init(void):
    *
-   * One-time initialization of the context. Allocates memory, initializes
-   * the devices, copies in the provided ROMs, and configures the hardware
-   * for the game (for example, the stepping). Must be called prior to all
+   * One-time initialization of the context. Must be called prior to all
    * other members.
    *
    * NOTE: Command line settings will not have been applied here yet.
-   *
-   * Parameters:
-   *    game      Game information.
-   *    rom_set   ROMs.
    *
    * Returns:
    *    OKAY is successful, otherwise FAILED if a non-recoverable error
    *    occurred. Prints own error messages.
    */
-  virtual Result Init(const Game &game, const ROMSet &rom_set) = 0;
+  virtual Result Init(void) = 0;
 
   /*
    * PauseThreads(void):

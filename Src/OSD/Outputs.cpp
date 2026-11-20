@@ -81,7 +81,6 @@ const Game &COutputs::GetGame() const
 
 void COutputs::SetGame(const Game &game)
 {
-	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_game = game;
 }
 
@@ -90,7 +89,6 @@ UINT8 COutputs::GetValue(EOutputs output) const
 	int idx = (unsigned)output;
 	if (idx < 0 || idx >= NUM_OUTPUTS)
 		return 0;
-	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	return m_values[idx];
 }
 
@@ -99,7 +97,6 @@ void COutputs::SetValue(EOutputs output, UINT8 value)
 	int idx = (unsigned)output;
 	if (idx < 0 || idx >= NUM_OUTPUTS)
 		return;
-	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	bool firstSet = m_first[idx];
 	UINT8 prevValue = m_values[idx];
 	m_first[idx] = false;
@@ -113,7 +110,6 @@ bool COutputs::HasValue(EOutputs output)
 	int idx = (unsigned)output;
 	if (idx < 0 || idx >= NUM_OUTPUTS)
 		return false;
-	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	return !m_first[output]; 
 }
 

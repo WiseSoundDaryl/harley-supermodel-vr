@@ -21,6 +21,7 @@ R3DShader::R3DShader(const Util::Config::Node &config)
 
 void R3DShader::Start()
 {
+	m_dirtyViewport = true;
 	m_textured1			= false;
 	m_textured2			= false;
 	m_textureAlpha		= false;		// use alpha in texture
@@ -62,6 +63,7 @@ void R3DShader::Start()
 
 bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 {
+	m_dirtyViewport = true;
 	bool quads = m_config["QuadRendering"].ValueAs<bool>();
 
 	const char* vShader = vertexShaderR3D;
@@ -78,6 +80,27 @@ bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 	m_vertexShader		= glCreateShader(GL_VERTEX_SHADER);
 	m_fragmentShader	= glCreateShader(GL_FRAGMENT_SHADER);
 
+	// The OFF path passes exactly the original two GLSL strings to the driver.
+	// Only an explicitly enabled build adds a guarded R8 texture fetch. Native
+	// LOS and every non-world pass leave the uniform false; no depth/stencil
+	// arithmetic or original material branch ordering is changed.
+	std::string visibilityFragment;
+	bool visibilityVariant = !m_visibilityCompileDisabled &&
+		m_config["OpenXRVisibilityMask"].ValueAsDefault<bool>(false);
+	if (visibilityVariant) {
+		visibilityFragment = fShader;
+		const std::string version = "#version 410 core";
+		const auto versionAt = visibilityFragment.find(version);
+		const auto mainAt = visibilityFragment.find("void main()");
+		const auto braceAt = mainAt == std::string::npos ? std::string::npos : visibilityFragment.find('{', mainAt);
+		if (versionAt == std::string::npos || braceAt == std::string::npos) {
+			visibilityVariant = false; m_visibilityCompileDisabled = true;
+		} else {
+			visibilityFragment.insert(braceAt + 1, "\n  if (visibilityEnabled && texelFetch(visibilityTexture, ivec2(gl_FragCoord.xy), 0).r > 0.5) discard;\n");
+			visibilityFragment.insert(versionAt + version.size(), "\nuniform sampler2D visibilityTexture;\nuniform bool visibilityEnabled;\n");
+			fShader = visibilityFragment.c_str();
+		}
+	}
 	const char* shaderArray[] = { fShader, fragmentShaderR3DCommon };
 
 	glShaderSource(m_vertexShader, 1, (const GLchar **)&vShader, nullptr);
@@ -102,6 +125,20 @@ bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 	glLinkProgram(m_shaderProgram);
 
 	PrintProgramResult(m_shaderProgram);
+	if (visibilityVariant) {
+		GLint linked = GL_FALSE;
+		glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &linked);
+		if (linked != GL_TRUE) {
+			// A failed optional shader must not prevent the original renderer from
+			// starting. One fallback only; never retry on each presentation.
+			m_visibilityCompileDisabled = true;
+			UnloadShader();
+			return LoadShader(vertexShader, fragmentShader);
+		}
+	}
+	m_locVisibilitySampler = visibilityVariant ? glGetUniformLocation(m_shaderProgram, "visibilityTexture") : -1;
+	m_locVisibilityEnabled = visibilityVariant ? glGetUniformLocation(m_shaderProgram, "visibilityEnabled") : -1;
+
 
 	m_locTextureBank[0]		= glGetUniformLocation(m_shaderProgram, "textureBank[0]");
 	m_locTextureBank[1]		= glGetUniformLocation(m_shaderProgram, "textureBank[1]");
@@ -117,7 +154,7 @@ bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 	m_locTextureInverted	= glGetUniformLocation(m_shaderProgram, "textureInverted");
 	m_locTexWrapMode		= glGetUniformLocation(m_shaderProgram, "textureWrapMode");
 	m_locColourLayer		= glGetUniformLocation(m_shaderProgram, "colourLayer");
-	m_locLayerDepthBias		= glGetUniformLocation(m_shaderProgram, "layerDepthBias");
+	m_locPolyAlpha			= glGetUniformLocation(m_shaderProgram, "polyAlpha");
 
 	m_locFogIntensity		= glGetUniformLocation(m_shaderProgram, "fogIntensity");
 	m_locFogDensity			= glGetUniformLocation(m_shaderProgram, "fogDensity");
@@ -147,7 +184,7 @@ bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 	m_locProjMat			= glGetUniformLocation(m_shaderProgram, "projMat");
 	m_locModelMat			= glGetUniformLocation(m_shaderProgram, "modelMat");
 
-	m_locStep15Luminous		= glGetUniformLocation(m_shaderProgram, "step15Luminous");
+	m_locHardwareStep		= glGetUniformLocation(m_shaderProgram, "hardwareStep");
 	m_locDiscardAlpha		= glGetUniformLocation(m_shaderProgram, "discardAlpha");
 
 	m_locCota				= glGetUniformLocation(m_shaderProgram, "cota");
@@ -157,6 +194,7 @@ bool R3DShader::LoadShader(const char* vertexShader, const char* fragmentShader)
 
 void R3DShader::UnloadShader()
 {
+	m_dirtyViewport = true;
 	// make sure no shader is bound
 	glUseProgram(0);
 
@@ -197,9 +235,24 @@ void R3DShader::SetShader(bool enable)
 		glUseProgram(m_shaderProgram);
 		Start();
 		DiscardAlpha(false);	// need some default
+		if (m_locVisibilityEnabled >= 0) {
+			glUniform1i(m_locVisibilitySampler, 2);
+			glUniform1i(m_locVisibilityEnabled, m_visibilityTexture != 0);
+			if (m_visibilityTexture) {
+				// R3DFrameBuffers' composite overwrites unit2. Rebind for every
+				// geometry pass, including repeated diagnostic world passes.
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, m_visibilityTexture);
+				glBindSampler(2, 0);
+				glActiveTexture(GL_TEXTURE0);
+			}
+		}
+
 	}
 	else {
 		glUseProgram(0);
+		if (m_locVisibilityEnabled >= 0 && m_visibilityTexture)
+			glBindSampler(2, m_visibilityRestoreSampler); // Original layer composite sampler.
 	}
 }
 
@@ -309,6 +362,11 @@ void R3DShader::SetMeshUniforms(const Mesh* m)
 		m_translatorMap = m->translatorMap;
 	}
 
+	if (m_dirtyMesh || m->polyAlpha != m_polyAlpha) {
+		glUniform1i(m_locPolyAlpha, m->polyAlpha);
+		m_polyAlpha = m->polyAlpha;
+	}
+
 	if (m_dirtyMesh || m->wrapModeU != m_texWrapMode[0] || m->wrapModeV != m_texWrapMode[1]) {
 		m_texWrapMode[0] = m->wrapModeU;
 		m_texWrapMode[1] = m->wrapModeV;
@@ -327,25 +385,14 @@ void R3DShader::SetMeshUniforms(const Mesh* m)
 		// i think it should just disable z write, but the polys I think must be written first
 		if (m_layered) {
 			glStencilFunc(GL_EQUAL, 0, 0b01111111);			// basically stencil test passes if the value is zero
-			glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);			// if the stencil test passes, we increment the value
+			glStencilOp(GL_KEEP, GL_INCR, GL_INCR);			// if the stencil test passes, we increment the value
 			glStencilMask(0b01111111);
-
-			// only a decal that is actually written marks the pixel. Incrementing on depth fail let hidden
-			// decals (e.g. on a tile behind a rise) block visible ones drawn later (Digital Bayou road).
-
 		}
 		else {
 			glStencilFunc(GL_ALWAYS, m_noLosReturn << 7, 0b10000000);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 			glStencilMask(0b10000000);
 		}
-
-		// PRO-1000 layered polygons are decals that must win against coplanar non-layered polygons regardless
-		// of draw order. Depth is reverse z (larger = closer), so scale it up slightly for layered polys.
-		// Decal vertices are 17.7 fixed point, so they can sit ~1/128 unit off their base plane; at grazing
-		// angles that is ~0.1% of depth, often on the losing side. 1/512 (~0.2%) covers it with margin.
-		const float layerDepthBias = 1.0f + 1.0f / 512.0f;
-		glUniform1f(m_locLayerDepthBias, m_layered ? layerDepthBias : 1.0f);
 	}
 
 	m_dirtyMesh = false;
@@ -353,29 +400,30 @@ void R3DShader::SetMeshUniforms(const Mesh* m)
 
 void R3DShader::SetViewportUniforms(const Viewport *vp)
 {
-	//didn't bother caching these, they don't get frequently called anyway
-	glUniform1f(m_locFogDensity, vp->fogDensity);
-	glUniform1f(m_locFogStart, vp->fogStart);
-	glUniform3fv(m_locFogColour, 1, vp->fogColour);
-	glUniform1f(m_locFogAttenuation, vp->fogAttenuation);
-	glUniform1f(m_locFogAmbient, vp->fogAmbient);
+	// Colour/transparency passes often submit the same viewport. Avoid driver
+	// calls for unchanged payloads, retaining the original order for changes.
+	if (ViewportUniformChanged(m_viewportUniforms.fogDensity, vp->fogDensity)) glUniform1f(m_locFogDensity, vp->fogDensity);
+	if (ViewportUniformChanged(m_viewportUniforms.fogStart, vp->fogStart)) glUniform1f(m_locFogStart, vp->fogStart);
+	if (ViewportUniformChanged(m_viewportUniforms.fogColour, vp->fogColour)) glUniform3fv(m_locFogColour, 1, vp->fogColour);
+	if (ViewportUniformChanged(m_viewportUniforms.fogAttenuation, vp->fogAttenuation)) glUniform1f(m_locFogAttenuation, vp->fogAttenuation);
+	if (ViewportUniformChanged(m_viewportUniforms.fogAmbient, vp->fogAmbient)) glUniform1f(m_locFogAmbient, vp->fogAmbient);
 
-	glUniform3fv(m_locLighting, 2, vp->lightingParams);
-	glUniform1i(m_locSunClamp, vp->sunClamp);
-	glUniform1i(m_locIntensityClamp, vp->intensityClamp);
-	glUniform4fv(m_locSpotEllipse, 1, vp->spotEllipse);
-	glUniform2fv(m_locSpotRange, 1, vp->spotRange);
-	glUniform3fv(m_locSpotColor, 1, vp->spotColor);
-	glUniform3fv(m_locSpotFogColor, 1, vp->spotFogColor);
+	if (ViewportUniformChanged(m_viewportUniforms.lighting, vp->lightingParams)) glUniform3fv(m_locLighting, 2, vp->lightingParams);
+	const GLint sunClamp = vp->sunClamp, intensityClamp = vp->intensityClamp;
+	if (ViewportUniformChanged(m_viewportUniforms.sunClamp, sunClamp)) glUniform1i(m_locSunClamp, vp->sunClamp);
+	if (ViewportUniformChanged(m_viewportUniforms.intensityClamp, intensityClamp)) glUniform1i(m_locIntensityClamp, vp->intensityClamp);
+	if (ViewportUniformChanged(m_viewportUniforms.spotEllipse, vp->spotEllipse)) glUniform4fv(m_locSpotEllipse, 1, vp->spotEllipse);
+	if (ViewportUniformChanged(m_viewportUniforms.spotRange, vp->spotRange)) glUniform2fv(m_locSpotRange, 1, vp->spotRange);
+	if (ViewportUniformChanged(m_viewportUniforms.spotColor, vp->spotColor)) glUniform3fv(m_locSpotColor, 1, vp->spotColor);
+	if (ViewportUniformChanged(m_viewportUniforms.spotFogColor, vp->spotFogColor)) glUniform3fv(m_locSpotFogColor, 1, vp->spotFogColor);
 
-	glUniformMatrix4fv(m_locProjMat, 1, GL_FALSE, vp->projectionMatrix);
-
-	glUniform1i(m_locStep15Luminous, vp->step15Luminous);
-
-	glUniform1f(m_locCota, vp->cota);
+	if (ViewportUniformChanged(m_viewportUniforms.projection, vp->projectionMatrix.currentMatrix)) glUniformMatrix4fv(m_locProjMat, 1, GL_FALSE, vp->projectionMatrix);
+	if (ViewportUniformChanged(m_viewportUniforms.hardwareStep, vp->hardwareStep)) glUniform1i(m_locHardwareStep, vp->hardwareStep);
+	if (ViewportUniformChanged(m_viewportUniforms.cota, vp->cota)) glUniform1f(m_locCota, vp->cota);
+	m_dirtyViewport = false;
 }
 
-void R3DShader::SetModelStates(const Model* model)
+void R3DShader::SetModelStates(const Model* model, const float* matrixOverride)
 {
 	if (m_dirtyModel || model->scale != m_modelScale) {
 		glUniform1f(m_locModelScale, model->scale);
@@ -387,14 +435,20 @@ void R3DShader::SetModelStates(const Model* model)
 		m_nodeAlpha = model->alpha;
 	}
 
+	// The cached rectangle stores unshifted mesh coordinates. It remains
+	// valid across models with the same XY offset; a changed offset must force
+	// the next mesh to upload its translated rectangle. Page selection has its
+	// own effective-value cache in SetMeshUniforms.
+	if (m_dirtyModel || m_transX != model->textureOffsetX || m_transY != model->textureOffsetY) {
+		for (auto& i : m_baseTexInfo) { i = -1; }
+	}
 	m_transX = model->textureOffsetX;
 	m_transY = model->textureOffsetY;
 	m_transPage = model->page;
 
-	// reset texture values
-	for (auto& i : m_baseTexInfo) { i = -1; }
-
-	glUniformMatrix4fv(m_locModelMat, 1, GL_FALSE, model->modelMat);
+	// The optional presentation matrix is consumed immediately; retain all
+	// material/texture state from the immutable submitted model.
+	glUniformMatrix4fv(m_locModelMat, 1, GL_FALSE, matrixOverride ? matrixOverride : model->modelMat);
 
 	m_dirtyModel = false;
 }

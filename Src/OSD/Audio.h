@@ -38,6 +38,10 @@ extern void SetAudioCallback(AudioCallbackFPtr callback, void *data);
 
 extern void SetAudioEnabled(bool enabled);
 extern void SetAudioType(Game::AudioTypes type);
+// Short original calibration cue while the game is paused. Never advances
+// emulation, and cannot bypass zero-volume automated-test output.
+extern void PreviewMenuSound(int volume);
+extern void StopMenuSoundPreview();
 
 /*
  * OpenAudio()

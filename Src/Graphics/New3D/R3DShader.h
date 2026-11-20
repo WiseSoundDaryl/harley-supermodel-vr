@@ -17,13 +17,17 @@ public:
 	bool	LoadShader			(const char* vertexShader = nullptr, const char* fragmentShader = nullptr);
 	void	UnloadShader		();
 	void	SetMeshUniforms		(const Mesh* m);
-	void	SetModelStates		(const Model* model);
+	void	SetModelStates		(const Model* model, const float* matrixOverride = nullptr);
 	void	SetViewportUniforms	(const Viewport *vp);
 	void	Start				();
 	void	SetShader			(bool enable = true);
 	GLint	GetVertexAttribPos	(const std::string& attrib);
 	void	DiscardAlpha		(bool discard);				// use to remove alpha from texture alpha only polys for 1st pass
 	void	SetLayer			(Layer layer);
+	// Optional owner-thread headset-world mask; zero preserves every fragment.
+	void SetVisibilityTexture(GLuint texture, GLuint sampler = 0) { m_visibilityTexture = texture; m_visibilityRestoreSampler = sampler; }
+	bool VisibilityMaskSupported() const { return m_locVisibilityEnabled >= 0; }
+
 
 private:
 
@@ -32,6 +36,10 @@ private:
 
 	// run-time config
 	const Util::Config::Node &m_config;
+
+	GLint m_locVisibilitySampler = -1, m_locVisibilityEnabled = -1;
+	GLuint m_visibilityTexture = 0, m_visibilityRestoreSampler = 0;
+	bool m_visibilityCompileDisabled = false;
 
 	// shader IDs
 	GLuint m_shaderProgram;
@@ -54,7 +62,7 @@ private:
 	GLint m_locTexWrapMode;
 	GLint m_locTranslatorMap;
 	GLint m_locColourLayer;
-	GLint m_locLayerDepthBias;
+	GLint m_locPolyAlpha;
 
 	// cached mesh values
 	bool	m_textured1;
@@ -92,6 +100,29 @@ private:
 	bool	m_dirtyMesh;
 	bool	m_dirtyModel;
 
+	// Only exact uniform payloads are cached: Viewport also contains unrelated
+	// state and padding. A shader bind/relink invalidates every viewport value.
+	struct ViewportUniformCache
+	{
+		float fogDensity, fogStart, fogColour[3], fogAttenuation, fogAmbient;
+		float lighting[6];
+		GLint sunClamp, intensityClamp;
+		float spotEllipse[4], spotRange[2], spotColor[3], spotFogColor[3];
+		float projection[16];
+		GLint hardwareStep;
+		float cota;
+	} m_viewportUniforms;
+	bool m_dirtyViewport;
+
+	template<typename T> bool ViewportUniformChanged(T& cached, const T& incoming)
+	{
+		// Byte comparison preserves signed zero and NaN payload changes. The
+		// first call never reads uninitialized cache storage.
+		if (!m_dirtyViewport && std::memcmp(&cached, &incoming, sizeof(T)) == 0) return false;
+		std::memcpy(&cached, &incoming, sizeof(T));
+		return true;
+	}
+
 	// viewport uniform locations
 	GLint m_locFogIntensity;
 	GLint m_locFogDensity;
@@ -124,7 +155,7 @@ private:
 	GLint m_locModelMat;
 
 	// global uniforms
-	GLint m_locStep15Luminous;
+	GLint m_locHardwareStep;
 	GLint m_locDiscardAlpha;
 
 	// vertex attribute position cache

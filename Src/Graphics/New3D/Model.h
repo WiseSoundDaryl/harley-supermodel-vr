@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <cstring>
+#include <cstdint>
 #include "Types.h"
 #include "Mat4.h"
 
@@ -175,6 +176,11 @@ struct SortingMesh : public Mesh		// This struct temporarily holds the model dat
 
 struct Model
 {
+	uint32_t sourceAddress = 0;
+	uint32_t riderObjectNode = 0; // scene-local provenance; never a persistent identity
+	uint32_t presentationRoot = 0; // current-frame bike membership only; never a temporal identity
+	bool hideInRiderEyes = false; // presentation-only; native geometry/LOS stays intact
+	std::vector<uint32_t> diagnosticNodePath; // populated only for the bounded model trace
 	std::shared_ptr<std::vector<Mesh>> meshes;	// this reason why this is a shared ptr to an array, is that multiple models might use the same meshes
 
 	//which memory are we in
@@ -197,6 +203,27 @@ struct Model
 
 struct Viewport
 {
+	// Submitted camera-root provenance, independent of diagnostic eye transforms.
+	uint32_t sourceAddress = 0, matrixBaseAddress = 0, rootAddress = 0;
+	uint32_t rootMatrixIndex = 0, rootFlags = 0;
+	uint32_t cameraSourceRoot = 0, cameraSourceMatrix = 0;
+	bool worldCandidate = false, cameraValid = false;
+	bool presentationWorld = false; // selected scene camera, not native hardware state
+	bool cameraRejected = false;
+	unsigned cameraRootBranches = 0;
+	const char* cameraStatus = "not_world_viewport";
+	Mat4 gameCamera, levelCamera, horizonCorrection;
+	bool riderAnchorApplied = false;
+	const char* riderAnchorStatus = "not_requested";
+	uint32_t riderObjectNode = 0;
+	uint32_t riderSourceModel = 0;
+	uint32_t riderCharacterNode = 0;
+	unsigned riderHiddenModels = 0, riderArmModels = 0;
+	bool fullBikeApplied = false;
+	bool stableChaseApplied = false;
+	bool riderDrivingLayout = false;
+	Mat4 riderCamera, riderCorrection, riderBodyWorld;
+
 	float	vpX;					// these are the original hardware values
 	float	vpY;
 	float	vpWidth;
@@ -230,7 +257,7 @@ struct Viewport
 	float	spotFogColor[3];		// spotlight color on fog
 	float	scrollAtt;
 
-	bool	step15Luminous;			// Step 1.5 luminous polygons (not really a viewport param but will do here)
+	int		hardwareStep;			// not really a viewport param but will do here
 };
 
 class NodeAttributes

@@ -29,12 +29,13 @@
 /* IBM/Motorola PowerPC 4xx/6xx Emulator */
 
 #include "ppc.h"
+#include "PPCIdleSkip.h"
 
 #include <cstring>	// memset()
 #include <climits>
-#include <algorithm>	// std::min()
+#include <algorithm>
 
-#define DEC_TRIGGER_NONE	INT_MIN		// the decrementer does not pass zero in this time slice
+#define DEC_TRIGGER_NONE INT_MIN
 #include "Supermodel.h"
 #include "CPU/Bus.h"
 
@@ -261,13 +262,12 @@ typedef struct {
 	UINT32 timer_frac;
 	int tb_base_icount;
 	int dec_base_icount;
-	int dec_trigger_cycle;		// icount at which the decrementer passes zero, DEC_TRIGGER_NONE if not in this time slice
+	int dec_trigger_cycle;
 	
 	// Cycle related
 	UINT64 total_cycles;
 	int icount;
 	int cur_cycles;
-	int overrun;				// cycles the last time slice ran past its end (see ppc_add_cycles), taken from the next one
 	int bus_freq_multiplier;
 	int cycles_per_second;
 
@@ -658,6 +658,29 @@ static void (* optable59[1024])(UINT32);
 static void (* optable63[1024])(UINT32);
 static void (* optable[64])(UINT32);
 
+// These primary opcodes have fixed common-table mappings. Direct calls in the
+// execute loop let the compiler inline their existing handlers without changing
+// instruction semantics, cycle accounting or the extended-opcode tables.
+#if defined(__GNUC__) || defined(__clang__)
+#define PPC_DIRECT_INLINE inline __attribute__((always_inline))
+#else
+#define PPC_DIRECT_INLINE inline
+#endif
+static PPC_DIRECT_INLINE void ppc_cmpli(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_cmpi(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_addi(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_addis(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_bcx(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_bx(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_ori(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_oris(UINT32 op);
+// These two handlers account for ~44% of instructions in our Harley training
+// trace. Reuse the exact handlers; retain generic fallbacks.
+static PPC_DIRECT_INLINE void ppc_lbz(UINT32 op);
+static PPC_DIRECT_INLINE void ppc_cmp(UINT32 op);
+#undef PPC_DIRECT_INLINE
+
+static void ClearIdleLoopWatch();
 #include "ppc603.c"
 
 /********************************************************************/
@@ -669,7 +692,7 @@ static void (* optable[64])(UINT32);
 
 void ppc_base_init(void)
 {
-	int i,j;
+	size_t i,j;
 
 	memset(&ppc, 0, sizeof(ppc));
 
@@ -916,8 +939,7 @@ void ppc_attach_bus(IBus *BusPtr)
 void ppc_set_idle_skip(UINT32 ramSize)
 {
 	idleRAMSize = idleRAMSizeSaved = ramSize;
-	idleLoopPC = 0;
-	idleLoopPasses = 0;
+	ClearIdleLoopWatch();
 }
 
 void ppc_save_state(CBlockFile *SaveState)
@@ -996,7 +1018,8 @@ void ppc_save_state(CBlockFile *SaveState)
 }
 
 void ppc_load_state(CBlockFile *SaveState)
-{	
+{
+	ClearIdleLoopWatch();	
 	if (Result::OKAY != SaveState->FindBlock("PowerPC"))
 	{
 		ErrorLog("Unable to load PowerPC state. Save state file is corrupt.");
@@ -1068,7 +1091,6 @@ void ppc_load_state(CBlockFile *SaveState)
 	
 	SaveState->Read(&ppc.dec, sizeof(ppc.dec));
 	SaveState->Read(&ppc.timer_frac, sizeof(ppc.timer_frac));
-	ppc.overrun = 0;	// not saved: at most a few hundred cycles, and older states stay compatible
 	SaveState->Read(&ppc.fpscr, sizeof(ppc.fpscr));
 	
 	SaveState->Read(ppc.fpr, sizeof(ppc.fpr));
@@ -1111,7 +1133,7 @@ void ppc_attach_debugger(Debugger::CPPCDebug *PPCDebugPtr)
 		ppc_detach_debugger();
 	PPCDebug = PPCDebugPtr;
 	Bus = PPCDebug->AttachBus(Bus);
-	idleRAMSize = 0;	// breakpoints and stepping need every instruction executed
+	idleRAMSize = 0; // preserve single-step/breakpoint instruction execution
 }
 
 void ppc_detach_debugger()

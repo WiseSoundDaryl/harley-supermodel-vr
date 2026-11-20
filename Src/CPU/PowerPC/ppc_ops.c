@@ -255,7 +255,7 @@ static void ppc_andis_rc(UINT32 op)
  * of instructions that only:
  *   - load from main RAM (lwz/lbz/lhz/lha), with a base register that is either untouched by the loop or set to a
  *     constant in it (li/lis),
- *   - read the decrementer (mfspr DEC), which may only be tested with a signed compare against 0,
+ *   - no time-dependent register reads (DEC polling remains fully interpreted),
  *   - set constants or do simple register arithmetic (li, lis, addi, addis, andi., rlwinm, extsb, extsh),
  *   - compare (cmp, cmpl, cmpi, cmpli),
  * and after two passes no register or condition field depends on its value from an earlier pass. That keeps
@@ -270,6 +270,15 @@ static UINT32	idleRAMSize = 0;			// loads below this address are plain RAM; 0 di
 static UINT32	idleRAMSizeSaved = 0;		// kept while the debugger has it disabled
 static UINT32	idleLoopPC = 0;				// address of the backward branch being watched
 static int		idleLoopPasses = 0;			// consecutive passes through it
+
+static UINT64 idleLoopCycle = 0;
+
+static void ClearIdleLoopWatch()
+{
+	idleLoopPC = 0;
+	idleLoopPasses = 0;
+	idleLoopCycle = 0;
+}
 
 static bool IsIdleLoop(const UINT32 *code, UINT32 n)
 {
@@ -296,7 +305,7 @@ static bool IsIdleLoop(const UINT32 *code, UINT32 n)
 			{
 			case 0: case 32:	taintCR |= 1u << CRFD; break;							// cmp, cmpl
 			case 954: case 922:	taintGPR |= 1u << RA; taintCR |= RCBIT ? 1 : 0; break;	// extsb, extsh
-			case 339:			taintGPR |= 1u << RT; break;								// mfspr
+			case 339:			return false; // timer reads are not constant; execute every iteration
 			default:			return false;
 			}
 			break;
@@ -351,7 +360,7 @@ static bool IsIdleLoop(const UINT32 *code, UINT32 n)
 				if (source(RA, t))
 					return false;
 				const bool isKnown = !(written & (1u << RA)) || (known & (1u << RA));
-				const UINT32 v = ((written & (1u << RA)) ? val[RA] : REG(RA)) + imm;
+				const UINT32 v = isKnown ? (((written & (1u << RA)) ? val[RA] : REG(RA)) + imm) : 0;
 				setGPR(RT, t);
 				if (isKnown && !t)
 				{
@@ -407,11 +416,14 @@ static inline int NextEventCycle(void)
 	return ppc.dec_trigger_cycle > 0 ? ppc.dec_trigger_cycle : 0;	// DEC_TRIGGER_NONE is INT_MIN
 }
 
-static void IdleSkip(void)
+static void IdleSkip(UINT32 loopCycles = 1)
 {
 	const int target = NextEventCycle();
-	if (ppc.icount > target + 1)
-		ppc.icount = target + 1;	// ppc_execute()'s icount-- then lands on it, so the exception is taken on time
+	const int available = ppc.icount - target - 1;
+	// Charge only complete invariant iterations. The ordinary interpreter runs
+	// the remaining partial iteration, preserving PC/GPR/CR at slice and IRQ boundaries.
+	if (available > 0)
+		ppc.icount -= (available / loopCycles) * loopCycles;
 }
 
 // "addic. rN,rN,-1 / bne": count down all but the last pass in one go, exactly as executing them would
@@ -435,11 +447,16 @@ static bool SkipCountdown(UINT32 op, UINT32 body)
 
 static inline void WatchBackwardBranch(UINT32 op)
 {
-	if (ppc.pc != idleLoopPC)
+	const UINT64 currentCycle = ppc.total_cycles + (UINT64)(ppc.cur_cycles - ppc.icount);
+	const UINT32 loopLength = (ppc.pc - ppc.npc) / 4 + 1;
+	// An intervening handler or other path can change RAM/registers. Only count
+	// consecutive complete iterations of this same straight-line body.
+	if (ppc.pc != idleLoopPC || currentCycle - idleLoopCycle != loopLength)
 	{
 		idleLoopPC = ppc.pc;
 		idleLoopPasses = 0;
 	}
+	idleLoopCycle = currentCycle;
 	if (++idleLoopPasses != IDLE_LOOP_MIN_PASSES || !(BO & 0x04) || LKBIT)
 		return;
 	idleLoopPasses = 0;				// if it is still looping after a skip, it is examined again
@@ -455,7 +472,7 @@ static inline void WatchBackwardBranch(UINT32 op)
 	if (n == 1 && SkipCountdown(op, code[0]))
 		return;
 	if (IsIdleLoop(code, n))
-		IdleSkip();
+		IdleSkip(n + 1);
 	else
 		idleLoopPasses = IDLE_LOOP_MIN_PASSES;
 }
@@ -726,8 +743,7 @@ static void ppc_dcbtst(UINT32 op)
 
 static void ppc_dcbz(UINT32 op)
 {
-	// TODO (verified via spec, not from MAME): should zero the 32-byte cache block containing (rA|0)+rB. Left a no-op until a game is known
-	// to use it, as a wrong implementation would clear memory
+
 }
 
 static void ppc_divwx(UINT32 op)
@@ -1151,7 +1167,10 @@ static void ppc_mulhwux(UINT32 op)
 
 static void ppc_mulli(UINT32 op)
 {
-	REG(RT) = REG(RA) * (UINT32)SIMM16;	// verified via spec, not from MAME: unsigned, as signed overflow is undefined
+	INT32 ra = (INT32)REG(RA);
+	INT32 i = SIMM16;
+
+	REG(RT) = ra * i;
 }
 
 static void ppc_mullwx(UINT32 op)
@@ -1186,7 +1205,7 @@ static void ppc_nandx(UINT32 op)
 
 static void ppc_negx(UINT32 op)
 {
-	REG(RT) = 0 - REG(RA);	// verified via spec, not from MAME: unsigned, as -INT_MIN is undefined
+	REG(RT) = -(INT32)(REG(RA));
 
 	if( OEBIT ) {
 		if( REG(RT) == 0x80000000 )
@@ -1240,8 +1259,8 @@ static void ppc_oris(UINT32 op)
 static void ppc_rfi(UINT32 op)
 {
 	UINT32 msr;
-	ppc.npc = ppc_get_spr(SPR_SRR0) & 0xFFFFFFFC;	// from MAME: rfi ignores SRR0[30:31]
-	msr = ppc_get_spr(SPR_SRR1);	// TODO: like MAME, restore only the MSR bits 0x87C0FFFF from SRR1 (check against the 603e manual)
+	ppc.npc = ppc_get_spr(SPR_SRR0);
+	msr = ppc_get_spr(SPR_SRR1);
 	ppc_set_msr( msr );
 
 	ppc_change_pc(ppc.npc);
@@ -1254,7 +1273,7 @@ static void ppc_rlwimix(UINT32 op)
 	UINT32 rs = REG(RS);
 	int sh = SH;
 
-	r = (rs << sh) | (rs >> ((32-sh) & 31));	// verified via spec, not from MAME: & 31, as a shift by 32 (sh = 0) is undefined
+	r = (rs << sh) | (rs >> (32-sh));
 	REG(RA) = (REG(RA) & ~mask) | (r & mask);
 
 	if( RCBIT ) {
@@ -1269,7 +1288,7 @@ static void ppc_rlwinmx(UINT32 op)
 	UINT32 rs = REG(RS);
 	int sh = SH;
 
-	r = (rs << sh) | (rs >> ((32-sh) & 31));	// verified via spec, not from MAME: & 31, as a shift by 32 (sh = 0) is undefined
+	r = (rs << sh) | (rs >> (32-sh));
 	REG(RA) = r & mask;
 
 	if( RCBIT ) {
@@ -1284,7 +1303,7 @@ static void ppc_rlwnmx(UINT32 op)
 	UINT32 rs = REG(RS);
 	int sh = REG(RB) & 0x1f;
 
-	r = (rs << sh) | (rs >> ((32-sh) & 31));	// verified via spec, not from MAME: & 31, as a shift by 32 (sh = 0) is undefined
+	r = (rs << sh) | (rs >> (32-sh));
 	REG(RA) = r & mask;
 
 	if( RCBIT ) {
@@ -1316,12 +1335,11 @@ static void ppc_slwx(UINT32 op)
 static void ppc_srawx(UINT32 op)
 {
 	int sh = REG(RB) & 0x3f;
-	UINT32 rs = REG(RS);	// verified via spec, not from MAME: rA may be rS, so read it before writing rA
 
 	XER &= ~XER_CA;
 
 	if( sh > 31 ) {
-		if (rs & 0x80000000)
+		if (REG(RS) & 0x80000000)
 			REG(RA) = 0xffffffff;
 		else
 			REG(RA) = 0;
@@ -1329,8 +1347,8 @@ static void ppc_srawx(UINT32 op)
 			XER |= XER_CA;
 	}
 	else {
-		REG(RA) = (INT32)rs >> sh;
-		if( ((INT32)rs < 0) && (rs & BITMASK_0(sh)) )
+		REG(RA) = (INT32)(REG(RS)) >> sh;
+		if( ((INT32)(REG(RS)) < 0) && (REG(RS) & BITMASK_0(sh)) )
 			XER |= XER_CA;
 	}
 
@@ -1659,7 +1677,7 @@ static void ppc_subfmex(UINT32 op)
 	UINT32 r = ~ra + carry;
 	REG(RT) = r - 1;
 
-	SET_ADD_CA(r, ~ra, carry);		/* step 1 carry (verified via spec, not from MAME: was SET_SUB_CA, but ~ra + carry is an add) */
+	SET_SUB_CA(r, ~ra, carry);		/* step 1 carry */
 	if( REG(RT) < r )
 		XER |= XER_CA;				/* step 2 carry */
 
@@ -1681,7 +1699,7 @@ static void ppc_subfzex(UINT32 op)
 	SET_ADD_CA(REG(RT), ~ra, carry);
 
 	if( OEBIT ) {
-		SET_SUB_OV(REG(RT), 0, ra);	// verified via spec, not from MAME: rD may be rA, so use the saved rA
+		SET_SUB_OV(REG(RT), 0, REG(RA));
 	}
 	if( RCBIT ) {
 		SET_CR0(REG(RT));
@@ -1904,7 +1922,6 @@ inline INT64 round_toward_negative_infinity(FPR f)
 }
 */
 
-// TODO (verified via spec, not from MAME): these set only FX, not VXSNAN (0x01000000) itself or the VX summary bit
 #define SET_VXSNAN(a, b)    if (is_snan_double(a) || is_snan_double(b)) ppc.fpscr |= 0x80000000
 #define SET_VXSNAN_1(c)     if (is_snan_double(c)) ppc.fpscr |= 0x80000000
 
@@ -2319,20 +2336,12 @@ static void ppc_fcmpo(UINT32 op)
 	if(is_nan_double(FPR(a)) || is_nan_double(FPR(b)))
 	{
 		c = 1; /* OX */
-		// from MAME (ppccom_fcmp_vx), without its update of VX and FEX
-		UINT32 newexc = 0;
 		if(is_snan_double(FPR(a)) || is_snan_double(FPR(b))) {
-			newexc |= 0x01000000; /* VXSNAN */
-			if(!(ppc.fpscr & 0x00000080)) /* VE */
-				newexc |= 0x00080000; /* VXVC */
+			ppc.fpscr |= 0x01000000; /* VXSNAN */
+
+			if(!(ppc.fpscr & 0x40000000) || is_qnan_double(FPR(a)) || is_qnan_double(FPR(b)))
+				ppc.fpscr |= 0x00080000; /* VXVC */
 		}
-		else {
-			// unordered without an SNaN case, such as QNaN
-			newexc |= 0x00080000; /* VXVC */
-		}
-		if(newexc & ~ppc.fpscr)
-			ppc.fpscr |= 0x80000000; /* FX */
-		ppc.fpscr |= newexc;
 	}
 	else if(FPR(a).fd < FPR(b).fd){
 		c = 8; /* FX */
@@ -2346,7 +2355,7 @@ static void ppc_fcmpo(UINT32 op)
 
 	CR(t) = c;
 
-	// TODO: like MAME, set only FPCC (0x0000F000) and leave the C bit (0x00010000) alone
+	// TODO
 	// Enabled by Bart
 	ppc.fpscr &= ~0x0001F000;
 	ppc.fpscr |= (c << 12);
@@ -2382,7 +2391,7 @@ static void ppc_fcmpu(UINT32 op)
 
 	CR(t) = c;
 
-	// TODO: like MAME, set only FPCC (0x0000F000) and leave the C bit (0x00010000) alone
+	// TODO
 	ppc.fpscr &= ~0x0001F000;
 	ppc.fpscr |= (c << 12);
 }
@@ -2391,7 +2400,7 @@ static void ppc_fctiwx(UINT32 op)
 {
 	UINT32 b = RB;
 	UINT32 t = RT;
-	double r = 0.0;
+	INT64 r = 0;
 
 	// TODO: fix FPSCR flags FX,VXSNAN,VXCVI
 
@@ -2401,31 +2410,29 @@ static void ppc_fctiwx(UINT32 op)
 
 	switch(ppc.fpscr & 3)
 	{
-		case 0: init_rounding_mode(); r = nearbyint(FPR(b).fd); restore_rounding_mode(); break;
-		case 1: r = trunc(FPR(b).fd); break;
-		case 2: r = ceil(FPR(b).fd); break;
-		case 3: r = floor(FPR(b).fd); break;
+		case 0: init_rounding_mode(); r = (INT64)nearbyint(FPR(b).fd); restore_rounding_mode(); break;
+		case 1: r = (INT64)trunc(FPR(b).fd); break;
+		case 2: r = (INT64)ceil(FPR(b).fd); break;
+		case 3: r = (INT64)floor(FPR(b).fd); break;
 	}
 
-	// verified via spec, not from MAME: clamp as double, as converting NaN or out-of-range values to an integer is undefined (x86 and ARM differ).
-	// NaN is tested on the bits, as fast math may drop std::isnan
-	if(r < -2147483648.0 || (FPR(b).id & (DOUBLE_EXP | DOUBLE_FRAC)) > DOUBLE_EXP)	// or NaN
-	{
-		FPR(t).id = (INT64)((INT32)0x80000000);
-		// FPSCR[FR] = 1
-		// FPSCR[FI] = 1
-		// FPSCR[XX] = 1
-	}
-	else if(r > 2147483647.0)
+	if(r > (INT64)((INT32)0x7FFFFFFF))
 	{
 		FPR(t).id = (INT64)((INT32)0x7FFFFFFF);
 		// FPSCR[FR] = 0
 		// FPSCR[FI] = 1
 		// FPSCR[XX] = 1
 	}
+	else if(r < (INT64)((INT32)0x80000000))
+	{
+		FPR(t).id = (INT64)((INT32)0x80000000);
+		// FPSCR[FR] = 1
+		// FPSCR[FI] = 1
+		// FPSCR[XX] = 1
+	}
 	else
 	{
-		FPR(t).id = (UINT32)(INT32)r;
+		FPR(t).id = (UINT32)r;
 		// FPSCR[FR] = t.iw > t.fd
 		// FPSCR[FI] = t.iw == t.fd
 		// FPSCR[XX] = ?
@@ -2441,25 +2448,16 @@ static void ppc_fctiwzx(UINT32 op)
 {
 	UINT32 b = RB;
 	UINT32 t = RT;
-	double r;
+	INT64 r;
 
 	// TODO: fix FPSCR flags FX,VXSNAN,VXCVI
 
 	CHECK_FPU_AVAILABLE();
 
 	SET_VXSNAN_1(FPR(b));
-	r = trunc(FPR(b).fd);
+	r = (INT64)trunc(FPR(b).fd);
 
-	// verified via spec, not from MAME: clamp as double, as converting NaN or out-of-range values to an integer is undefined (x86 and ARM differ).
-	// NaN is tested on the bits, as fast math may drop std::isnan
-	if(r < -2147483648.0 || (FPR(b).id & (DOUBLE_EXP | DOUBLE_FRAC)) > DOUBLE_EXP)	// or NaN
-	{
-		FPR(t).id = (INT64)((INT32)0x80000000);
-		// FPSCR[FR] = 1
-		// FPSCR[FI] = 1
-		// FPSCR[XX] = 1
-	}
-	else if(r > 2147483647.0)
+	if(r > (INT64)((INT32)0x7FFFFFFF))
 	{
 		FPR(t).id = (INT64)((INT32)0x7FFFFFFF);
 		// FPSCR[FR] = 0
@@ -2467,9 +2465,16 @@ static void ppc_fctiwzx(UINT32 op)
 		// FPSCR[XX] = 1
 
 	}
+	else if(r < (INT64)((INT32)0x80000000))
+	{
+		FPR(t).id = (INT64)((INT32)0x80000000);
+		// FPSCR[FR] = 1
+		// FPSCR[FI] = 1
+		// FPSCR[XX] = 1
+	}
 	else
 	{
-		FPR(t).id = (UINT32)(INT32)r;
+		FPR(t).id = (UINT32)r;
 		// FPSCR[FR] = t.iw > t.fd
 		// FPSCR[FI] = t.iw == t.fd
 		// FPSCR[XX] = ?
@@ -2554,7 +2559,7 @@ static void ppc_frspx(UINT32 op)
 
 	SET_VXSNAN_1(FPR(b));
 
-	FPR(t).fd = (float)FPR(b).fd;	// TODO (verified via spec, not from MAME): ignores FPSCR[RN] (always rounds to nearest)
+	FPR(t).fd = (float)FPR(b).fd;
 
 	set_fprf(FPR(t));
 	if( RCBIT ) {
@@ -2667,11 +2672,12 @@ static void ppc_mtfsb1x(UINT32 op)
 static void ppc_mtfsfx(UINT32 op)
 {
 	UINT32 b = RB;
-	UINT32 f = ppc_field_xlat[FM] & ~(FPSCR_FEX | FPSCR_VX);	// verified via spec, not from MAME (which sets them): FEX and VX are not set from frB
+	UINT32 f = ppc_field_xlat[FM];
 
-	// verified via spec, not from MAME: replace only the selected fields (was: OR in all of frB, whatever FM)
-	ppc.fpscr = (ppc.fpscr & ~f) | ((UINT32)(FPR(b).id) & f);
-	// TODO (verified via spec, not from MAME): FEX and VX should be recomputed from the new exception and enable bits (also in mtfsfi)
+	ppc.fpscr &= (~f) | ~(FPSCR_FEX | FPSCR_VX);
+	ppc.fpscr |= (UINT32)(FPR(b).id) & ~(FPSCR_FEX | FPSCR_VX);
+
+	// FEX, VX
 
 	if( RCBIT ) {
 		SET_CR1();
@@ -2696,13 +2702,14 @@ static void ppc_mtfsfix(UINT32 op)
 
     crfd = (7 - crfd) * 4;  // calculate LSB position of field
 
-    // verified via spec, not from MAME: write only the selected field (for field 0, imm was also ORed into the RN bits, and FEX and VX set from it)
-    UINT32 mask = 0xf << crfd;
     if (crfd == 28)         // field containing FEX and VX is special...
-        mask &= ~(FPSCR_FEX | FPSCR_VX);    // bits 1 and 2 of FPSCR must not be altered
+    {                       // bits 1 and 2 of FPSCR must not be altered
+        ppc.fpscr &= 0x9fffffff;
+        ppc.fpscr |= (imm & 0x9fffffff);
+    }
 
-    ppc.fpscr &= ~mask;                 // clear field
-    ppc.fpscr |= (imm << crfd) & mask;  // insert new data
+    ppc.fpscr &= ~(0xf << crfd);    // clear field
+    ppc.fpscr |= (imm << crfd);     // insert new data
 
 	if( RCBIT ) {
 		SET_CR1();

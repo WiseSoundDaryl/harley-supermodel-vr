@@ -28,15 +28,15 @@ CNetOutputs::CNetOutputs()
 
 CNetOutputs::~CNetOutputs()
 {
-    // Stop the server thread first, so that no client can register while the others are removed.
+    // Unregister all clients and destroy the TCP server socket.
+    UnregisterAllClients();
+    DestroyTcpServerSocket();
+
+    // Stop the server thread.
     m_running.store(false);
     if (m_tcpServerThread.joinable()) {
         m_tcpServerThread.join();
     }
-
-    // Unregister all clients and destroy the TCP server socket.
-    UnregisterAllClients();
-    DestroyTcpServerSocket();
 
     // Free up resources.
     if (m_tcpSocketSet) {
@@ -76,20 +76,15 @@ void CNetOutputs::Attached()
 
 void CNetOutputs::SendOutput(EOutputs output, UINT8 prevValue, UINT8 value)
 {
-    // Called with m_mutex held (COutputs::SetValue)
-    std::string line = std::string(GetOutputName(output)) + m_separatorIdAndValue + std::to_string(value) + m_frameEnding;
-
-    // Loop through all registered clients and send them the new value. Clients that fail are removed after
-    // the loop, as removing them changes m_clients.
-    std::vector<TCPsocket> failed;
+    // Loop through all registered clients and send them new output values.
     for (auto& client : m_clients) {
+        std::string name = GetOutputName(output);
+        std::string strvalue = std::to_string(value);
+        std::string line = name + m_separatorIdAndValue + strvalue + m_frameEnding;
         if (!SendTcpData(client, line)) {
             ErrorLog("Failed to send output data to client. Unregistering client.");
-            failed.push_back(client.ClientSocket);
+            UnregisterClient(client.ClientSocket);
         }
-    }
-    for (TCPsocket socket : failed) {
-        UnregisterClient(socket);
     }
 }
 
@@ -197,8 +192,6 @@ bool CNetOutputs::SendUdpBroadcastWithId()
 
 bool CNetOutputs::RegisterClient(TCPsocket socket)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
     // Check that given client is not already registered.
     for (auto& client : m_clients) {
         if (client.ClientSocket == socket) {
@@ -229,8 +222,6 @@ bool CNetOutputs::RegisterClient(TCPsocket socket)
 
 void CNetOutputs::SendAllDataToClient(RegisteredClientTcp& client)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
     // Loop through all known outputs and send their current state to given client.
     for (unsigned i = 0; i < NUM_OUTPUTS; i++) {
         EOutputs output = (EOutputs)i;
@@ -249,19 +240,15 @@ void CNetOutputs::SendAllDataToClient(RegisteredClientTcp& client)
 
 bool CNetOutputs::UnregisterAllClients()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-    // UnregisterClient() removes the client from m_clients
-    while (!m_clients.empty()) {
-        UnregisterClient(m_clients.front().ClientSocket);
+    for (auto& client : m_clients) {
+        UnregisterClient(client.ClientSocket);
     }
+    m_clients.clear();
     return true;
 }
 
 bool CNetOutputs::UnregisterClient(TCPsocket socket)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
     // Find any matching clients and remove them.
     bool found = false;
     std::vector<RegisteredClientTcp>::iterator it = m_clients.begin();

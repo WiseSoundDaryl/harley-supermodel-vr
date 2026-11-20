@@ -1,34 +1,16 @@
-# Recorded source verification
+# Recorded source identities
 
-The [license manifest](licenses/SHA256.json) contains 18 structured local source references across 10 notice entries, covering 17 distinct files. The November 9, 2026 audit matched 15 references (14 distinct files) to the public checkout after the byte convention below was applied. Some references concern ImGui files already covered by its separate 15-file Git-identity check; these counts are not additive.
+The [license manifest](licenses/SHA256.json) records 18 local source references covering 17 distinct files across ten notices. The PSVR2 release source matches 17 references, including both sound-core files. An independent check also covers the 15 recorded Dear ImGui source files. Some files occur in both checks.
 
-## Unresolved identities
+The remaining historical entry is `Src/CPU/PowerPC/ppc.cpp`. Its recorded SHA-256, `9752c5fc141e197a6d6228819749b5c59c85176d068941b296c2d5efe3f0dbc2`, identifies the file in the **Rift S source archive**. The PSVR2 implementation includes updated idle handling and has a different identity. The [policy](../packaging/VendoredSourcePolicy.json) pins its line-normalized SHA-256 as well. The original recorded hashes remain intact.
 
-Three recorded references describe different source versions from those currently published:
+## Verification
 
-| Recorded source | Finding |
-| --- | --- |
-| `Src/CPU/PowerPC/ppc.cpp` | The recorded development version includes private Harley changes and differs from the public PowerPC source. |
-| `Src/Sound/SCSP.cpp` | The recorded development version predates the sound-core changes present in the public checkout. |
-| `Src/Sound/SCSPDSP.cpp` | The recorded development version predates the sound-core changes present in the public checkout. |
-
-The original recorded hashes are preserved. [The verification policy](../packaging/VendoredSourcePolicy.json) identifies the audited reference inventory and keeps these three findings explicit. Its public canonical SHA-256 values pin the reviewed mismatching files so further drift requires review; they do not replace the manifest's SHA-256 values or establish a match to them. Pending references are not automatically promoted if their content later changes.
-
-## Paths and byte convention
-
-Only the exact historical `Supermodel/` prefix is removed from a recorded local path before resolving it beneath `SourceRoot`. Absolute paths, traversal, invalid path components and linked files/directories are rejected. The reviewed policy requires the expected notice/path inventory rather than silently skipping an unfamiliar reference.
-
-The recorded local SHA-256 values use the development checkout's CRLF byte convention. Validation replaces CRLF with LF, then replaces LF with CRLF, before hashing. Bare carriage returns, byte-order marks, whitespace, encoding and every other byte are preserved. This is byte processing, not text decoding, trimming or source reformatting. The pending public identities use the same convention. Notice/license files remain byte-exact, and ImGui retains its separate documented Git-blob verification.
-
-## Running the checks
+From a Windows checkout, run:
 
 ```powershell
-packaging/Test-VendoredSourceIdentities.ps1 -Scope AuditedSubset
-packaging/Test-VendoredSourceIdentitiesFixtures.ps1
+./packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
+./packaging/Test-VendoredSourceIdentitiesFixtures.ps1
 ```
 
-CI and `Test-ReleaseNotices.ps1 -SourceRoot .` explicitly select `AuditedSubset`: they verify the 15 supported references, reject unexpected inventory or identity changes, and report three pending findings with `AllRecordedSourcesVerified=false`. A successful subset result does not verify the pending sources.
-
-For strict verification of every recorded local identity, run `packaging/Test-VendoredSourceIdentities.ps1` without a scope argument, or use `-Scope All`. This currently fails on the three unresolved identities. Review the corresponding source versions before changing the policy or manifest; do not refresh hashes merely to make the check pass.
-
-The tests exercise the verifier using disposable fixtures and leave source inputs unchanged. They do not download remote provenance URLs, authenticate upstream authorship, inspect the contents of linked binaries, build HarleyVR, or use ROMs or VR hardware. URL-only references and hashes embedded in prose are outside this local-file check. A matching hash is evidence of file identity against the reviewed record, not legal clearance, a complete corresponding-source review, or release readiness.
+The checker strips the historical `Supermodel/` path prefix and normalizes line endings to CRLF for the 18 source references. It verifies notice files using their raw bytes and uses Git's byte convention for the ImGui source checks. The audited subset accepts the reviewed difference for the PSVR2 PowerPC file and rejects any new drift. Strict matching of all 18 historical references against this PSVR2 tree reports the known edition difference. [Edition builds](BUILDING.md)

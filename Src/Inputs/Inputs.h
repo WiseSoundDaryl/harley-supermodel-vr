@@ -299,8 +299,17 @@ public:
   /*
    * Polls (updates) the inputs for the given game, or all inputs if game is NULL, updating their values from their respective input sources.
    * First the input system is polled (CInputSystem.Poll()) and then each input is polled (CInput.Poll()).
+   * With pollGame=false, only UI inputs are updated. This permits a faster UI/presentation loop
+   * without advancing keyboard analog ramps or consuming game-input edges between native frames.
    */
-  bool Poll(const Game *game, unsigned dispX, unsigned dispY, unsigned dispW, unsigned dispH);
+  bool Poll(const Game *game, unsigned dispX, unsigned dispY, unsigned dispW, unsigned dispH, bool pollGame = true);
+
+  /*
+   * Updates only non-UI inputs for the given game (all non-UI inputs if game is NULL).
+   * Uses the already polled input-system state, without polling the system or UI again.
+   * Call once per native game tick when Poll(..., false) handles the presentation loop.
+   */
+  void PollGameInputs(const Game *game);
 
   /*
    * Prints the current values of the inputs for the given game, or all inputs if game is NULL, to stdout for debugging purposes.

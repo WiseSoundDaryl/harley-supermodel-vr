@@ -40,13 +40,13 @@ jobs:
         run: |
           $result = & ./packaging/Test-ReleaseNotices.ps1 -Root . -SourceRoot .
           if (-not $result.Passed -or -not $result.ImGuiSourceChecked -or $result.ImGuiSourceBlobs -ne 15 -or
-              -not $result.RecordedSourceSubsetChecked -or $result.VerifiedRecordedSourceReferences -ne 15 -or
-              $result.PendingRecordedSourceReferences -ne 3 -or $result.AllRecordedSourcesVerified -ne $false -or
-              @($result.RecordedSourceFindings).Count -ne 3) {
+              -not $result.RecordedSourceSubsetChecked -or $result.VerifiedRecordedSourceReferences -ne 17 -or
+              $result.PendingRecordedSourceReferences -ne 1 -or $result.AllRecordedSourcesVerified -ne $false -or
+              @($result.RecordedSourceFindings).Count -ne 1) {
             throw 'Notice, ImGui and audited source-subset verification did not complete.'
           }
           $result | Format-List
-          Write-Warning 'Three recorded CPU/sound source identities remain unresolved; the audited subset does not verify them.'
+          Write-Warning 'The PSVR2 PowerPC file has a reviewed edition-specific identity. The original recorded hash belongs to the Rift S build.'
           $result.RecordedSourceFindings | Format-List
 
       - name: Exercise recorded source-identity fixtures
@@ -103,10 +103,10 @@ jobs:
           ## Source integrity checks passed
 
           Verified recorded notice hashes, the 15 recorded ImGui source identities,
-          an audited subset of 15 manifest source references, tracked PowerShell
+          an audited subset of 17 manifest source references, tracked PowerShell
           syntax, and the staged source-distribution policy. The source sets overlap.
-          Three CPU/sound manifest references remain unresolved and are not verified
-          by this green check. Their recorded hashes remain unchanged; see
+          The PowerPC manifest entry describes the Rift S source. The PSVR2 source
+          differs and is pinned separately. See
           Docs/RECORDED-SOURCE-VERIFICATION.md for the findings and strict-check scope.
 
           Synthetic regression tests exercised recorded source identities,

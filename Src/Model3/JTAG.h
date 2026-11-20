@@ -22,25 +22,20 @@
 /*
  * JTAG.h
  * 
- * Header file defining JTAG devices (CJTAGDevice, CASIC, C3DRAM), scan chains
- * (IJTAGScanChain, CJTAGScanChain), and the CJTAG class: the Model 3's JTAG
- * test access port.
+ * Header file defining the CJTAG class: the Model 3's JTAG device.
  */
 
 #ifndef INCLUDED_JTAG_H
 #define INCLUDED_JTAG_H
 
 #include "BlockFile.h"
-#include "Game.h"
 #include <bitset>
-#include <vector>
 
 class CReal3D;
 
 class CJTAGDevice
 {
 public:
-    virtual ~CJTAGDevice() = default;
     virtual void SaveStateToBlock(CBlockFile* SaveState) = 0;
     virtual void LoadStateFromBlock(CBlockFile* SaveState) = 0;
     virtual void CaptureDR() = 0;
@@ -85,18 +80,10 @@ public:
     CASIC(CReal3D& real3D, Name deviceName);
 
 private:
-    bool PolygonMemoryAccess(void) const;
-    unsigned PolygonMemoryWordCount(void) const;
-
     uint32_t m_idCode = 0;
     uint32_t m_modeword = 0;
     CReal3D& m_real3D;
     Name m_deviceName = Name::Dummy;
-
-    // Venus polygon memory test access (instructions 0x0C, 0x0F, 0x11). Not in
-    // save states: Model 3 does not use it.
-    uint32_t m_memoryAddress = 0;   // word address in polygon RAM
-    uint32_t m_memoryCount = 0;     // number of words to read
 };
 
 class C3DRAM : public CJTAGDevice
@@ -111,47 +98,18 @@ public:
     void Reset();
 };
 
-/*
- * IJTAGScanChain:
- *
- * A JTAG scan chain as seen by a master that generates complete TCK cycles
- * (e.g., the Pro-1000's SCANPSC100F controller).
- */
-class IJTAGScanChain
+class CJTAG
 {
 public:
-    /*
-     * Clock(tms, tdi):
-     *
-     * Applies one TCK cycle to the chain.
-     *
-     * Parameters:
-     *    tms   Value on TMS.
-     *    tdi   Value on the chain's TDI.
-     *
-     * Returns:
-     *    Value on the chain's TDO sampled at the rising edge of TCK.
-     */
-    virtual bool Clock(bool tms, bool tdi) = 0;
+    void SaveState(CBlockFile* SaveState);
+    void LoadState(CBlockFile* LoadState);
+    bool Read() const;
+    void Write(bool tck, bool tms, bool tdi, bool trst);
+    void Reset();
+    void SetStepping(int stepping);
+    CJTAG(CReal3D& real3D);
 
-    virtual ~IJTAGScanChain()
-    {
-    }
-};
-
-/*
- * CJTAGScanChain:
- *
- * A daisy chain of JTAG devices sharing TCK, TMS, and a single TAP state
- * machine. The first device's TDI is the chain's TDI and the last device's
- * TDO is the chain's TDO. Devices are owned by the caller.
- *
- * Masters that drive TCK directly (Model 3's bit-banged TAP) use RisingEdge(),
- * FallingEdge(), and TDO(). Masters that generate whole cycles use Clock().
- */
-class CJTAGScanChain : public IJTAGScanChain
-{
-public:
+private:
     enum class State
     {
         TestLogicReset, // 0
@@ -172,65 +130,11 @@ public:
         UpdateIR        // 15
     };
 
-    // IJTAGScanChain interface
-    bool Clock(bool tms, bool tdi) override;
-
-    void RisingEdge(bool tms, bool tdi);    // devices sample TMS and TDI
-    void FallingEdge();                     // devices update TDO and registers
-    bool TDO() const;
-
-    void ResetDevices();                    // TRST: resets devices only
-    void Reset();                           // TAP to Test-Logic-Reset and resets devices
-
-    // TAP state access for save states
-    State GetState() const;
-    void SetState(State state, bool tdo);
-
-    CJTAGScanChain(std::vector<CJTAGDevice*> devices = {});
-
-private:
     static const State s_fsm[][2];
 
     State m_state = State::TestLogicReset;
-    bool m_tdo = false;
-    std::vector<CJTAGDevice*> m_devices;
-};
-
-/*
- * CJTAG:
- *
- * Model 3's JTAG test access port, bit-banged by the PowerPC through system
- * registers, and the scan chain of video board devices it is connected to.
- */
-class CJTAG
-{
-public:
-    void SaveState(CBlockFile* SaveState);
-    void LoadState(CBlockFile* LoadState);
-    bool Read() const;
-    void Write(bool tck, bool tms, bool tdi, bool trst);
-    void Reset();
-
-    /*
-     * SetStepping(stepping):
-     *
-     * Builds the Model 3 scan chain of the stepping (Step 1.x: 10 devices,
-     * Step 2.x: 17 devices) and sets the ID codes of the stepping. This is
-     * the Model 3 path only. Other systems do not use CJTAG. They build
-     * their scan chain manually: they make the CASIC and C3DRAM devices,
-     * put them in a CJTAGScanChain, and attach it to their JTAG controller
-     * (see CPro1000::BuildScanChain()).
-     *
-     * Parameters:
-     *    stepping  Model 3 stepping. Other values select Step 1.0.
-     */
-    void SetStepping(Game::Stepping stepping);
-    CJTAG(CReal3D& real3D);
-
-private:
-    void BuildScanChain();
-
     bool m_lastTck = false;
+    bool m_tdo = false;
 
     CASIC m_mercury;
     CASIC m_venus;
@@ -262,8 +166,6 @@ private:
         &m_3dram[7],
     };
     uint32_t m_numDevices = 0;
-
-    CJTAGScanChain m_scanChain;   // first m_numDevices devices
 };
 
 #endif  // INCLUDED_JTAG_H

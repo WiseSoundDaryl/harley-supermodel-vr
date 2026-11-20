@@ -192,6 +192,15 @@ public:
 	bool Wait(CMutex *mutex);
 
 	/*
+	 * WaitTimeout
+	 *
+	 * Like Wait, with a requested timeout of ms milliseconds. The mutex is
+	 * re-locked after a signal or timeout. Both are successful waits; false
+	 * indicates an error. Always recheck the protected condition afterward.
+	 */
+	bool WaitTimeout(CMutex *mutex, UINT32 ms);
+
+	/*
 	 * Signal
 	 *
 	 * Restarts a single thread that is waiting on this condition variable.

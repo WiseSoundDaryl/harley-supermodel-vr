@@ -30,7 +30,6 @@
 
 #include <cstdint>
 #include <string>
-#include <type_traits>
 #include "Types.h"
 
 /*
@@ -91,9 +90,7 @@ public:
   /*
    * Read(value):
    *
-   * Reads a value from the current file position. Works for plain arrays too
-   * (the whole array is read), but not for pointers: use Read(data, numBytes)
-   * for the data a pointer points to.
+   * Reads a value from the current file position.
    *
    * Parameters:
    *    value   Variable to read to.
@@ -104,9 +101,7 @@ public:
   template<typename T>
   unsigned Read(T& value)
   {
-    static_assert(std::is_trivially_copyable<T>::value, "Read() only supports POD / trivially copyable types");
-    static_assert(!std::is_pointer<T>::value, "Read() would read the pointer itself: use Read(data, numBytes)");
-    return Read(static_cast<void*>(&value), static_cast<uint32_t>(sizeof(value)));
+      return Read(static_cast<void*>(&value), static_cast<uint32_t>(sizeof(value)));
   }
   
   /*
@@ -160,10 +155,8 @@ public:
   /*
    * Write(value):
    *
-   * Outputs POD data types, float, double, int etc. at the current file pointer
-   * position. Updates the block header appropriately. Works for plain arrays
-   * too (the whole array is written), but not for pointers: use
-   * Write(data, numBytes) for the data a pointer points to.
+   * Outputs POD data types, float, double, int etc
+   * position. Updates the block header appropriately.
    *
    * Parameters:
    *    value   Value to write.
@@ -172,7 +165,6 @@ public:
   void Write(const T& value)
   {
     static_assert(std::is_trivially_copyable<T>::value, "Write() only supports POD / trivially copyable types");
-    static_assert(!std::is_pointer<T>::value, "Write() would write the pointer itself: use Write(data, numBytes)");
     Write(static_cast<const void*>(&value), static_cast<uint32_t>(sizeof(value)));
   }
 

@@ -290,6 +290,7 @@
 #include "Supermodel.h"
 #include "Shader.h"
 #include "Shaders2D.h" // fragment and vertex shaders
+#include "OSD/SDL/OwnerRenderTrace.h"
 
 /******************************************************************************
  Frame Display Functions
@@ -358,12 +359,48 @@ void CRender2D::BeginFrame(void)
 
 void CRender2D::PreRenderFrame(void)
 {
+	m_tileUploadPending = true;
+	if (!m_deferTileUploads) CompletePreparedLayers();
+}
+
+void CRender2D::SetDeferredUploads(bool enabled)
+{
+	// Finish the current native snapshot before returning to immediate mode.
+	if (!enabled) CompletePreparedLayers();
+	if (enabled && !m_deferTileUploads)
+		InfoLog("Headset tile uploads: deferred within native preparation; completed before worker presentation.");
+	m_deferTileUploads = enabled;
+}
+
+void CRender2D::CompletePreparedLayers(void)
+{
+	if (!m_tileUploadPending) return;
+	m_tileUploadPending = false;
+	LiveFrameTrace::OwnerRenderScope tileTrace("prep.tile_upload");
+	// These explicit native boundaries precede panel state captures. World
+	// rendering and the layered composite finish on unit zero; establish that
+	// same upload unit without a driver query. Desktop immediate state is unchanged.
+	if (m_deferTileUploads) glActiveTexture(GL_TEXTURE0);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 512);	// skip the non viewable data
 
 	for (int i = 0; i < 2; i++) {
 		if (!m_drawBuffers[i]) continue;		// we don't have a draw buffer yet
+		const auto* source = m_drawBuffers[i]->data;
+		const auto plan = m_tileUploadTracker[i].PlanUpload(source);
 		glBindTexture(GL_TEXTURE_2D, m_textureIDs[i]);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 496, 384, GL_RGBA, GL_UNSIGNED_BYTE, m_drawBuffers[i]->data);
+		for (unsigned range = 0; range < plan.rangeCount; ++range) {
+			const auto& rows = plan.ranges[range];
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, rows.firstRow, 496, rows.rowCount,
+				GL_RGBA, GL_UNSIGNED_BYTE, source + rows.firstRow * 512);
+		}
+		m_tileUploadTracker[i].Commit(source, plan);
+		if (tileTrace.Active()) {
+			if (plan.rangeCount) ++tileTrace.a;
+			tileTrace.b += int64_t(plan.UploadedRows()) * 496 * 4;
+			tileTrace.c += plan.changedRows;
+			tileTrace.d += plan.rangeCount;
+		}
+		m_surfacePrepared[i] = true;
 	}
 
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -371,18 +408,150 @@ void CRender2D::PreRenderFrame(void)
 
 void CRender2D::RenderFrameBottom(void)
 {
+	CompletePreparedLayers();
 	Setup2D(true);
 	DrawSurface(m_textureIDs[0]);
 }
 
 void CRender2D::RenderFrameTop(void)
 {
+	CompletePreparedLayers();
 	Setup2D(false);
 	DrawSurface(m_textureIDs[1]);
 }
 
+void CRender2D::DrawPreparedLayer(bool bottom, GLuint target, int x, int y, int width, int height, bool preserveAlpha)
+{
+	const int layer = bottom ? 0 : 1;
+	if (!m_surfacePrepared[layer] || width <= 0 || height <= 0) return;
+	GLint framebuffer, drawBuffer, program, vao, viewport[4], scissorBox[4], activeTexture, texture;
+	GLint srcRGB, dstRGB, srcAlpha, dstAlpha, eqRGB, eqAlpha;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &framebuffer);
+	glGetIntegerv(GL_DRAW_BUFFER, &drawBuffer);
+	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
+	glGetIntegerv(GL_BLEND_SRC_RGB, &srcRGB); glGetIntegerv(GL_BLEND_DST_RGB, &dstRGB);
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &srcAlpha); glGetIntegerv(GL_BLEND_DST_ALPHA, &dstAlpha);
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &eqRGB); glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &eqAlpha);
+	const GLboolean depth = glIsEnabled(GL_DEPTH_TEST), cull = glIsEnabled(GL_CULL_FACE);
+	const GLboolean blend = glIsEnabled(GL_BLEND), stencil = glIsEnabled(GL_STENCIL_TEST);
+	const GLboolean scissor = glIsEnabled(GL_SCISSOR_TEST);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+	glDrawBuffer(target ? GL_COLOR_ATTACHMENT0 : GL_BACK);
+	// Preserve the native tile/3D two-pixel registration at the eye's scale.
+	const int correction = int(double(height) / 384.0 * 2.0 + 0.5);
+	glViewport(x - correction, y + correction, width, height);
+	glEnable(GL_SCISSOR_TEST); glScissor(x, y, width, height);
+	glDisable(GL_DEPTH_TEST); glDisable(GL_CULL_FACE); glDisable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
+	if (preserveAlpha) glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	else glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	m_drawShader.EnableShader();
+	glBindVertexArray(m_vao);
+	glBindTexture(GL_TEXTURE_2D, m_textureIDs[layer]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(activeTexture);
+	glBindVertexArray(vao); glUseProgram(program);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer); glDrawBuffer(drawBuffer);
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+	glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+	glBlendEquationSeparate(eqRGB, eqAlpha);
+	if (depth) glEnable(GL_DEPTH_TEST);
+	if (cull) glEnable(GL_CULL_FACE);
+	if (stencil) glEnable(GL_STENCIL_TEST);
+	if (!blend) glDisable(GL_BLEND);
+	if (!scissor) glDisable(GL_SCISSOR_TEST);
+}
+
+CRender2D::PreparedLayerState CRender2D::PreparedLayerState::Capture()
+{
+	PreparedLayerState state;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &state.framebuffer);
+	glGetIntegerv(GL_DRAW_BUFFER, &state.drawBuffer);
+	glGetIntegerv(GL_CURRENT_PROGRAM, &state.program);
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &state.vao);
+	glGetIntegerv(GL_VIEWPORT, state.viewport);
+	glGetIntegerv(GL_SCISSOR_BOX, state.scissorBox);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &state.activeTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &state.texture);
+	glActiveTexture(state.activeTexture);
+	glGetIntegerv(GL_BLEND_SRC_RGB, &state.srcRGB); glGetIntegerv(GL_BLEND_DST_RGB, &state.dstRGB);
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &state.srcAlpha); glGetIntegerv(GL_BLEND_DST_ALPHA, &state.dstAlpha);
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &state.eqRGB); glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &state.eqAlpha);
+	state.depth = glIsEnabled(GL_DEPTH_TEST); state.cull = glIsEnabled(GL_CULL_FACE);
+	state.blend = glIsEnabled(GL_BLEND); state.stencil = glIsEnabled(GL_STENCIL_TEST);
+	state.scissor = glIsEnabled(GL_SCISSOR_TEST);
+	return state;
+}
+
+void CRender2D::PreparedLayerState::Restore() const
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(activeTexture);
+	glBindVertexArray(vao); glUseProgram(program);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer); glDrawBuffer(drawBuffer);
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+	glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+	glBlendEquationSeparate(eqRGB, eqAlpha);
+	if (depth) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+	if (cull) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+	if (stencil) glEnable(GL_STENCIL_TEST); else glDisable(GL_STENCIL_TEST);
+	if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+	if (scissor) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+}
+
+bool CRender2D::PreparedLayerState::Equals(const PreparedLayerState& other) const
+{
+	for (int i = 0; i < 4; ++i)
+		if (viewport[i] != other.viewport[i] || scissorBox[i] != other.scissorBox[i]) return false;
+	return framebuffer == other.framebuffer && drawBuffer == other.drawBuffer &&
+		program == other.program && vao == other.vao && activeTexture == other.activeTexture && texture == other.texture &&
+		srcRGB == other.srcRGB && dstRGB == other.dstRGB && srcAlpha == other.srcAlpha && dstAlpha == other.dstAlpha &&
+		eqRGB == other.eqRGB && eqAlpha == other.eqAlpha && depth == other.depth && cull == other.cull &&
+		blend == other.blend && stencil == other.stencil && scissor == other.scissor;
+}
+
+void CRender2D::DrawPreparedLayerOwned(bool bottom, GLuint target, int x, int y, int width, int height,
+	bool preserveAlpha, const PreparedLayerState& restoreState)
+{
+	const int layer = bottom ? 0 : 1;
+	if (!m_surfacePrepared[layer] || width <= 0 || height <= 0) return;
+	// Same rasterization as DrawPreparedLayer; only the source of restore state
+	// differs. No uploads, waits, allocation or driver state queries occur here.
+	glActiveTexture(GL_TEXTURE0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+	glDrawBuffer(target ? GL_COLOR_ATTACHMENT0 : GL_BACK);
+	const int correction = int(double(height) / 384.0 * 2.0 + 0.5);
+	glViewport(x - correction, y + correction, width, height);
+	glEnable(GL_SCISSOR_TEST); glScissor(x, y, width, height);
+	glDisable(GL_DEPTH_TEST); glDisable(GL_CULL_FACE); glDisable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
+	if (preserveAlpha) glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	else glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	m_drawShader.EnableShader();
+	glBindVertexArray(m_vao);
+	glBindTexture(GL_TEXTURE_2D, m_textureIDs[layer]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	restoreState.Restore();
+}
+
 void CRender2D::EndFrame(void)
 {
+	// Includes blank/error/no-HUD paths. The native worker-wait presentations
+	// and SyncSnapshots buffer rotation happen only after this boundary.
+	CompletePreparedLayers();
 }
 
 
@@ -414,12 +583,19 @@ void CRender2D::AttachVRAM(const uint8_t* vramPtr)
 
 void CRender2D::AttachDrawBuffers(std::shared_ptr<TileGenBuffer> bottom, std::shared_ptr<TileGenBuffer> top)
 {
+	// Normally EndFrame has already completed the upload. This also protects
+	// explicit buffer replacement/load callers from transferring the next
+	// snapshot under a pending request for the previous one.
+	CompletePreparedLayers();
 	m_drawBuffers[0] = bottom;
 	m_drawBuffers[1] = top;
 }
 
 Result CRender2D::Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsigned yRes, unsigned totalXRes, unsigned totalYRes, unsigned aaTarget, UpscaleMode upscaleMode)
 {
+	CompletePreparedLayers();
+	m_tileUploadPending = false;
+	m_surfacePrepared[0] = m_surfacePrepared[1] = false;
 	// Resolution
 	m_xPixels		= xRes;
 	m_yPixels		= yRes;
@@ -449,6 +625,7 @@ Result CRender2D::Init(unsigned xOffset, unsigned yOffset, unsigned xRes, unsign
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_upscaleMode == UpscaleMode::Nearest ? GL_NEAREST : GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 496, 384, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	}
+	for (auto& tracker : m_tileUploadTracker) tracker.Reset();
 
 	return Result::OKAY;
 }

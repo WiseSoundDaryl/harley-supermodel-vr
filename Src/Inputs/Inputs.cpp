@@ -757,7 +757,7 @@ void CInputs::PrintInputs(const Game *game)
 	puts("");
 }
 
-bool CInputs::Poll(const Game *game, unsigned dispX, unsigned dispY, unsigned dispW, unsigned dispH)
+bool CInputs::Poll(const Game *game, unsigned dispX, unsigned dispY, unsigned dispW, unsigned dispH, bool pollGame)
 {
 	// Update the input system with the current display geometry
 	m_system->SetDisplayGeom(dispX, dispY, dispW, dispH);
@@ -767,13 +767,23 @@ bool CInputs::Poll(const Game *game, unsigned dispX, unsigned dispY, unsigned di
 		return false;
 
 	// Poll all UI inputs and all the inputs used by the current game, or all inputs if game is NULL
-	uint32_t gameFlags = game ? game->inputs : Game::INPUT_ALL;
+	uint32_t gameFlags = game ? game->inputs : uint32_t(Game::INPUT_ALL);
 	for (auto it = m_inputs.begin(); it != m_inputs.end(); ++it)
 	{
-		if ((*it)->IsUIInput() || ((*it)->gameFlags & gameFlags))
+		if ((*it)->IsUIInput() || (pollGame && ((*it)->gameFlags & gameFlags)))
 			(*it)->Poll();
 	}
 	return true;
+}
+
+void CInputs::PollGameInputs(const Game *game)
+{
+	const uint32_t gameFlags = game ? game->inputs : uint32_t(Game::INPUT_ALL);
+	for (auto& input : m_inputs)
+	{
+		if (!input->IsUIInput() && (input->gameFlags & gameFlags))
+			input->Poll();
+	}
 }
 
 void CInputs::DumpState(const Game *game)

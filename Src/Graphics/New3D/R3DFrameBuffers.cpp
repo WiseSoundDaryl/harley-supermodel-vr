@@ -80,10 +80,12 @@ Result R3DFrameBuffers::CreateFBODepthCopy(int width, int height)
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderBufferIDCopy);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	// check setup was successful
+	// This target has no color attachment. Validate the depth-copy target while
+	// it is bound, not the default framebuffer that happens to be bound later.
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return (fboStatus == GL_FRAMEBUFFER_COMPLETE) ? Result::OKAY : Result::FAIL;
 }
@@ -287,12 +289,13 @@ void R3DFrameBuffers::AllocShaderTrans()
 	m_shaderTrans.uniformLoc[1] = m_shaderTrans.GetUniformLocation("tex2");
 }
 
-void R3DFrameBuffers::Draw()
+void R3DFrameBuffers::Draw(bool preserveAlpha)
 {
 	glViewport	(0, 0, m_width, m_height);			// cover the entire screen
 	glDisable	(GL_DEPTH_TEST);					// disable depth testing / writing
 	glDisable	(GL_CULL_FACE);
-	glBlendFunc	(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (preserveAlpha) glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	else glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable	(GL_BLEND);
 
 	for (int i = 0; i < (int)std::size(m_texIDs); i++) {	// bind our textures to correct texture units
@@ -305,6 +308,7 @@ void R3DFrameBuffers::Draw()
 
 	DrawBaseLayer		();
 	DrawAlphaLayer		();
+	if (preserveAlpha) glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDisable			(GL_BLEND);
 	glBindVertexArray	(0);
