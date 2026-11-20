@@ -8,20 +8,13 @@
 
 **Experience Harley-Davidson & L.A. Riders from the rider's seat in PC VR.**
 
+<p align="center"><a href="Docs/Images/gameplay-preview.webp"><img src="Docs/Images/gameplay-preview.gif" width="480" alt="First-person ride through Los Angeles traffic with a glance down at the bike" /></a><br /><sub>October 2026 PSVR2 development build, recorded from the SteamVR mirror. Select the animation for a larger view.</sub></p>
+
 Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
 > **First Windows release in development.** There is no public player download yet. Follow [release status](Docs/RELEASE-STATUS.md) for availability and upcoming work.
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
-
-<details>
-<summary><strong>Watch 20 seconds of first-person riding</strong></summary>
-
-![First-person ride through Los Angeles traffic with a glance down at the bike](Docs/Images/gameplay-preview.webp)
-
-Gameplay from an October 2026 PSVR2 development build, recorded from the SteamVR mirror.
-
-</details>
 
 ## The ride
 
