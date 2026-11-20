@@ -12,7 +12,7 @@
 
 Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
-> **Windows beta v0.1.0-beta.1.** The [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) lists published downloads. Choose **HarleyVR-Windows-x64.zip** for play.
+> **First Windows beta** · [Download HarleyVR for Windows](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/download/v0.1.0-beta.1/HarleyVR-Windows-x64.zip) · [Release notes and source](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.1)
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 

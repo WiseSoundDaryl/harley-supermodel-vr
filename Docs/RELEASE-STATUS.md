@@ -1,6 +1,6 @@
 # Windows beta status
 
-**v0.1.0-beta.1** identifies the first Windows beta candidate. The [Releases page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases) lists published assets. The player download is **HarleyVR-Windows-x64.zip**. Three separate source downloads cover the two emulator editions and the Windows launchers. [File checksums](BETA-SHA256SUMS.txt)
+**The first Windows beta was released on November 20, 2026.** [Download the Windows player](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/download/v0.1.0-beta.1/HarleyVR-Windows-x64.zip) or visit the [release page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.1) for the two emulator source archives, launcher source and checksums.
 
 | Headset | Edition | Playtest evidence |
 | --- | --- | --- |
