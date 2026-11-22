@@ -25,6 +25,13 @@ JsonCpp is linked into the OpenXR loader; it has no separate DLL. Package versio
 
 Project references: [Khronos OpenXR SDK](https://github.com/KhronosGroup/OpenXR-SDK), [GCC Runtime Library Exception](https://www.gnu.org/licenses/gcc-exception-3.1.html), [SDL2](https://github.com/libsdl-org/SDL/tree/SDL2), [SDL_net](https://github.com/libsdl-org/SDL_net), [zlib](https://zlib.net/zlib_license.html), [MinGW-w64](https://www.mingw-w64.org/).
 
+### SDL2 component notices
+
+These two notices accompany the SDL 2.32.10 code included in both Windows editions. When sharing a copy of the beta 1 player ZIP, include both full texts alongside it.
+
+- **YUV-to-RGB video conversion.** Copyright 2016 Adrien Descamps. The BSD 3-Clause license includes the copyright notice, redistribution conditions and disclaimer for this component. [Full license](licenses/SDL2-yuv2rgb-LICENSE.txt)
+- **HIDAPI controller access.** Copyright 2009 Alan Ott, Signal 11 Software. HIDAPI offers three licensing options. Its original notice is reproduced here. [Full original notice](licenses/SDL2-HIDAPI-LICENSE-orig.txt) · [Upstream licensing options](https://github.com/libsdl-org/SDL/blob/5d249570393f7a37e037abf22cd6012a4cc56a71/src/hidapi/LICENSE.txt)
+
 ## Embedded components
 
 - **GLEW:** [copyright and license notices](licenses/GLEW-vendored-notices.txt), including Nigel Stewart, Mesa/Brian Paul and Khronos.

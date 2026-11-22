@@ -96,6 +96,9 @@ foreach($name in $required) {
 $critical=@('OpenXR-Apache-2.0.txt','GCC-GPL-3.0.txt','GCC-Runtime-Library-Exception-3.1.txt',
     'winpthreads-COPYING.txt','MinGW-w64-runtime-notices.txt','SDL2-LICENSE.txt','SDL2_net-LICENSE.txt',
     'zlib-LICENSE.txt','Dear-ImGui-LICENSE.txt','Dear-ImGui-SOURCE.json','BarlowCondensed-OFL.txt','RussoOne-OFL.txt')
+# The current source gate includes the beta 1 supplement. Package-only checks
+# also support the original ZIP, whose own manifest predates the supplement.
+if($SourceRoot){$critical+=@('SDL2-yuv2rgb-LICENSE.txt','SDL2-HIDAPI-LICENSE-orig.txt')}
 foreach($name in $critical){if(!$requiredSet.Contains($name)){throw "Known critical notice omitted from RequiredFiles: $name"}}
 $seen=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
 foreach($entry in $entries) {

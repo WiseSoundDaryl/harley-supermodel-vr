@@ -274,6 +274,22 @@
       "verbatimCopyVerified": true
     },
     {
+      "file": "SDL2-HIDAPI-LICENSE-orig.txt",
+      "sha256": "FB5436AA63D1B71A8DFBF74ECAF1A5B4E1EC4DF7F80074D11FEC99284F69CA5F",
+      "bytes": 264,
+      "provenance": "https://github.com/libsdl-org/SDL/blob/5d249570393f7a37e037abf22cd6012a4cc56a71/src/hidapi/LICENSE-orig.txt",
+      "package": "SDL 2.32.10",
+      "verbatimCopyVerified": true
+    },
+    {
+      "file": "SDL2-yuv2rgb-LICENSE.txt",
+      "sha256": "F7D74004CC75778CAE46C5F0139F244D67C07EF64CF51937E8272352197DCB18",
+      "bytes": 1480,
+      "provenance": "https://github.com/libsdl-org/SDL/blob/5d249570393f7a37e037abf22cd6012a4cc56a71/src/video/yuv2rgb/LICENSE",
+      "package": "SDL 2.32.10",
+      "verbatimCopyVerified": true
+    },
+    {
       "file": "SDL2_net-LICENSE.txt",
       "sha256": "1C040B8271B37E5076359F8FD54240E371114112924D2DF81EF87C7D6A1DFDFD",
       "bytes": 884,
@@ -379,6 +395,8 @@
     "ProggyVector-LICENSE.txt",
     "RussoOne-OFL.txt",
     "SDL2-LICENSE.txt",
+    "SDL2-HIDAPI-LICENSE-orig.txt",
+    "SDL2-yuv2rgb-LICENSE.txt",
     "SDL2_net-LICENSE.txt",
     "minimp3-CC0-1.0.txt",
     "minimp3-vendored-dedication.txt",
