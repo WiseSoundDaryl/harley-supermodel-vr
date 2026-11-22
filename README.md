@@ -16,7 +16,7 @@ Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 
-**Using a Quest on PC?** If you connect through Steam Link or otherwise run SteamVR, open **HarleyVR-SteamVR.exe**. If you use Meta Horizon Link or Air Link directly, open **HarleyVR-Meta.exe** with SteamVR closed. Both run on your Windows PC. Quest playtesting is still pending. [Steam Link setup](https://help.steampowered.com/en/faqs/view/0E2C-406B-9135-38A4) · [Meta Link setup](https://www.meta.com/help/quest/509273027107091/)
+**Using a Quest on PC?** One Quest player reported successful riding through SteamVR after relaunching the game. Start **HarleyVR-SteamVR.exe** if you use Steam Link or another SteamVR connection. For direct Meta PC VR, enter a wired Quest Link or Air Link session, close SteamVR, and open **HarleyVR-Meta.exe**. Direct Meta on Quest is still unconfirmed. [Steam Link setup](https://help.steampowered.com/en/faqs/view/0E2C-406B-9135-38A4) · [Meta Link setup](https://www.meta.com/help/quest/509273027107091/)
 
 ## The ride
 
@@ -46,7 +46,7 @@ Regular arcade play is the default in both editions. In the SteamVR edition, cho
 
 ## SteamVR ride menu
 
-The SteamVR edition opens with the ride menu. You can bring it up again during play to adjust comfort, camera position, display quality and audio, or enter the original arcade settings. The Meta PC VR edition opens directly into the arcade game.
+The SteamVR edition opens with the ride menu. You can bring it up again during play to adjust comfort, camera position and audio, or enter the original arcade settings. The Meta PC VR edition opens directly into the arcade game.
 
 <table>
 <tr>
@@ -65,13 +65,15 @@ Click the **left stick** to open or close the menu. You can also hold the **left
 ## Getting started
 
 1. Extract the entire **HarleyVR-Windows-x64.zip** into a writable folder.
-2. Put your own Revision B archive at `ROMs/harleyb.zip`. Leave it zipped.
+2. Put your own complete **Export, Revision B** set at `ROMs/harleyb.zip`. If you already own the standalone Revision B set as `harley.zip`, copy it into `ROMs` and name the copy `harleyb.zip`. Leave it zipped.
 3. Choose the launcher for the PC VR software you use. **HarleyVR.exe** also lets you pick either edition.
 
 | Edition | Open first | Launch |
 | --- | --- | --- |
 | **SteamVR** | SteamVR, with your headset and controllers ready | **HarleyVR-SteamVR.exe**. Choose **Enter game** in the ride menu. |
 | **Meta PC VR** | Meta Horizon Link, with SteamVR closed | **HarleyVR-Meta.exe**. The arcade game starts directly. |
+
+**Want a sharper picture in SteamVR?** At startup, open **Graphics → Render quality** and select **Quality (100%)**, then choose **Back → Enter game**. A fresh install uses **Performance (50%)**. **Balanced (75%)** is a middle option if Quality affects smoothness. The percentages apply to SteamVR’s recommended width and height per eye.
 
 In the arcade game, **X / Square** inserts a coin and **A / Cross** starts a ride. The Meta launcher temporarily disables Asynchronous Spacewarp and restores your previous setting on exit.
 
@@ -118,6 +120,7 @@ The driving camera softens bumps and impacts, and a binocular vignette narrows p
 ## Known limitations
 
 - **Original visibility limits:** traffic, pedestrians or scenery can disappear when the game stops drawing them outside its original camera view.
+- **Upside-down view on first launch:** one Quest player saw the road and HUD inverted through SteamVR. Relaunching the game restored the view in that session. [Troubleshooting](Docs/TROUBLESHOOTING.md#the-game-appears-upside-down)
 - **Object animation:** some vehicle and helicopter components still move at the original game's animation rate.
 - **Vignette detection:** hills can occasionally trigger the comfort mask.
 - **Text and overlays:** selection and credits depth have been improved; occasional clipping may remain elsewhere.

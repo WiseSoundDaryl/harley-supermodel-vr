@@ -8,13 +8,13 @@ GitHub's source-code archive is for developers. Download the **Windows player ZI
 
 ## Missing game
 
-Place your own compatible Revision B archive at `ROMs/harleyb.zip` in the extracted player folder. Do not unzip or rename an unrelated set. No game files or ROM download links are supplied by this project.
+Beta 1 looks for `ROMs/harleyb.zip` in the extracted player folder. The game is **Harley-Davidson & L.A. Riders (Export, Revision B)**. If your complete standalone Revision B archive is named `harley.zip`, make a copy in `ROMs` named `harleyb.zip`. Keep it zipped. Revision A and mixed-revision archives are unsuitable for this beta.
 
 ## Choose your VR runtime
 
 **SteamVR.** Start SteamVR, confirm it sees your headset and controllers, then open `HarleyVR-SteamVR.exe`. For a PlayStation VR2 headset, first complete setup in Sony’s PlayStation VR2 App with its PC adapter.
 
-**Meta PC VR.** Confirm your headset works in Meta Horizon Link. Leave it open, close SteamVR and launch `HarleyVR-Meta.exe` to use Meta’s OpenXR runtime directly.
+**Meta PC VR.** Open Meta Horizon Link on the PC. On Quest, enter a wired Quest Link or wireless Air Link session in the headset. Once connected, close SteamVR and launch `HarleyVR-Meta.exe`. If you are using the Steam Link app in your headset, use `HarleyVR-SteamVR.exe` instead. If the direct Meta launcher fails, include its exact message, your headset model and your connection method when reporting it.
 
 See [tested hardware](RELEASE-STATUS.md) for the headsets used in playtests.
 
@@ -28,6 +28,14 @@ Start with the Meta launcher and its default settings. If an interrupted session
 
 Sit in your playing position, look ahead and click the right stick or press keyboard **Home** with the game window focused. In the SteamVR edition, this also repositions the ride menu when it is open. The regular camera follows the bike's heading as you look around.
 
+## The game appears upside down
+
+One Quest player reported an upside-down road and HUD on the first SteamVR launch. Exiting and reopening HarleyVR restored the view. If this happens to you, exit the game. Before relaunching, keep a copy of `Supermodel.log` from the game folder. When reporting it, mention whether the view was inverted inside the headset, in the desktop VR View, or both, and whether the SteamVR dashboard appeared upright.
+
+## The SteamVR image looks soft
+
+Open **Graphics → Render quality** in the startup menu. Select **Quality (100%)**, then **Back → Enter game**. If Quality causes stutter, try **Balanced (75%)**. A fresh install uses **Performance (50%)**. Each percentage scales the width and height of each eye from SteamVR’s recommended size. If Quality still looks soft, include the two `OpenXR eye` lines from the gameplay session’s `Supermodel.log` and how the headset connects to the PC.
+
 ## Opening or leaving the ride menu
 
 In the **SteamVR edition**, focus the game window and press **Escape**, **Tab** or **Alt+P** to open the ride menu. Escape/Backspace goes back one page or closes the main page. Tab/Alt+P toggles the whole panel. Choose **Exit game** and confirm to quit.
@@ -38,7 +46,7 @@ In the **Meta PC VR edition**, **Escape** exits the game and **Alt+P** pauses or
 
 ## Uneven motion
 
-Start with the default settings. In the SteamVR edition, a lower **Headset render quality** setting can reduce GPU load after restarting the game. If the problem continues, note whether the whole view stutters or only nearby vehicles or helicopter rotors appear jerky. Include the location, headset, CPU/GPU and render quality in your report.
+In the SteamVR edition, a lower **Graphics → Render quality** preset at startup can reduce GPU load. If the problem continues, note whether the whole view stutters or only nearby vehicles or helicopter rotors appear jerky. Include the location, headset, CPU/GPU and render quality in your report.
 
 ## Controller vibration and wheel force feedback
 

@@ -35,7 +35,7 @@ The headset's system/Home button is not a HarleyVR menu binding. Click the **lef
 | Rider height / camera pullback | Changes the seated camera offset, in game units rather than metres | On Resume |
 | Virtual screen width | Changes the apparent width of theater screens, from 40–100 degrees | Immediately |
 | Desktop FOV | Changes the desktop preview's field of view | On Resume; unavailable in headset sessions |
-| Headset render quality | 50% Performance, 75% Balanced or 100% Quality of the runtime's recommended eye dimensions | **Startup → Enter game** |
+| Graphics → Render quality | Performance (50%, default), Balanced (75%) or Quality (100%) of SteamVR's recommended width and height per eye | Choose at startup, then **Back → Enter game** |
 
 Higher render quality gives a sharper image and requires more GPU power. It leaves the headset refresh rate and lens FOV unchanged. Camera stabilization and the dark surroundings of theater screens remain active when the vignette is off. Some hills may still trigger the vignette when enabled.
 
