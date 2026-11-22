@@ -64,6 +64,6 @@ The Windows player package keeps settings in `Config`, progress in `Saves` and c
 
 ## Reporting a problem
 
-On the [HarleyVR repository](https://github.com/WiseSoundDaryl/harley-supermodel-vr), choose **Issues → New issue → Bug report** when the tracker is open. If you received a test build directly, you can also send the same details to the person who shared it.
+For beta 1, reply in the community thread where HarleyVR was shared, such as the [public launch thread on r/VRGaming](https://www.reddit.com/r/VRGaming/comments/1y1gvm4/harleydavidson_la_riders_pcvr_mod_out_now/). If you received a test build directly, you can also send your report to the person who shared it.
 
 Include the build, headset, runtime, render preset, headset refresh rate (if known), PC specifications and steps to reproduce the problem. For a riding hitch, include the rider and the road or landmark where it happened. Remove personal paths from log excerpts. Never upload ROMs, save states or private account data.
