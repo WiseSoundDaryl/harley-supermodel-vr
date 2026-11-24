@@ -15,6 +15,7 @@ namespace HarleyVRLauncher
     {
         internal string Route;
         internal bool CheckOnly;
+        internal bool DesktopGraphics;
         internal static Options Parse(string[] args, string executable)
         {
             var value = new Options();
@@ -27,6 +28,7 @@ namespace HarleyVRLauncher
                 if (arg == "--meta") route = "Meta";
                 else if (arg == "--steamvr") route = "SteamVR";
                 else if (arg == "--check") value.CheckOnly = true;
+                else if (arg == "--desktop-graphics") { value.DesktopGraphics = true; route = "Meta"; }
                 else throw new ArgumentException("Unknown option: " + arg);
                 if (route != null)
                 {
@@ -35,6 +37,7 @@ namespace HarleyVRLauncher
                 }
             }
             if (value.CheckOnly && value.Route == null) throw new ArgumentException("Use --meta or --steamvr with --check.");
+            if (value.CheckOnly && value.DesktopGraphics) throw new ArgumentException("Choose a graphics menu or a read-only check.");
             return value;
         }
     }
@@ -43,6 +46,35 @@ namespace HarleyVRLauncher
     {
         internal int ExitCode;
         internal string Message;
+    }
+
+    internal enum MetaRenderPreset { Performance, Balanced, Quality }
+
+    internal static class MetaGraphics
+    {
+        internal static MetaRenderPreset ReadPreset(string root)
+        {
+            string path = Path.Combine(root, "Config", "HarleyVRMetaGraphics.ini");
+            try
+            {
+                using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                using (var reader = new StreamReader(file))
+                {
+                    if (file.Length <= 128)
+                    {
+                        string setting = reader.ReadLine();
+                        if (reader.ReadLine() == null)
+                        {
+                            if (setting == "RenderPreset=Performance") return MetaRenderPreset.Performance;
+                            if (setting == "RenderPreset=Quality") return MetaRenderPreset.Quality;
+                        }
+                    }
+                }
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+            return MetaRenderPreset.Balanced;
+        }
     }
 
     internal static class Runner
@@ -63,9 +95,11 @@ namespace HarleyVRLauncher
             return text.ToString();
         }
 
-        internal static ProcessStartInfo StartInfo(string root, string route, bool checkOnly)
+        internal static ProcessStartInfo StartInfo(string root, string route, bool checkOnly, MetaRenderPreset? preset = null)
         {
             if (route != "Meta" && route != "SteamVR") throw new ArgumentException("Unsupported headset route.");
+            if (preset.HasValue && (route != "Meta" || checkOnly || !Enum.IsDefined(typeof(MetaRenderPreset), preset.Value)))
+                throw new ArgumentException("Choose a render preset when starting the Meta PC VR edition.");
             string windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             string powershell = Path.Combine(windows, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
             var info = new ProcessStartInfo();
@@ -73,7 +107,7 @@ namespace HarleyVRLauncher
             info.WorkingDirectory = Path.GetFullPath(root);
             info.Arguments = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File " +
                 Quote(Path.Combine(info.WorkingDirectory, "HarleyVR-Start.ps1")) + " -Runtime " + route +
-                (checkOnly ? " -PreflightOnly" : "");
+                (checkOnly ? " -PreflightOnly" : "") + (preset.HasValue ? " -MetaRenderPreset " + preset.Value : "");
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
             info.WindowStyle = ProcessWindowStyle.Hidden;
@@ -82,7 +116,7 @@ namespace HarleyVRLauncher
             return info;
         }
 
-        internal static Result Run(string root, string route, bool checkOnly)
+        internal static Result Run(string root, string route, bool checkOnly, MetaRenderPreset? preset = null)
         {
             string script = Path.Combine(root, "HarleyVR-Start.ps1");
             if (!File.Exists(script)) return new Result { ExitCode = 1, Message = "Extract the complete HarleyVR ZIP before playing. HarleyVR-Start.ps1 is missing beside this launcher." };
@@ -99,7 +133,7 @@ namespace HarleyVRLauncher
             };
             using (var process = new Process())
             {
-                process.StartInfo = StartInfo(root, route, checkOnly);
+                process.StartInfo = StartInfo(root, route, checkOnly, preset);
                 process.OutputDataReceived += collect; process.ErrorDataReceived += collect;
                 if (!process.Start()) throw new InvalidOperationException("The launcher could not start.");
                 process.BeginOutputReadLine(); process.BeginErrorReadLine();
@@ -118,7 +152,14 @@ namespace HarleyVRLauncher
         private readonly Button meta;
         private readonly Button steam;
         private readonly Label status;
-        internal LaunchWindow(string packageRoot, string autoRoute)
+        private readonly Panel routes = new Panel();
+        private readonly Panel graphics = new Panel();
+        private readonly RadioButton performance;
+        private readonly RadioButton balanced;
+        private readonly RadioButton quality;
+        private readonly Button start;
+        private readonly Button back;
+        internal LaunchWindow(string packageRoot, string autoRoute, bool desktopGraphics)
         {
             root = packageRoot;
             Text = "HarleyVR";
@@ -132,33 +173,79 @@ namespace HarleyVRLauncher
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 11);
             var title = new Label { Text = "HARLEYVR", Location = new Point(28, 20), AutoSize = true, Font = new Font("Segoe UI", 32, FontStyle.Bold), ForeColor = Color.FromArgb(255, 211, 99) };
-            var caption = new Label { Text = "Choose your headset. Your ride menu opens in VR.", Location = new Point(32, 90), Size = new Size(520, 28) };
-            meta = MakeButton("PLAY WITH META\r\nRift S / Meta Horizon Link", 32, 135);
-            steam = MakeButton("PLAY WITH STEAMVR\r\nPSVR2 / SteamVR", 300, 135);
-            status = new Label { Text = "Open the matching headset software first.\r\nFor Rift S, leave Meta Horizon Link open and SteamVR closed.", Location = new Point(32, 245), Size = new Size(520, 58) };
-            var help = new LinkLabel { Text = "Add HarleyVR to your Steam library", Location = new Point(32, 325), Size = new Size(420, 28), LinkColor = Color.FromArgb(255, 211, 99), ActiveLinkColor = Color.White };
-            help.LinkClicked += delegate { MessageBox.Show(this, "In Steam, choose Games > Add a Non-Steam Game. Browse to HarleyVR-SteamVR.exe in this folder and add it.\r\n\r\nMark the shortcut for your VR library if that option is available in Steam. You can then try it from the headset library. This does not install the game or enable Steam updates.\r\n\r\nUse the Meta launcher directly for Rift S; it keeps SteamVR out of that route.", "HarleyVR in Steam", MessageBoxButtons.OK, MessageBoxIcon.Information); };
-            Controls.AddRange(new Control[] { title, caption, meta, steam, status, help });
+            routes.Bounds = graphics.Bounds = new Rectangle(0, 86, 580, 304);
+            graphics.Visible = false;
+            var caption = new Label { Text = "Choose the VR software you're using on this PC.", Location = new Point(32, 4), Size = new Size(520, 28) };
+            meta = MakeButton("META PC VR\r\nOpen headset graphics", 32, 49);
+            steam = MakeButton("STEAMVR\r\nOpen the ride menu", 300, 49);
+            status = new Label { Text = "For direct Meta PC VR, open Meta Horizon Link and close SteamVR.\r\nOn Quest, enter wired Link or Air Link for direct Meta. If you use Steam Link, connect to SteamVR first.", Location = new Point(32, 159), Size = new Size(520, 70) };
+            var desktopLink = new LinkLabel { Text = "Meta graphics on this PC", Location = new Point(32, 232), Size = new Size(500, 28), LinkColor = Color.FromArgb(255, 211, 99), ActiveLinkColor = Color.White };
+            desktopLink.LinkClicked += delegate { OpenGraphics(); };
+            var help = new LinkLabel { Text = "Add HarleyVR to your Steam library", Location = new Point(32, 265), Size = new Size(500, 28), LinkColor = Color.FromArgb(255, 211, 99), ActiveLinkColor = Color.White };
+            help.LinkClicked += delegate { MessageBox.Show(this, "In Steam, choose Games > Add a Non-Steam Game. Browse to HarleyVR-SteamVR.exe in this folder and add it.\r\n\r\nMark the shortcut for your VR library if that option is available in Steam. You can then launch it from the headset library.", "HarleyVR in Steam", MessageBoxButtons.OK, MessageBoxIcon.Information); };
+            routes.Controls.AddRange(new Control[] { caption, meta, steam, status, desktopLink, help });
+            var graphicsTitle = new Label { Text = "Meta PC VR render quality", Font = new Font("Segoe UI", 17, FontStyle.Bold), Location = new Point(32, 0), Size = new Size(520, 36) };
+            var graphicsInfo = new Label { Text = "Applies when the game starts. Each percentage scales the width and height Meta recommends for each eye.", Location = new Point(32, 39), Size = new Size(520, 48) };
+            performance = PresetButton("&Performance (50%)", 90, 0);
+            balanced = PresetButton("&Balanced (75%)", 129, 1);
+            quality = PresetButton("&Quality (100%)", 168, 2);
+            back = new Button { Text = desktopGraphics ? "Cancel" : "Back", TabIndex = 4, Location = new Point(32, 224), Size = new Size(144, 52), UseVisualStyleBackColor = true, ForeColor = SystemColors.ControlText };
+            start = MakeButton("Start arcade game", 296, 224);
+            start.Size = new Size(250, 52);
+            start.TabIndex = 3;
+            graphics.Controls.AddRange(new Control[] { graphicsTitle, graphicsInfo, performance, balanced, quality, start, back });
+            Controls.AddRange(new Control[] { title, routes, graphics });
+
+            back.Click += delegate {
+                if (desktopGraphics) { Close(); return; }
+                graphics.Visible = false;
+                routes.Visible = true;
+                AcceptButton = null;
+                CancelButton = null;
+                meta.Select();
+            };
+            start.Click += async delegate {
+                var preset = quality.Checked ? MetaRenderPreset.Quality : performance.Checked ? MetaRenderPreset.Performance : MetaRenderPreset.Balanced;
+                await Launch("Meta", preset);
+            };
             meta.Click += async delegate { await Launch("Meta"); };
             steam.Click += async delegate { await Launch("SteamVR"); };
             FormClosing += delegate(object sender, FormClosingEventArgs e) { if (busy) { e.Cancel = true; Hide(); } };
-            if (autoRoute != null) Shown += async delegate { await Launch(autoRoute); };
+            if (desktopGraphics) OpenGraphics();
+            else if (autoRoute != null) Shown += async delegate { await Launch(autoRoute); };
+        }
+        private static RadioButton PresetButton(string caption, int y, int tabIndex)
+        {
+            return new RadioButton { Text = caption, Location = new Point(36, y), Size = new Size(510, 36), TabIndex = tabIndex, Font = new Font("Segoe UI", 13) };
+        }
+        private void OpenGraphics()
+        {
+            var saved = MetaGraphics.ReadPreset(root);
+            var selected = saved == MetaRenderPreset.Quality ? quality : saved == MetaRenderPreset.Performance ? performance : balanced;
+            routes.Visible = false;
+            graphics.Visible = true;
+            selected.Checked = true;
+            selected.Select();
+            AcceptButton = start;
+            CancelButton = back;
         }
         private Button MakeButton(string text, int x, int y)
         {
             return new Button { Text = text, Location = new Point(x, y), Size = new Size(248, 90), BackColor = Color.FromArgb(255, 211, 99), ForeColor = Color.FromArgb(15, 35, 50), FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 12, FontStyle.Bold), UseVisualStyleBackColor = false };
         }
-        private async Task Launch(string route)
+        private async Task Launch(string route, MetaRenderPreset? preset = null)
         {
             if (busy) return;
             busy = true; meta.Enabled = steam.Enabled = false; Hide();
             Result result;
-            try { result = await Task.Run(() => Runner.Run(root, route, false)); }
+            try { result = await Task.Run(() => Runner.Run(root, route, false, preset)); }
             catch (Exception error) { result = new Result { ExitCode = 1, Message = error.Message }; }
             busy = false;
             if (result.ExitCode == 0) { Close(); return; }
             Show(); Activate(); meta.Enabled = steam.Enabled = true;
-            status.Text = "The game could not start or finish normally. Your other applications were left running.";
+            status.Text = route == "Meta" && !preset.HasValue
+                ? "If headset graphics did not open, choose Meta graphics on this PC to start from the desktop."
+                : "The game could not start or finish normally. Check the message for details.";
             MessageBox.Show(this, String.IsNullOrWhiteSpace(result.Message) ? "Please check the extracted package and headset software." : result.Message, "HarleyVR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
@@ -181,7 +268,7 @@ namespace HarleyVRLauncher
                 }
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new LaunchWindow(root, options.Route));
+                Application.Run(new LaunchWindow(root, options.Route, options.DesktopGraphics));
                 return 0;
             }
             catch (Exception error)

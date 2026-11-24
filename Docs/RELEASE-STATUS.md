@@ -2,6 +2,8 @@
 
 **The first Windows beta was released on November 20, 2026.** [Download the Windows player](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/download/v0.1.0-beta.1/HarleyVR-Windows-x64.zip) or visit the [release page](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.1) for the two emulator source archives, launcher source and checksums.
 
+**Optional Meta graphics beta.** [Beta 2](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.2) adds a headset and desktop resolution selector. Both editions use the same riding executables as beta 1. The new headset menu and the handoff to the game still need a physical Meta playtest.
+
 | Edition | Headset tested | Playtest evidence |
 | --- | --- | --- |
 | SteamVR | PlayStation VR2 with Sony's PC adapter | The player reported smooth long runs in both Quality and Performance on the reference PC at a configured 120 Hz. |
@@ -9,7 +11,7 @@
 
 **Community Quest playtest, November 21.** One player reported riding successfully through SteamVR after relaunching HarleyVR. The road and HUD appeared upside down on the first launch. The same player could not start the direct Meta edition. The Quest model, connection method and launcher error have yet to be confirmed. [Quest setup and troubleshooting](TROUBLESHOOTING.md#choose-your-vr-runtime)
 
-The SteamVR edition includes the startup and in-game ride menu, camera and comfort adjustments, graphics presets and the optional Dream Ride mode. The Meta PC VR edition starts directly in the original arcade interface. Its launcher temporarily disables Meta Asynchronous Spacewarp and restores the recorded setting on exit.
+The SteamVR edition includes the startup and in-game ride menu, camera and comfort adjustments, graphics presets and the optional Dream Ride mode. In beta 1, Meta PC VR starts directly in the original arcade interface. Its launcher temporarily disables Meta Asynchronous Spacewarp and restores the recorded setting on exit.
 
 Both edition-specific source archives reproduced their reference executables byte-for-byte. Both editions booted from fresh extractions with factory settings. The SteamVR executable passed automated checks for all five riders in automatic and manual transmission.
 

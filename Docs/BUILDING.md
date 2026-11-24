@@ -17,7 +17,7 @@ The beta uses two Windows x64 executables. The repository's `Src/` and `Makefile
 
 ## Build the launchers
 
-The launcher source asset includes the Windows C# launcher, its tests, the portable scripts, the packaging recipe and its clean installation data. Its README describes how to build the three entry points and assemble the Windows player ZIP. The regular PowerShell integrity checks and inert test fixtures under `packaging/` can run independently. The GitHub publication workflow stays disabled.
+The beta 2 launcher source asset includes the Windows C# launcher, the C++ OpenXR headset graphics menu, their tests, the portable scripts, the packaging recipe and its clean installation data. Its README describes how to build the three entry points and the Meta graphics menu, then assemble the Windows player ZIP. The regular PowerShell integrity checks and inert test fixtures under `packaging/` can run independently. The GitHub publication workflow stays disabled.
 
 ## Dependency source archives
 

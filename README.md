@@ -13,6 +13,8 @@
 Cruise the streets of Los Angeles, look into a corner and choose your ride in 3D. HarleyVR is an unofficial VR conversion built on the [Supermodel emulator](https://github.com/trzy/Supermodel), with stereoscopic depth, independent head tracking and VR controller support.
 
 > **First Windows beta** · [Download HarleyVR for Windows](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/download/v0.1.0-beta.1/HarleyVR-Windows-x64.zip) · [Release notes and source](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.1)
+
+> **Optional Meta graphics beta** · [Download beta 2 and see setup instructions](https://github.com/WiseSoundDaryl/harley-supermodel-vr/releases/tag/v0.1.0-beta.2). Choose the resolution in your headset before riding, or choose **Meta graphics on this PC** in **HarleyVR.exe**. Headset testing of the new menu is still open.
 >
 > **Bring your own game.** HarleyVR requires a legally obtained **Revision B** ROM set, `harleyb.zip`. ROMs are not included; please do not request or upload them here.
 
@@ -46,7 +48,7 @@ Regular arcade play is the default in both editions. In the SteamVR edition, cho
 
 ## SteamVR ride menu
 
-The SteamVR edition opens with the ride menu. You can bring it up again during play to adjust comfort, camera position and audio, or enter the original arcade settings. The Meta PC VR edition opens directly into the arcade game.
+The SteamVR edition opens with the ride menu. You can bring it up again during play to adjust comfort, camera position and audio, or enter the original arcade settings. The optional Meta graphics beta adds a resolution choice before the arcade game starts.
 
 <table>
 <tr>
@@ -71,7 +73,7 @@ Click the **left stick** to open or close the menu. You can also hold the **left
 | Edition | Open first | Launch |
 | --- | --- | --- |
 | **SteamVR** | SteamVR, with your headset and controllers ready | **HarleyVR-SteamVR.exe**. Choose **Enter game** in the ride menu. |
-| **Meta PC VR** | Meta Horizon Link, with SteamVR closed | **HarleyVR-Meta.exe**. The arcade game starts directly. |
+| **Meta PC VR** | Meta Horizon Link, with SteamVR closed | **HarleyVR-Meta.exe**. In beta 2, choose a graphics preset with the right Touch stick and press **A** to start. Beta 1 opens the arcade game directly. |
 
 **Want a sharper picture in SteamVR?** At startup, open **Graphics → Render quality** and select **Quality (100%)**, then choose **Back → Enter game**. A fresh install uses **Performance (50%)**. **Balanced (75%)** is a middle option if Quality affects smoothness. The percentages apply to SteamVR’s recommended width and height per eye.
 

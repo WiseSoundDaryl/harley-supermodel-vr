@@ -1,7 +1,8 @@
 #requires -Version 5.1
 # USER PLAY ONLY. Automated checks must use -PreflightOnly; never launch with sound.
 [CmdletBinding()]
-param([ValidateSet('Meta','SteamVR')][string]$Runtime = 'SteamVR', [switch]$PreflightOnly)
+param([ValidateSet('Meta','SteamVR')][string]$Runtime = 'SteamVR', [switch]$PreflightOnly,
+      [ValidateSet('Performance','Balanced','Quality')][string]$MetaRenderPreset)
 
 $ErrorActionPreference = 'Stop'
 # A shortcut started by a PowerShell 7 host can pass its module path into Windows
@@ -14,15 +15,27 @@ $root = [IO.Path]::GetFullPath($PSScriptRoot)
 $issues = New-Object 'System.Collections.Generic.List[string]'
 $bin = "bin\$Runtime"
 $exe = Join-Path $root "$bin\supermodel.exe"
-$rom = Join-Path $root 'ROMs\harleyb.zip'
 $manifestPath = Join-Path $root 'release-ready.json'
 . (Join-Path $root 'HarleyVR-Runtime.ps1')
 . (Join-Path $root 'HarleyVR-Meta-ASW.ps1')
 . (Join-Path $root 'HarleyVR-SessionModes.ps1')
 . (Join-Path $root 'HarleyVR-LaunchOptions.ps1')
 . (Join-Path $root 'Quality-Policy.ps1')
+$desktopMetaChoice = $PSBoundParameters.ContainsKey('MetaRenderPreset')
+if ($desktopMetaChoice -and $Runtime -ne 'Meta') { throw 'Choose a Meta graphics preset only with the direct Meta launcher.' }
+$preset = 'Balanced'
+if ($Runtime -eq 'Meta') {
+    . (Join-Path $root 'HarleyVR-Meta-Graphics.ps1')
+    $metaPreferences = Join-Path $root 'Config\HarleyVRMetaGraphics.ini'
+    $pickerExe = Join-Path $root "$bin\HarleyVR-Meta-Graphics.exe"
+    $preset = if ($desktopMetaChoice) {
+        [Globalization.CultureInfo]::InvariantCulture.TextInfo.ToTitleCase($MetaRenderPreset.ToLowerInvariant())
+    } else { Get-HarleyVRMetaRenderPreset $metaPreferences }
+}
+$selection = Get-HarleyVRRomSelection (Join-Path $root 'ROMs') (Join-Path $root 'Config\Games.xml')
+$rom = $selection.Path
 $preferencesPath = Join-Path $root 'Config\HarleyVRMenu.ini'
-[string[]]$tokens = @($rom) + @(Get-HarleyVRLaunchOptions $Runtime)
+[string[]]$tokens = @($rom) + @(Get-HarleyVRLaunchOptions $Runtime -MetaRenderPreset $preset)
 [string[]]$restartTokens = @($rom) + @(Get-HarleyVRLaunchOptions $Runtime -AfterStartup)
 $initialTokens = if ($Runtime -eq 'SteamVR') { @(Get-HarleyVRVisibilityTokens $tokens $preferencesPath) } else { $tokens }
 $arguments = ConvertTo-HarleyVRCommandLine $initialTokens
@@ -66,6 +79,7 @@ $immutable = @(
     'HarleyVR-SessionModes.ps1', 'HarleyVR-LaunchOptions.ps1', 'HarleyVR-Start.ps1','Quality-Policy.ps1',
     "HarleyVR-$Runtime.exe"
 )
+if ($Runtime -eq 'Meta') { $immutable += @('HarleyVR-Meta-Graphics.ps1', "$bin\HarleyVR-Meta-Graphics.exe") }
 try {
     $licenseManifest = Get-Content -LiteralPath (Join-Path $root 'Docs\licenses\SHA256.json') -Raw | ConvertFrom-Json
     foreach ($leaf in $licenseManifest.RequiredFiles) {
@@ -92,9 +106,7 @@ foreach ($name in $immutable) {
 if (-not (Test-Path -LiteralPath (Join-Path $root 'Config\Supermodel.ini') -PathType Leaf)) {
     $issues.Add('Default configuration is missing: Config\Supermodel.ini')
 }
-if (-not (Test-Path -LiteralPath $rom -PathType Leaf)) {
-    $issues.Add('Add your own legally obtained Revision B ROM set as ROMs\harleyb.zip. ROM files are not supplied.')
-}
+if ($selection.Issue) { $issues.Add($selection.Issue) }
 $packageReady = $issues.Count -eq 0
 
 $runtimePath = $null
@@ -112,12 +124,17 @@ $steamRunning = [bool](Get-Process -Name vrserver,vrcompositor -ErrorAction Sile
 if ($Runtime -eq 'Meta') {
     $metaProcesses = @(Get-Process -Name OVRServer_x64 -ErrorAction SilentlyContinue)
     $runtimeRunning = $metaProcesses.Count -eq 1
-    if (-not $runtimeRunning) { $issues.Add('Open Meta Horizon Link and confirm Rift S and both controllers are ready before using the Meta launcher.') }
+    if ($metaProcesses.Count -eq 0) {
+        $issues.Add('Open Meta Horizon Link on the PC and check that your headset is connected. On Quest, enter Quest Link using a USB cable or Air Link. If you are using the Steam Link app, open HarleyVR-SteamVR.exe.')
+    } elseif ($metaProcesses.Count -gt 1) {
+        $issues.Add('Multiple Meta runtime services are running. Restart Meta Horizon Link, reconnect the headset, then open HarleyVR-Meta.exe again.')
+    }
     if ($runtimeRunning -and $runtimeInfo) {
         $expectedService = Join-Path (Split-Path -Parent $runtimeLibrary) 'OVRServer_x64.exe'
         if ([string]$metaProcesses[0].Path -ine $expectedService) { $issues.Add('The running Meta service does not match the selected installed runtime. Close other VR software and use the matching Meta installation.') }
     }
-    if ($steamRunning) { $issues.Add('Close SteamVR normally before using the direct Meta launcher. It has not been stopped automatically.') }
+    if ($steamRunning) { $issues.Add('SteamVR is running. For Quest Link, Air Link, or Rift, exit SteamVR before opening HarleyVR-Meta.exe. To play through SteamVR, including Steam Link, open HarleyVR-SteamVR.exe.') }
+    if (Get-Process -Name 'HarleyVR-Meta-Graphics' -ErrorAction SilentlyContinue) { $issues.Add('The Meta headset graphics menu is already open. Use the menu in the headset or exit it before starting a new ride.') }
 } else {
     $runtimeRunning = [bool](Get-Process -Name vrserver -ErrorAction SilentlyContinue) -and [bool](Get-Process -Name vrcompositor -ErrorAction SilentlyContinue)
     if (-not $runtimeRunning) { $issues.Add('Open SteamVR and connect the headset and controllers before starting the game.') }
@@ -133,6 +150,8 @@ $result = [pscustomobject]@{
     ROM = $rom
     Arguments = $arguments
     StartupMenu = ($Runtime -eq 'SteamVR')
+    MetaGraphicsMenu = ($Runtime -eq 'Meta' -and -not $desktopMetaChoice)
+    MetaRenderPreset = $(if ($Runtime -eq 'Meta') { $preset })
     MaximumStartupSettingsRestarts = [int]($Runtime -eq 'SteamVR')
     SessionContract = 2
     SupportedRestartCodes = @(if ($Runtime -eq 'SteamVR') {75,76,77,78,79,80})
@@ -181,8 +200,8 @@ if ($Runtime -eq 'Meta') {
     Write-Host 'A: start. X: coin. Left stick: steer. Right trigger: gas. Left trigger: brake.'
     Write-Host 'Y: view. B: music. Right stick click: recenter. Both grips for 2 seconds: exit.'
 } else {
-    Write-Host 'Cross: start. Square: coin. Left stick: steer. R2: gas. L2: brake.'
-    Write-Host 'Triangle: view. Circle: music. R3: recenter. Both grips for 2 seconds: exit.'
+    Write-Host 'A / Cross: start. X / Square: coin. Left stick: steer. Right trigger: gas. Left trigger: brake.'
+    Write-Host 'Y / Triangle: view. B / Circle: music. Right stick click: recenter. Both grips for 2 seconds: exit.'
 }
 
 # Child-only environment: no global or parent-process runtime changes.
@@ -200,6 +219,11 @@ try {
         if (-not $ownsMutex) { throw 'Another HarleyVR Meta launcher is active. Close its game normally first.' }
         $runner = New-MetaAswRunner $runtimeInfo.DiagnosticCLI
         $null = Repair-MetaAswPending -Path $journal -Runner $runner
+        if (-not $desktopMetaChoice) {
+            $preset = Invoke-HarleyVRMetaGraphicsPicker -Executable $pickerExe -RuntimeManifest $runtimePath -WorkingDirectory $root -Preset $preset
+            if (-not $preset) { return }
+            $tokens = @($rom) + @(Get-HarleyVRLaunchOptions Meta -MetaRenderPreset $preset)
+        }
         $asw = Start-MetaAswGuard -Path $journal -Runner $runner
     }
     $makeChild = {
@@ -221,6 +245,8 @@ try {
             $started = $child.Start()
             if (-not $started) { throw 'The game process did not start.' }
             Set-MetaAswGame $asw $child
+            try { Set-HarleyVRMetaRenderPreset $metaPreferences $preset }
+            catch { Write-Warning "The ride is running at $preset. Windows could not save that preset for next time." }
             $child.WaitForExit()
             if ($child.ExitCode -ne 0) { throw "The game exited with code $($child.ExitCode). See Supermodel.log." }
         } finally {

@@ -40,6 +40,7 @@ def main():
     for section, directory in (("common","data"),("scripts","packaging")):
         collect(HERE/directory,layout[section],data)
     collect(a.launchers,("HarleyVR.exe","HarleyVR-Meta.exe","HarleyVR-SteamVR.exe"),data)
+    collect(a.launchers,("HarleyVR-Meta-Graphics.exe",),data,"bin/Meta/")
     for route, directory in (("Meta",a.meta),("SteamVR",a.steamvr)):
         collect(directory,("supermodel.exe",*DLLS),data,"bin/"+route+"/")
     if a.verified_release:

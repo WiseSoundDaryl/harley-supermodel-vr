@@ -20,6 +20,8 @@ See [tested hardware](RELEASE-STATUS.md) for the headsets used in playtests.
 
 ## Distorted images or uneven motion in Meta PC VR
 
+If the beta 2 headset graphics menu fails to appear, open **HarleyVR.exe** on the PC, choose **Meta graphics on this PC**, pick your preset and start the game. This skips the headset menu and still requires an active Meta PC VR connection. **Balanced (75%)** matches the original Meta riding preset. Mention whether the headset or desktop path worked when reporting the issue.
+
 The Meta launcher temporarily disables **Asynchronous Spacewarp (ASW)** during play and restores its previous setting after normal exit. HarleyVR's own scene interpolation stays enabled to smooth motion between the arcade game's frames.
 
 Start with the Meta launcher and its default settings. If an interrupted session leaves a restoration message, keep the recovery information and follow the launcher's instructions before changing ASW manually.

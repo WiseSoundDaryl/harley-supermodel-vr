@@ -2,6 +2,7 @@
   "scripts": [
     "HarleyVR-LaunchOptions.ps1",
     "HarleyVR-Meta-ASW.ps1",
+    "HarleyVR-Meta-Graphics.ps1",
     "HarleyVR-Runtime.ps1",
     "HarleyVR-SessionModes.ps1",
     "HarleyVR-Start.ps1",
@@ -41,7 +42,9 @@
     "Docs/licenses/ProggyClean-MIT.txt",
     "Docs/licenses/ProggyVector-LICENSE.txt",
     "Docs/licenses/RussoOne-OFL.txt",
+    "Docs/licenses/SDL2-HIDAPI-LICENSE-orig.txt",
     "Docs/licenses/SDL2-LICENSE.txt",
+    "Docs/licenses/SDL2-yuv2rgb-LICENSE.txt",
     "Docs/licenses/SDL2_net-LICENSE.txt",
     "Docs/licenses/SHA256.json",
     "Docs/licenses/minimp3-CC0-1.0.txt",

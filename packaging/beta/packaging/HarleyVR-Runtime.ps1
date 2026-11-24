@@ -36,7 +36,12 @@ function Read-HarleyVRRuntime([string]$Path, [ValidateSet('Meta','SteamVR')][str
     $diagnostic = $null
     if ($Route -eq 'Meta') {
         $diagnostic = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $library) '..\oculus-diagnostics\OculusDebugToolCLI.exe'))
-        if (-not (Test-Path -LiteralPath $diagnostic -PathType Leaf)) { throw 'Installed Meta diagnostic command tool is missing.' }
+        if (-not (Test-Path -LiteralPath $diagnostic -PathType Leaf)) {
+            $errorMessage = 'The Meta OpenXR runtime was found, but OculusDebugToolCLI.exe is missing. Repair the Meta Horizon Link PC installation, then reopen HarleyVR-Meta.exe.'
+            throw [Management.Automation.ErrorRecord]::new(
+                [IO.FileNotFoundException]::new($errorMessage, $diagnostic), 'HarleyVR.MetaDiagnosticMissing',
+                [Management.Automation.ErrorCategory]::ObjectNotFound, $diagnostic)
+        }
     }
     [pscustomobject]@{Route=$Route;Manifest=$Path;Library=$library;DiagnosticCLI=$diagnostic}
 }
@@ -71,9 +76,14 @@ function Get-HarleyVRRuntimeCandidates([ValidateSet('Meta','SteamVR')][string]$R
 }
 function Find-HarleyVRRuntime([ValidateSet('Meta','SteamVR')][string]$Route, [string[]]$Candidates) {
     if (-not $PSBoundParameters.ContainsKey('Candidates')) { $Candidates = @(Get-HarleyVRRuntimeCandidates $Route) }
+    $missingDiagnostic = $null
     foreach ($candidate in $Candidates) {
-        try { return Read-HarleyVRRuntime $candidate $Route } catch { continue }
+        try { return Read-HarleyVRRuntime $candidate $Route }
+        catch {
+            if ($_.FullyQualifiedErrorId -eq 'HarleyVR.MetaDiagnosticMissing') { $missingDiagnostic = $_ }
+        }
     }
+    if ($missingDiagnostic) { throw $missingDiagnostic }
     throw "No valid installed $Route x64 OpenXR runtime was found. Complete the headset software installation; the system default was not changed."
 }
 function New-HarleyVRGameStartInfo([string]$Executable, [string]$Arguments, [string]$WorkingDirectory, [string]$RuntimeManifest) {
